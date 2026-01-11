@@ -76,18 +76,28 @@ def get_ai_insights():
             print(f"Error reading {file_path}: {e}")
 
     prompt = f"""
-    You are an AI assistant for a Swift Student Challenge developer.
-    Here is the current project documentation:
+    You are an AI Mentor for a student developer building 'Remi' for the Apple Swift Student Challenge 2026.
+    'Remi' is an app to help memory/dementia patients and their families by scanning photos to recall memories and relationships.
+    
+    Your goal is to guide the student to build a prize-winning app that demonstrates:
+    - Technical Excellence (SwiftUI, SwiftData, advanced APIs)
+    - Creativity & Innovation
+    - Great Design & Accessibility
+    
+    Here is the current project documentation context:
     {docs_content}
     
     Based on this, generate:
-    1. A list of 5 concise, actionable next steps for the developer.
-    2. A motivational quote tailored to the project context (building a memory/dementia aid app).
+    1. A list of 5 concise, high-impact actionable next steps. Focus on:
+       - Implementing core features (Memory Timeline, Face Scanning)
+       - Polishing UI/UX (Animations, Transitions)
+       - Preparing for submission (Essays, Video)
+    2. A deeply motivating quote about memory, legacy, or coding that resonates with the mission of Remi.
     
     Format the output exactly as JSON:
     {{
-        "steps": ["step 1", "step 2", "step 3", "step 4", "step 5"],
-        "quote": "your quote here"
+        "steps": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+        "quote": "Quote text"
     }}
     """
     
