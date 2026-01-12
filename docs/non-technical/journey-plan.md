@@ -29,8 +29,8 @@
 - Think about the entire flow of the onboarding
 - Walking the user through the problem in the onboarding (tell a story)
 - Somehow showing the user the demo of the app without them having to scan anyone’s faces, but have all the options available to them to scan their own or someone else’s faces and see the app running in action
-- Learn strategies to make your design iPad-first (things like \&#96;NavigationSplitView\&#96;, etc. This requires a learning curve)
-- Place accessibility at the forefront (be sure to integrate it in each part of the app, ensure you are in compliance with screen accessibility WCAG, etc.) (things like \&#96;.accessibilityLabel("")\&#96;, dynamic type (text scales based off of system settings))
+- Learn strategies to make your design iPad-first (things like `NavigationSplitView`, etc. This requires a learning curve)
+- Place accessibility at the forefront (be sure to integrate it in each part of the app, ensure you are in compliance with screen accessibility WCAG, etc.) (things like `.accessibilityLabel("")`, dynamic type (text scales based off of system settings))
 - **Create a Polished README/Documentation:** Write a clear, engaging, and error-free document that explains your app's purpose, how to use it, and the technical decisions you made. This is crucial for the judges.
 - **Develop a "Wow" Moment:** Design a specific interaction or visual effect that is delightful, memorable, and demonstrates high-quality craftsmanship.
 - **Implement Haptics and Sound:** Use subtle haptic feedback and system sounds to enhance the user experience and provide tactile confirmation for key actions.
@@ -39,12 +39,12 @@
 
 - You need to swap your Microsoft dependencies for Apple equivalents to show off your Swift skills.
 
-| Current Tech (Microsoft) | New Tech (Apple SSC)          | Why?                                                                                                                                     |
-| ------------------------ | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Azure Face API**       | **Vision Framework**          | Shows you know how to use Core Image and Vision for on-device ML.                                                                        |
-| **Azure OpenAI**         | **NaturalLanguage Framework** | Use \&#96;NLEmbedding\&#96; or simple logic for "conversation starters." If you _must_ use GenAI, ensure it fails gracefully if offline. |
-| **Azure Web App**        | **SwiftData / Core Data**     | Shows mastery of persistent local storage.                                                                                               |
-| **React/Native Code**    | **SwiftUI**                   | Mandatory. Use the latest SwiftUI features (e.g., iOS 17/18 APIs) to impress judges.                                                     |
+| Current Tech (Microsoft) | New Tech (Apple SSC)          | Why?                                                                                                                           |
+| ------------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Azure Face API**       | **Vision Framework**          | Shows you know how to use Core Image and Vision for on-device ML.                                                              |
+| **Azure OpenAI**         | **NaturalLanguage Framework** | Use `NLEmbedding` or simple logic for "conversation starters." If you _must_ use GenAI, ensure it fails gracefully if offline. |
+| **Azure Web App**        | **SwiftData / Core Data**     | Shows mastery of persistent local storage.                                                                                     |
+| **React/Native Code**    | **SwiftUI**                   | Mandatory. Use the latest SwiftUI features (e.g., iOS 17/18 APIs) to impress judges.                                           |
 
 - **Code Quality and Style:** Review your code for clean, idiomatic Swift. Ensure consistent naming conventions and clear commenting, especially for complex logic.
 - **Error Handling and Graceful Failure:** Implement robust error handling, particularly around permissions (e.g., Camera, Photos) and resource loading, to ensure the app never crashes.
