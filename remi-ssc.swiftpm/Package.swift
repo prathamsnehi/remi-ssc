@@ -8,13 +8,13 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "remi-ssc",
+    name: "Remi",
     platforms: [
-        .iOS("16.0")
+        .iOS("18.0")
     ],
     products: [
         .iOSApplication(
-            name: "remi-ssc",
+            name: "Remi",
             targets: ["AppModule"],
             bundleIdentifier: "com.prathamsnehi.remi-ssc",
             teamIdentifier: "T296YJXC87",
@@ -31,7 +31,8 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
-            ]
+            ],
+            appCategory: .lifestyle
         )
     ],
     targets: [
