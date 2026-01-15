@@ -1,28 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-12 22:51:40
+### Last Updated: 2026-01-15 00:40:12
 
 ## 🚀 Time to Lift Off
-
-> **24 days, 1 hours, 8 minutes** until Feb 6, 2026.
+> **21 days, 23 hours, 19 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 5 of 30
-`[███░░░░░░░░░░░░░░░░░] 19.8%`
+Day 8 of 30
+`[█████░░░░░░░░░░░░░░░] 26.8%`
 
 ## 💾 Project Diet
-
 **Total Size**: 0.01 MB / 25 MB
 `[░░░░░░░░░░░░░░░░░░░░] 0.0%`
 
 ## 🧠 AI Captain's Orders
-
-- Integrate ARKit's `ARSessionDelegate` to detect `ARFaceAnchor` updates. When a face is detected, dynamically attach a `ModelEntity` (like the generated text card) to the face anchor's transform in RealityKit, providing real-time visual feedback.
-- Complete the face recognition pipeline by creating helper functions to crop `CGImage` to the detected face's bounding box and convert it to a `CVPixelBuffer` for CoreML. Then, implement the `MLMultiArray` to `[Double]` conversion to get the face embedding for cosine similarity comparison.
-- Set up your SwiftData `ModelContainer` and implement basic CRUD (Create, Read, Update, Delete) operations for `Friend` and `Memory` objects. Focus on saving new `Friend` profiles (including their face embedding) and associating new `Memory` entries, ensuring `mergeProfiles` can be used later.
-- Develop the initial SwiftUI `HomeView` with the "Scan Face" button. Implement the navigation flow to transition to your `ARFaceView` and design how identified person data (name, relation) will be passed back or displayed within the AR experience.
-- As you build the `HomeView` and `ARFaceView`, proactively incorporate accessibility features like `.accessibilityLabel` and `.accessibilityHint` for interactive elements. Also, ensure your basic layouts are responsive and consider how they will adapt for an iPad-first experience using views like `NavigationStack` or `NavigationSplitView`.
+- [ ] Refine your `ARFaceView` to detect specific `ARFaceAnchor` instances and dynamically attach the `textEntity` (showing name/relation) to the detected face's coordinate system, ensuring it moves naturally with the person's head.
+- [ ] Complete the `detectAndCropFace` function by implementing the actual `CGImage` cropping based on the `VNFaceObservation` bounding box and then resizing the result to 112x112, finally converting it into a `CVPixelBuffer` suitable for your `MobileFaceNet` model.
+- [ ] Integrate the full face recognition pipeline: when a face is detected in AR, pass the camera frame to `Vision` for face detection, crop the face, generate an embedding using `MobileFaceNet`, and then use cosine similarity to query against existing `Friend` embeddings stored in `SwiftData`.
+- [ ] Implement the `SwiftData` CRUD operations for `Friend` and `Memory` objects, focusing on the registration flow where a new face (embedding) is saved as a `Friend` and ensuring the `mergeProfiles` function is available when duplicate profiles are identified or explicitly merged by the user.
+- [ ] Enhance your `NaturalLanguage` conversation starter logic (e.g., `generateStarter` function) by iterating through more memory content to extract diverse keywords (nouns, verbs, named entities) and integrate these starters prominently into the `Friends Profile Screen` UI.
 
 ## ✨ Daily Fuel
-
-> "Great things are not done by impulse, but by a series of small things brought together."
+> "The journey of building Remi is not just about code; it's about crafting empathy, one memory at a time. Keep pushing the boundaries of what's possible with Swift and Apple's powerful frameworks."
