@@ -8,35 +8,59 @@
 import SwiftUI
 
 struct HomeActionButtons: View {
-    // We use closures (callbacks) so the parent view handles the actual navigation
-    var onRegisterTap: () -> Void
-    var onIdentifyTap: () -> Void
+    enum DisplayMode {
+        case ios
+        case ipad
+    }
+    
+    let mode: DisplayMode
+    
+    // Callbacks
+    var onScanFaceTap: () -> Void = {}
+    var onCameraTap: () -> Void = {}
+    var onPhotosTap: () -> Void = {}
+    var onIdentifyTap: () -> Void = {} // Kept for backward compatibility if needed, or reused
     
     var body: some View {
         HStack(spacing: 15) {
-            // Button A: Register / Meet
-            SelectionButton(
-                title: "New\nFriend",
-                icon: "person.badge.plus.fill",
-                backgroundColor: .blue,
-                foregroundColor: .white,
-                height: 120,
-                titleFont: .headline,
-                iconFont: .largeTitle,
-                action: onRegisterTap
-            )
             
-            // Button B: Identify
-            SelectionButton(
-                title: "Identify\nPerson",
-                icon: "person.fill.questionmark",
-                backgroundColor: Color("AppPrimary"),
-                foregroundColor: .white,
-                height: 120,
-                titleFont: .headline,
-                iconFont: .largeTitle,
-                action: onIdentifyTap
-            )
+            if mode == .ios {
+                // Single Button: "Scan Face"
+                SelectionButton(
+                    title: "Scan Face",
+                    icon: "faceid",
+                    backgroundColor: Color("AppPrimary"),
+                    foregroundColor: .white,
+                    height: 120,
+                    titleFont: .headline,
+                    iconFont: .largeTitle,
+                    action: onScanFaceTap
+                )
+            } else {
+                // Dual Buttons: "Scan from Camera" & "Scan from Photos"
+                SelectionButton(
+                    title: "Scan from\nCamera", // Preserving "form" typo if intent is strictly follow, but assuming "from" is correct.
+                    // Correcting to "from" for quality.
+                    icon: "camera.fill",
+                    backgroundColor: Color("AppPrimary"),
+                    foregroundColor: .white,
+                    height: 120,
+                    titleFont: .headline,
+                    iconFont: .largeTitle,
+                    action: onCameraTap
+                )
+                
+                SelectionButton(
+                    title: "Scan from\nPhotos",
+                    icon: "photo.fill.on.rectangle.fill",
+                    backgroundColor: Color("AppPrimary"),
+                    foregroundColor: .white,
+                    height: 120,
+                    titleFont: .headline,
+                    iconFont: .largeTitle,
+                    action: onPhotosTap
+                )
+            }
         }
         .padding(.horizontal)
     }

@@ -9,41 +9,66 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.horizontalSizeClass) var sizeClass
+    
+    // Determine if we are effectively on iPad (Regular width)
+    var isiPad: Bool {
+        sizeClass == .regular
+    }
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 // Base Background
-                Color(colorScheme == .dark ? .black : UIColor(red: 0.94, green: 0.94, blue: 0.96, alpha: 1.0))
+                Color("AppBackground")
                     .ignoresSafeArea()
                 
                 // 1. Hero Section (Background Layer)
                 HomeHero()
                     .containerRelativeFrame(.vertical) { length, _ in length * 0.45 }
+                    // iPad adjustment: Push down by 100px so content is lower
+                    .padding(.top, isiPad ? 100 : 0)
                     .ignoresSafeArea(edges: .top)
                 
-                // 2. Content Layer (Buttons & Recent Interactions)
+                // 2. Content Layer
                 VStack(spacing: 0) {
-                    // Spacer to position buttons relative to the screen height
-                    // We want buttons to start at (0.40 * Height) - 30 (overlap)
+                    // Responsive Spacer
+                    // On iPad, we need more push since we added top padding to hero
                     Spacer()
-                        .containerRelativeFrame(.vertical) { length, _ in (length * 0.40) - 30}
+                        .containerRelativeFrame(.vertical) { length, _ in
+                            let baseOffset = (length * 0.40) - 30
+                            return isiPad ? baseOffset + 80 : baseOffset
+                        }
                     
                     HomeActionButtons(
-                        onRegisterTap: { }, // No-op as requested
-                        onIdentifyTap: { }  // No-op as requested
+                        mode: isiPad ? .ipad : .ios,
+                        onScanFaceTap: { print("San Face Tapped") },
+                        onCameraTap: { print("Camera Tapped") },
+                        onPhotosTap: { print("Photos Tapped") }
                     )
-                    // Shadow to give depth like the reference card
                     .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                    // Limit width on iPad for breathing room
+                    .frame(maxWidth: isiPad ? 600 : .infinity)
                     
-                    // 3. Recent Interactions Section
-                    RecentInteractions()
-                        .padding(.top, 40)
+                    // 3. Additional Content
+                    VStack(spacing: 40) {
+                        
+                        // New: Your Memories (iOS Only as per initial request, or both if fits)
+                        // Requirement said "On iOS... a new section Your Memories"
+                        // But iPad has "Recent Interactions". Let's show Memories on both for consistency unless space is tight.
+                        if !isiPad {
+                            MyMemoriesView()
+                        }
+                        
+                        // Recent Interactions Section
+                        RecentInteractions()
+                    }
+                    .padding(.top, 40) // Spacing from buttons
                     
                     Spacer()
                 }
                 .ignoresSafeArea(edges: .top)
+
             }
             .navigationTitle("Home")
             .navigationBarHidden(true)

@@ -95,35 +95,12 @@ struct UpdateOptionsSheet: View {
                 dismiss()
             }
         }
-        .sheet(isPresented: $showEditPerson) { StubView(title: "Edit Person Info") }
-        .sheet(isPresented: $showEditMemories) { StubView(title: "Edit Memories") }
+        .sheet(isPresented: $showEditPerson) { StubView(title: "Edit Person Info", iconName: "smile") }
+        .sheet(isPresented: $showEditMemories) { StubView(title: "Edit Memories", iconName: "smile") }
     }
 }
 
-// Temporary Stub View
-struct StubView: View {
-    let title: String
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "hammer.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.secondary)
-                Text("Implementation Coming Soon")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-            }
-            .navigationTitle(title)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
-                }
-            }
-        }
-    }
-}
+
 
 #Preview {
     UpdateOptionsSheet(person: Person(name: "Test", relation: "Friend", photoData: Data()))
