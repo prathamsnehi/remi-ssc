@@ -1,24 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-15 01:47:29
+### Last Updated: 2026-01-16 05:45:52
 
 ## 🚀 Time to Lift Off
-> **21 days, 22 hours, 12 minutes** until Feb 6, 2026.
+> **20 days, 18 hours, 14 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 8 of 30
-`[█████░░░░░░░░░░░░░░░] 26.9%`
+Day 9 of 30
+`[██████░░░░░░░░░░░░░░] 30.8%`
 
 ## 💾 Project Diet
 **Total Size**: 0.03 MB / 25 MB
 `[░░░░░░░░░░░░░░░░░░░░] 0.1%`
 
 ## 🧠 AI Captain's Orders
-- [ ] Bridge the gap between ARKit's live camera feed and Vision's face detection. Implement the ARSessionDelegate to capture ARFrame's, process them with VNDetectFaceRectanglesRequest, and extract the CVPixelBuffer for your MobileFaceNet model. This is the core engine for live face recognition.
-- [ ] Enhance the ARFaceView to dynamically attach RealityKit entities (like your 'glass card' with name/relation) to detected ARFaceAnchor's. Focus on precise placement relative to the user's head to create a magical and intuitive AR experience.
-- [ ] Develop your iPad-first homepage and navigation using NavigationSplitView. Design the main 'scan face' button prominently, and integrate the horizontal list of recent interactions gracefully within this layout, ensuring it feels native and intuitive on a larger screen.
-- [ ] Build out the user interface and logic for merging duplicate Friend profiles. Create a clear flow for identifying potential duplicates (e.g., if a new scan matches an existing Friend but the user registers them as new), presenting the merge option, and gracefully calling your `mergeProfiles` function.
-- [ ] Solidify the NaturalLanguage framework implementation for generating conversation starters. Focus on extracting meaningful nouns/topics from Memory content to make the suggestions truly relevant, ensuring this feature works reliably offline and without requiring Apple Intelligence.
+- [ ] Refactor the homepage layout to be iPad-first, specifically implementing the `NavigationSplitView` for horizontal iPadOS mode and adapting the hero section and button placements as detailed in `homepage.md`. Ensure the top tab bar offset is correctly handled for both orientations.
+- [ ] Build the foundational AR Face Scanning View by integrating `ARKit` and `RealityKit`. Focus on setting up `ARFaceView` to detect faces and render a dynamic 'glass card' next to them using `MeshResource.generateText`, laying the groundwork for displaying recognition results.
+- [ ] Implement the `Vision` framework for robust face detection and cropping. Prioritize creating the helper function mentioned in `implementations.md` to precisely crop the detected face to a `CVPixelBuffer` of 112x112, preparing the input for your `MobileFaceNet` model.
+- [ ] Integrate `SwiftData` to establish the `Friend` and `Memory` models, and crucially, implement the `mergeProfiles` function. This will allow Remi to intelligently consolidate duplicate person entries and their associated memories, demonstrating sophisticated data management.
+- [ ] Develop the `NaturalLanguage` based conversation starter logic. Implement the `generateStarter` function to extract key topics from `Memory` content and embed them into templates, providing personalized prompts even on devices without Apple Intelligence.
 
 ## ✨ Daily Fuel
-> "Memory is a way of holding onto the things you love, the things you are, the things you never want to lose."
+> "The journey of building 'Remi' is not just about writing code; it's about crafting a bridge to cherished memories. Every line you write strengthens that connection, making the 'unforgettable' truly permanent."
