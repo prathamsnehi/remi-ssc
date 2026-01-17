@@ -1,24 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-16 05:45:52
+### Last Updated: 2026-01-17 04:26:10
 
 ## 🚀 Time to Lift Off
-> **20 days, 18 hours, 14 minutes** until Feb 6, 2026.
+> **19 days, 19 hours, 34 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 9 of 30
-`[██████░░░░░░░░░░░░░░] 30.8%`
+Day 10 of 30
+`[██████░░░░░░░░░░░░░░] 33.9%`
 
 ## 💾 Project Diet
-**Total Size**: 0.03 MB / 25 MB
+**Total Size**: 0.04 MB / 25 MB
 `[░░░░░░░░░░░░░░░░░░░░] 0.1%`
 
 ## 🧠 AI Captain's Orders
-- [ ] Refactor the homepage layout to be iPad-first, specifically implementing the `NavigationSplitView` for horizontal iPadOS mode and adapting the hero section and button placements as detailed in `homepage.md`. Ensure the top tab bar offset is correctly handled for both orientations.
-- [ ] Build the foundational AR Face Scanning View by integrating `ARKit` and `RealityKit`. Focus on setting up `ARFaceView` to detect faces and render a dynamic 'glass card' next to them using `MeshResource.generateText`, laying the groundwork for displaying recognition results.
-- [ ] Implement the `Vision` framework for robust face detection and cropping. Prioritize creating the helper function mentioned in `implementations.md` to precisely crop the detected face to a `CVPixelBuffer` of 112x112, preparing the input for your `MobileFaceNet` model.
-- [ ] Integrate `SwiftData` to establish the `Friend` and `Memory` models, and crucially, implement the `mergeProfiles` function. This will allow Remi to intelligently consolidate duplicate person entries and their associated memories, demonstrating sophisticated data management.
-- [ ] Develop the `NaturalLanguage` based conversation starter logic. Implement the `generateStarter` function to extract key topics from `Memory` content and embed them into templates, providing personalized prompts even on devices without Apple Intelligence.
+- [ ] Implement the full iPadOS navigation strategy as outlined, utilizing `UITab`, `UITabGroup`, and setting `tabBarController.mode = .tabSidebar` to create a robust tab bar and sidebar, including the 'Quick Items' and 'Quick Register' groups.
+- [ ] Complete the core face recognition pipeline by implementing the helper function to crop the `CGImage` to the detected `boundingBox` and resize it to 112x112, then converting it to a `CVPixelBuffer` for the `MobileFaceNet` model.
+- [ ] Refine your AR interface by ensuring the 'glass card' (containing the person's name and relation) is correctly anchored to the detected `ARFaceAnchor` in `ARFaceView`, making it float next to their head using RealityKit.
+- [ ] Enhance the `mergeProfiles` SwiftData logic to intelligently handle the `facePrintData` of the two `Friend` profiles being merged. Consider strategies to consolidate or select the most accurate `facePrintData` for the consolidated profile.
+- [ ] Prioritize implementing the `NaturalLanguage` framework for conversation starters using `NLTagger`, as this offers broader device compatibility. Document `FoundationModels` as a potential future enhancement for Apple Intelligence-enabled devices.
 
 ## ✨ Daily Fuel
-> "The journey of building 'Remi' is not just about writing code; it's about crafting a bridge to cherished memories. Every line you write strengthens that connection, making the 'unforgettable' truly permanent."
+> "Design is not just what it looks like and feels like. Design is how it works. - Steve Jobs"
