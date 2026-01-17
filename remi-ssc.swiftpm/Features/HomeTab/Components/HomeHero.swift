@@ -10,6 +10,9 @@ import SwiftUI
 struct HomeHero: View {
     @Environment(\.colorScheme) var colorScheme
     
+    // Allow pushing content down without moving the background
+    var contentOffset: CGFloat = 0
+    
     var body: some View {
         // Recommendation: A very subtle tint of your Primary Green.
         // This adds "life" to the header without being dark like gray, and separates it from the plain white/gray background.
@@ -40,7 +43,7 @@ struct HomeHero: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                 }
-                .padding(.top, 70)
+                .padding(.top, 70 + contentOffset)
                 
                 // Fixed spacing to keep content positioning stable regardless of hero height
                 Spacer()

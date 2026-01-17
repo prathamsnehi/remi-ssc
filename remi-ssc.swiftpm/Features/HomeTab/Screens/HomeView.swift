@@ -24,10 +24,9 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 // 1. Hero Section (Background Layer)
-                HomeHero()
+                HomeHero(contentOffset: isiPad ? 100 : 0)
                     .containerRelativeFrame(.vertical) { length, _ in length * 0.45 }
-                    // iPad adjustment: Push down by 100px so content is lower
-                    .padding(.top, isiPad ? 100 : 0)
+                    // iPad adjustment: Content is pushed internally by contentOffset
                     .ignoresSafeArea(edges: .top)
                 
                 // 2. Content Layer
