@@ -22,7 +22,7 @@ struct HomeActionButtons: View {
     var onIdentifyTap: () -> Void = {} // Kept for backward compatibility if needed, or reused
     
     var body: some View {
-        HStack(spacing: 15) {
+        HStack(spacing: 20) {
             
             if mode == .ios {
                 // Single Button: "Scan Face"
@@ -49,6 +49,7 @@ struct HomeActionButtons: View {
                     iconFont: .largeTitle,
                     action: onCameraTap
                 )
+                .padding(.leading, 20)
                 
                 SelectionButton(
                     title: "Photos\nScan",
@@ -60,6 +61,7 @@ struct HomeActionButtons: View {
                     iconFont: .largeTitle,
                     action: onPhotosTap
                 )
+                .padding(.trailing, 20)
             }
         }
         .padding(.horizontal)

@@ -30,43 +30,67 @@ struct HomeHero: View {
             .ignoresSafeArea()
             
             // Hero Content
-            VStack(spacing: 0) {
-                // Top Logo Area
-                HStack(spacing: 8) {
-                    Image(systemName: "bookmark.fill") // Placeholder logo
-                        .foregroundColor(.primary)
-                    Text("remi")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                }
-                // custom padding, avoids dynamic island in iOS
-                // and avoids the top padding in iPadOS
-                .padding(.top, sizeClass == .compact ? 70 : 100)
-                
-                Spacer()
-                    .frame(height: 30)
-                
-                // Greeting Area
-                VStack(spacing: 10) {
-                    Image(systemName: "hand.wave.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.yellow)
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    // Top Logo Area
+                    HStack(spacing: 8) {
+                        Image(systemName: "bookmark.fill") // Placeholder logo
+                            .foregroundColor(.primary)
+                        Text("remi")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
+                    // custom padding, avoids dynamic island in iOS
+                    // and avoids the top padding in iPadOS
+                    .padding(.top, sizeClass == .compact ? 70 : 100)
+                    .frame(maxWidth: .infinity)
                     
-                    Text("Hi User,")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
+                    Spacer()
                     
-                    Text("Who is with you?")
-                        .font(.title3)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    // Greeting Area
+                    VStack(spacing: 12) {
+                        // ipad, the have wave is with the text
+                        // to accomodate larger font
+                        if (sizeClass == .regular) {
+                            HStack (spacing: 20) {
+                                Image(systemName: "hand.wave.fill")
+                                    .font(.system(size: sizeClass == .compact ? 24 : 32))
+                                    .foregroundColor(.yellow)
+                                
+                                Text("Hi User,")
+                                    .font(.system(size: sizeClass == .compact ? 36 : 48, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            
+                        } else {
+                            // normal separated wave and text for iphone
+                            Image(systemName: "hand.wave.fill")
+                                .font(.system(size: sizeClass == .compact ? 24 : 32))
+                                .foregroundColor(.yellow)
+                            
+                            Text("Hi User,")
+                                .font(.system(size: sizeClass == .compact ? 36 : 48, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                        }
+                        
+                        
+                        Text("Who is with you?")
+                            .font(sizeClass == .compact ? .title3 : .title2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .padding(0)
+                    
+                    Spacer() // Pushes content to the center of the remaining space
+                    
+                    // Visual Offset: 
+                    // Push the center "Up" by 15% to account for the gradient ending at 0.85
+                    Spacer()
+                        .frame(height: proxy.size.height * 0.15)
                 }
-                .padding(0)
-                
-                Spacer() // Pushes content to the top
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 0))
