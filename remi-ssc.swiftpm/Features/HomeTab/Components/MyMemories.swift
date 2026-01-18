@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MyMemoriesView: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
@@ -23,38 +25,51 @@ struct MyMemoriesView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.secondary)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, sizeClass == .regular ? 0 : 20) // Remove horizontal padding in grid mode if parent handles it
             
-            // Content (Horizontal Scroll)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    // Item 1: Upcoming Milestone
-                    DashboardCard(
-                        title: "Dad's Birthday",
-                        subtitle: "In 3 days",
-                        icon: "gift.fill",
-                        color: .orange
-                    )
-                    
-                    // Item 2: Random Memory
-                    DashboardCard(
-                        title: "Disneyland Trip",
-                        subtitle: "Remembering this day",
-                        icon: "photo.fill",
-                        color: .blue
-                    )
-                    
-                    // Item 3: Recurring Event
-                    DashboardCard(
-                        title: "Weekly Hiking",
-                        subtitle: "Every Sunday",
-                        icon: "figure.hiking",
-                        color: .green
-                    )
+            if sizeClass == .regular {
+                // iPad: Grid Layout
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    memoryItems
                 }
-                .padding(.horizontal, 20)
+            } else {
+                // iPhone: Horizontal Scroll
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        memoryItems
+                    }
+                    .padding(.horizontal, 20)
+                }
             }
         }
+    }
+    
+    // Extracted content to reuse in both layouts
+    @ViewBuilder
+    var memoryItems: some View {
+        // Item 1: Upcoming Milestone
+        DashboardCard(
+            title: "Dad's Birthday",
+            subtitle: "In 3 days",
+            icon: "gift.fill",
+            color: .orange
+        )
+        
+        // Item 2: Random Memory
+        DashboardCard(
+            title: "Disneyland Trip",
+            subtitle: "Remembering this day",
+            icon: "photo.fill",
+            color: .blue
+        )
+        
+        // Item 3: Recurring Event
+        DashboardCard(
+            title: "Weekly Hiking",
+            subtitle: "Every Sunday",
+            icon: "figure.hiking",
+            color: .green
+        )
     }
 }
 
@@ -86,7 +101,7 @@ private struct DashboardCard: View {
             }
         }
         .padding(16)
-        .frame(width: 160, height: 140, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 140, alignment: .topLeading)
         .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(

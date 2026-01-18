@@ -9,18 +9,15 @@ import SwiftUI
 
 struct HomeHero: View {
     @Environment(\.colorScheme) var colorScheme
-    
-    // Allow pushing content down without moving the background
-    var contentOffset: CGFloat = 0
+    @Environment(\.horizontalSizeClass) var sizeClass
     
     var body: some View {
-        // Recommendation: A very subtle tint of your Primary Green.
-        // This adds "life" to the header without being dark like gray, and separates it from the plain white/gray background.
+        
+        // Hero Gradient:
         let topColor = colorScheme == .dark ? Color("AppSurface") : Color(red: 0.90, green: 0.90, blue: 0.90)
         let bottomColor = Color("AppBackground")
         
         ZStack(alignment: .top) {
-            // Background Gradient
             LinearGradient(
                 stops: [
                     .init(color: topColor, location: 0.0),
@@ -32,7 +29,7 @@ struct HomeHero: View {
             )
             .ignoresSafeArea()
             
-            // Content
+            // Hero Content
             VStack(spacing: 0) {
                 // Top Logo Area
                 HStack(spacing: 8) {
@@ -43,9 +40,10 @@ struct HomeHero: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                 }
-                .padding(.top, 70 + contentOffset)
+                // custom padding, avoids dynamic island in iOS
+                // and avoids the top padding in iPadOS
+                .padding(.top, sizeClass == .compact ? 70 : 100)
                 
-                // Fixed spacing to keep content positioning stable regardless of hero height
                 Spacer()
                     .frame(height: 30)
                 

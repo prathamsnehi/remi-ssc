@@ -39,7 +39,7 @@ struct HomeActionButtons: View {
             } else {
                 // Dual Buttons: "Scan from Camera" & "Scan from Photos"
                 SelectionButton(
-                    title: "Scan from\nCamera", // Preserving "form" typo if intent is strictly follow, but assuming "from" is correct.
+                    title: "Camera\nAR Scan", // Preserving "form" typo if intent is strictly follow, but assuming "from" is correct.
                     // Correcting to "from" for quality.
                     icon: "camera.fill",
                     backgroundColor: Color("AppPrimary"),
@@ -51,7 +51,7 @@ struct HomeActionButtons: View {
                 )
                 
                 SelectionButton(
-                    title: "Scan from\nPhotos",
+                    title: "Photos\nScan",
                     icon: "photo.fill.on.rectangle.fill",
                     backgroundColor: Color("AppPrimary"),
                     foregroundColor: .white,

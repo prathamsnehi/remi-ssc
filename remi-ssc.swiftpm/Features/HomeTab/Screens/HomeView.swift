@@ -18,26 +18,21 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                // Base Background
-                Color("AppBackground")
-                    .ignoresSafeArea()
-                
-                // 1. Hero Section (Background Layer)
-                HomeHero(contentOffset: isiPad ? 100 : 0)
-                    .containerRelativeFrame(.vertical) { length, _ in length * 0.45 }
-                    // iPad adjustment: Content is pushed internally by contentOffset
-                    .ignoresSafeArea(edges: .top)
-                
-                // 2. Content Layer
-                VStack(spacing: 0) {
-                    // Responsive Spacer
-                    // On iPad, we need more push since we added top padding to hero
-                    Spacer()
-                        .containerRelativeFrame(.vertical) { length, _ in
-                            let baseOffset = (length * 0.40) - 30
-                            return isiPad ? baseOffset + 80 : baseOffset
+            VStack {
+                    HomeHero()
+                    .containerRelativeFrame(.vertical) {
+                        length, axis in
+                        // checking if is ipad or iphone:
+                        if isiPad {
+                            // ipad, screen height * 0.5
+                            return length * 0.5
+                            
+                        } else {
+                            // iphone, simply screen height * 0.45:
+                            return length * 0.45
                         }
+                        
+                    }
                     
                     HomeActionButtons(
                         mode: isiPad ? .ipad : .ios,
@@ -45,37 +40,106 @@ struct HomeView: View {
                         onCameraTap: { print("Camera Tapped") },
                         onPhotosTap: { print("Photos Tapped") }
                     )
-                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
-                    // Limit width on iPad for breathing room
-                    .frame(maxWidth: isiPad ? 600 : .infinity)
+                    // pulling the button by ~66% of it's height (80px)
+                    // so that it sits intersecting the HomeHero's gradient
+                    .offset(y: -80)
+                    .padding(.bottom, -80)
                     
-                    // 3. Additional Content
+                
+                if isiPad {
+                    HStack(alignment: .top, spacing: 30) {
+                        MyMemoriesView()
+                            .frame(maxWidth: .infinity)
+                
+                        RecentInteractions()
+                            .frame(maxWidth: .infinity)
+                    }
+                    .padding(30)
+                } else {
+                    // iOS Layout
                     VStack(spacing: 40) {
-                        
-                        // New: Your Memories (iOS Only as per initial request, or both if fits)
-                        // Requirement said "On iOS... a new section Your Memories"
-                        // But iPad has "Recent Interactions". Let's show Memories on both for consistency unless space is tight.
-                        if !isiPad {
-                            MyMemoriesView()
-                        }
-                        
-                        // Recent Interactions Section
+                        MyMemoriesView()
                         RecentInteractions()
                     }
-                    .padding(.top, 40) // Spacing from buttons
-                    
-                    Spacer()
+                    .padding(.top, 40)
                 }
-                .ignoresSafeArea(edges: .top)
-
+                
+                
+                
+                Spacer()
             }
-            .navigationTitle("Home")
-            .navigationBarHidden(true)
+            .ignoresSafeArea()
+
+            
+            
+            // Memories and Recent Interactions
+            // HStack -> iPadOS
+            // VStack -> iOS
+            
+            
+            
+            
+            //            ZStack(alignment: .top) {
+            //                // Base Background
+            //                Color("AppBackground")
+            //                    .ignoresSafeArea()
+            //
+            //                // 1. Hero Section (Background Layer)
+            //                HomeHero()
+            //                    .containerRelativeFrame(.vertical) { length, _ in length * 0.48 }
+            //                    .ignoresSafeArea(edges: .top)
+            //
+            //                // 2. Content Layer
+            //                VStack(spacing: 0) {
+            //                    // Responsive Spacer
+            //                    // On iPad, we need more push since we added top padding to hero
+            //                    Spacer()
+            //                        .containerRelativeFrame(.vertical) { length, _ in
+            //                            let baseOffset = (length * 0.40) - 30
+            //                            return baseOffset
+            //                        }
+            //
+            //                    HomeActionButtons(
+            //                        mode: isiPad ? .ipad : .ios,
+            //                        onScanFaceTap: { print("San Face Tapped") },
+            //                        onCameraTap: { print("Camera Tapped") },
+            //                        onPhotosTap: { print("Photos Tapped") }
+            //                    )
+            //                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+            //                    // Limit width on iPad for breathing room
+            //                    .frame(maxWidth: .infinity)
+            //
+            //                    if isiPad {
+            //                        HStack(alignment: .top, spacing: 30) {
+            //                            MyMemoriesView()
+            //                                .frame(maxWidth: .infinity)
+            //
+            //                            RecentInteractions()
+            //                                .frame(maxWidth: .infinity)
+            //                        }
+            //                        .padding(30)
+            //                    } else {
+            //                        // iOS Layout
+            //                        VStack(spacing: 40) {
+            //                            MyMemoriesView()
+            //                            RecentInteractions()
+            //                        }
+            //                        .padding(.top, 40) // Spacing from buttons
+            //                    }
+            //
+            //
+            //                    Spacer()
+            //                }
+            //                .ignoresSafeArea(edges: .top)
+            //
+            //            }
+            //            .navigationTitle("Home")
+            //            .navigationBarHidden(true)
             
             // --- Destinations (Placeholders for now) ---
         }
-        }
     }
+}
 
 
 #Preview {
