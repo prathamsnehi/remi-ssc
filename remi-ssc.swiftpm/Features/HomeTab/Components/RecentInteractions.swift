@@ -24,15 +24,49 @@ struct RecentInteractions: View {
                 emptyState
             } else {
                 if sizeClass == .regular {
-                    // iPad: Adaptive Grid
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))], spacing: 20) {
-                        contentList
+                    // iPad: Card Grid
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(people.prefix(4)) { person in
+                            NavigationLink(destination: FriendProfileView(person: person)) {
+                                InteractionCard(person: person)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
+                    .padding(.horizontal, 0)
                 } else {
-                    // iPhone: Horizontal Scroll
+                    // iPhone: Horizontal Scroll (Circles)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            contentList
+                            ForEach(people.prefix(5)) { person in
+                                NavigationLink(destination: FriendProfileView(person: person)) {
+                                    VStack(spacing: 8) {
+                                        // Profile "Image"
+                                        if let uiImage = UIImage(data: person.photoData) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 90, height: 90)
+                                                .clipShape(Circle())
+                                                .overlay(Circle().stroke(Color(.systemGray5), lineWidth: 1))
+                                        } else {
+                                            Circle()
+                                                .fill(Color(.systemGray6))
+                                                .frame(width: 90, height: 90)
+                                        }
+                                        
+                                        // Name
+                                        Text(person.name)
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                            .multilineTextAlignment(.center)
+                                            .frame(width: 90)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                         .padding(.horizontal)
                     }
@@ -56,39 +90,58 @@ struct RecentInteractions: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
     }
+}
+
+// iPad Card Component
+private struct InteractionCard: View {
+    let person: Person
     
-    @ViewBuilder
-    var contentList: some View {
-        ForEach(people.prefix(5)) { person in
-            NavigationLink(destination: FriendProfileView(person: person)) {
-                VStack(spacing: 8) {
-                    // Profile "Image"
-                    if let uiImage = UIImage(data: person.photoData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 90, height: 90)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color(.systemGray5), lineWidth: 1))
-                    } else {
-                        Circle()
-                            .fill(Color(.systemGray6))
-                            .frame(width: 90, height: 90)
-                    }
-                    // Removed shadow for a flatter, cleaner look
-                    
-                    // Name
-                    Text(person.name)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                        .multilineTextAlignment(.center)
-                        .frame(width: 90)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                // Larger Profile Image
+                if let uiImage = UIImage(data: person.photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.black.opacity(0.05), lineWidth: 1))
+                } else {
+                    Circle()
+                        .fill(Color(.systemGray6))
+                        .frame(width: 60, height: 60)
                 }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.body)
+                    .foregroundColor(Color("AppPrimary"))
             }
-            .buttonStyle(.plain)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(person.name)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                Text(person.relation)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: 140, alignment: .topLeading)
+        .background(Color("AppSurface"))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.black.opacity(0.05), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
     }
 }
 

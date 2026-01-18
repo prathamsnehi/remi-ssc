@@ -14,13 +14,15 @@ class Person {
     var relation: String
     @Attribute(.externalStorage) var photoData: Data // Store the photo
     var lastInteracted: Date // For "Frequently Met" sorting
+    var faceEmbedding: [Double] // vector fingerprint of the peron's face
     
     @Relationship(deleteRule: .cascade) var memories: [Memory] = []
     
-    init(name: String, relation: String = "Friend", photoData: Data) {
+    init(name: String, relation: String = "Friend", photoData: Data, faceEmbedding: [Double] = []) {
         self.name = name
         self.relation = relation
         self.photoData = photoData
         self.lastInteracted = Date()
+        self.faceEmbedding = faceEmbedding
     }
 }

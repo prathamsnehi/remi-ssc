@@ -29,11 +29,11 @@ struct HomeView: View {
                         if isLandscape {
                             return proxy.size.height * 0.50
                         } else {
-                            return proxy.size.height * 0.42
+                            return proxy.size.height * 0.41
                         }
                     } else {
-                        // fixed 0.47 for iphones (as always portrait):
-                        return proxy.size.height * 0.47
+                        // fixed 0.42 for iphones (as always portrait):
+                        return proxy.size.height * 0.42
                     }
                 }
                 
@@ -56,26 +56,44 @@ struct HomeView: View {
                     }
                     .ignoresSafeArea()
                     
-                    // Memories and Recent Interactions:
-                    // ipad: HStack
-                    // iphone: VStack
+
                     
                     if isiPad {
-                        HStack(alignment: .top, spacing: 30) {
-                            MyMemoriesView()
-                                .frame(maxWidth: .infinity)
-                            
-                            RecentInteractions()
-                                .frame(maxWidth: .infinity)
+                        ScrollView {
+                            if isLandscape {
+                                // iPad Landscape: Side-by-Side
+                                HStack(alignment: .top, spacing: 30) {
+                                    MyMemoriesView()
+                                        .frame(maxWidth: .infinity)
+                                    
+                                    RecentInteractions()
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .padding(.leading, 30)
+                                .padding(.trailing, 30)
+                                .padding(.top, 30)
+                            } else {
+                                // iPad Portrait: Vertical Stack
+                                VStack(spacing: 30) {
+                                    MyMemoriesView()
+                                        .frame(maxWidth: .infinity)
+                                    
+                                    RecentInteractions()
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .padding(.top, 30)
+                                .padding(.leading, 35)
+                                .padding(.trailing, 35)
+                            }
                         }
-                        .padding(30)
+                        
                     } else {
                         // iOS Layout
-                        VStack(spacing: 40) {
+                        ScrollView() {
                             MyMemoriesView()
                             RecentInteractions()
                         }
-                        .padding(.top, 40)
+                        .padding(.top, 20)
                     }
                     
                     Spacer()
