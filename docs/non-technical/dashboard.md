@@ -1,28 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-18 07:09:07
+### Last Updated: 2026-01-19 01:03:10
 
 ## 🚀 Time to Lift Off
-
-> **18 days, 16 hours, 51 minutes** until Feb 6, 2026.
+> **17 days, 22 hours, 56 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 11 of 30
-`[███████░░░░░░░░░░░░░] 37.7%`
+Day 12 of 30
+`[████████░░░░░░░░░░░░] 40.1%`
 
 ## 💾 Project Diet
-
-**Total Size**: 12.12 MB / 25 MB
-`[█████████░░░░░░░░░░░] 48.5%`
+**Total Size**: 0.05 MB / 25 MB
+`[░░░░░░░░░░░░░░░░░░░░] 0.2%`
 
 ## 🧠 AI Captain's Orders
-
-- [ ] Implement the iPadOS sidebar navigation structure using `UITabGroup` and `UITab` as described in `docs/technical/ipados-sidebar.md` to establish the 'Quick Items' and 'Quick Register' sections, ensuring it gracefully handles expansion and collapse.
-- [ ] Begin implementing the core AR Face Scanning feature. Focus on setting up the `ARFaceView` with `ARFaceTrackingConfiguration` and rendering a basic 'glass card' entity using `RealityKit` that can eventually be anchored to a detected face.
-- [ ] Integrate the `Vision` framework for face detection and cropping, and `CoreML` with your `MobileFaceNet.mlmodel` to generate face embeddings from captured images, leveraging the `detectAndCropFace` and `getFaceEmbedding` snippets.
-- [ ] Enhance the visual hierarchy and spacing for the 'Your Memories' and 'Recent Interactions' sections on the iPad, particularly in vertical orientation, ensuring the card designs are consistent and compelling as per the `2026-01-18.md` todo.
-- [ ] Implement the conversation starter generation logic using `NLTagger` from the `NaturalLanguage` framework as detailed in `docs/technical/implementations.md`, allowing the app to suggest personalized prompts based on a person's memories.
+- [ ] Continue refining the iPadOS vertical layout. While you've made "Recent Interactions" into cards, explore options to fill the remaining "blankness" on the vertical iPad homepage, potentially by increasing the density of "Your Memories" or introducing new placeholder content that aligns with the app's purpose.
+- [ ] Dive deeper into the AR face scanning feature. Focus on integrating the Vision framework's face detection and cropping (your detectAndCropFace function) with the live camera feed from ARKit, preparing the detected faces for embedding generation.
+- [ ] Once face detection is working, connect the cropped face images to your MobileFaceNet.mlmodel to generate face embeddings. Ensure the CVPixelBuffer conversion and MLMultiArray to Swift [Double] array conversion are robust.
+- [ ] Implement the mergeProfiles logic in your SwiftData model. This is a crucial feature for data integrity and user experience, especially given the potential for duplicate registrations mentioned in the concept.
+- [ ] Begin implementing the generateStarter function using NaturalLanguage's NLTagger. This will provide a core "conversation starter" feature for all devices, laying the groundwork before considering FoundationModels or TF-IDF.
 
 ## ✨ Daily Fuel
-
-> "It's not about ideas. It's about making ideas happen."
+> "Every line of code you write is a step closer to making a tangible difference in someone's life. Keep building, keep innovating, and let Remi illuminate forgotten stories."
