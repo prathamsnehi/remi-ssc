@@ -16,6 +16,8 @@ struct HomeView: View {
         sizeClass == .regular
     }
     
+    @State private var showARScanner = false
+    
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in // for different layout multipliers for vertical / horizontal ipad layouts
@@ -44,7 +46,9 @@ struct HomeView: View {
                         
                         HomeActionButtons(
                             mode: isiPad ? .ipad : .ios,
-                            onScanFaceTap: { print("San Face Tapped") },
+                            onScanFaceTap: {
+                                showARScanner = true
+                            },
                             onCameraTap: { print("Camera Tapped") },
                             onPhotosTap: { print("Photos Tapped") }
                         )
@@ -100,6 +104,9 @@ struct HomeView: View {
                 }
             }
             .ignoresSafeArea() // place HomeHero right against the safe area (padding accounted for, i.e. ipad tab bar & iphone dynamic island)
+            .fullScreenCover(isPresented: $showARScanner) { // show AR Scanner when clicked
+                ARCameraView(isPresented: $showARScanner)
+            }
             
         }
     }

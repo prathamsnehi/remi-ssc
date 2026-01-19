@@ -32,6 +32,9 @@ let package = Package(
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
+            capabilities: [
+                .camera(purposeString: "We use camera in AR to detect faces of your loved ones. ")
+            ],
             appCategory: .lifestyle
         )
     ],
