@@ -8,7 +8,7 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "Remi",
+    name: "remi-ssc",
     platforms: [
         .iOS("18.0")
     ],
@@ -41,7 +41,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "AppModule",
-            path: "."
+            path: ".",
+            resources: [
+                .copy("Resources/MobileFaceNet.mlmodelc"),
+            ]
         )
     ],
     swiftLanguageVersions: [.version("6")]

@@ -10,14 +10,16 @@ import RealityKit
 import ARKit
 import Vision
 import UIKit
+import SwiftData
 
 struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for AR
     typealias UIViewType = RealityKit.ARView
+    @Environment(\.modelContext) var modelContext
 
     var detector: FaceDetector // contains info of the location of the face
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(detector: detector)
+        return Coordinator(detector: detector, modelContext: modelContext)
     }
     
     func makeUIView(context: Context) -> RealityKit.ARView {
@@ -41,10 +43,12 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
     class Coordinator: NSObject, ARSessionDelegate {
         var arView: RealityKit.ARView?
         var detector: FaceDetector
+        var modelContext: ModelContext
         var isProcesing = false
         
-        init(detector: FaceDetector) {
+        init(detector: FaceDetector, modelContext: ModelContext) {
             self.detector = detector
+            self.modelContext = modelContext
         }
         
         // request: looking for faces:
@@ -68,7 +72,8 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
             guard !isProcesing else { return }
             isProcesing = true
             
-            let pixelBufferWrapper = SendablePixelBuffer(buffer: frame.capturedImage)
+            guard let copiedBuffer = frame.capturedImage.copy() else { return }
+            let pixelBufferWrapper = SendablePixelBuffer(buffer: copiedBuffer)
             
             DispatchQueue.global(qos: .userInteractive).async { [weak self] in
                 guard let self = self else { return }
@@ -77,6 +82,56 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
                 
                 do {
                     try handler.perform([self.faceDetectionRequest])
+                    
+                    if let results = self.faceDetectionRequest.results, !results.isEmpty {
+                        
+                        Task {
+                            // 1. Generate Embedding (Background Actor)
+                            if let embedding = await FaceRecognitionService.shared.generateEmbedding(from: pixelBufferWrapper.buffer) {
+                                
+                                await MainActor.run {
+                                    // 2. Fetch Candidates (Main Actor)
+                                    // We fetch here to ensure thread safety with SwiftData
+                                    let descriptor = FetchDescriptor<Person>()
+                                    if let allPersons = try? self.modelContext.fetch(descriptor) {
+                                        
+                                        // Prepare Sendable data for the actor
+                                        let candidates = allPersons.map { ($0.persistentModelID, $0.faceEmbedding) }
+                                        
+                                        Task {
+                                            // 3. Find Match (Background Actor) - purely mathematical
+                                            let matchStart = Date()
+                                            let matchResult = await FaceRecognitionService.shared.findBestMatch(for: embedding, candidates: candidates)
+                                            
+                                            // 4. Update UI (Main Actor)
+                                            await MainActor.run {
+                                                if let (matchedID, confidence) = matchResult,
+                                                   let person = allPersons.first(where: { $0.persistentModelID == matchedID }) {
+                                                    
+                                                    self.detector.identifiedPerson = person
+                                                    self.detector.confidence = confidence
+                                                    self.detector.isUnknown = false
+                                                } else {
+                                                    self.detector.identifiedPerson = nil
+                                                    self.detector.confidence = 0.0
+                                                    self.detector.isUnknown = true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Clear if no face (though updateFaceLocation also handles clearing location)
+                        // This ensures ID is cleared too
+                        Task {
+                             await MainActor.run {
+                                  self.detector.identifiedPerson = nil
+                                  self.detector.isUnknown = false
+                             }
+                        }
+                    }
                 } catch {
                     print("Vision Request Failed")
                     // resetting processing status if it fails:
@@ -111,4 +166,35 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
 extension ARViewContainer.Coordinator: @unchecked Sendable {}
 struct SendablePixelBuffer: @unchecked Sendable {
     let buffer: CVPixelBuffer
+}
+
+extension CVPixelBuffer {
+    func copy() -> CVPixelBuffer? {
+        let width = CVPixelBufferGetWidth(self)
+        let height = CVPixelBufferGetHeight(self)
+        let format = CVPixelBufferGetPixelFormatType(self)
+        var newBuffer: CVPixelBuffer?
+        let status = CVPixelBufferCreate(nil, width, height, format, nil, &newBuffer)
+        guard status == kCVReturnSuccess, let destination = newBuffer else { return nil }
+        
+        CVPixelBufferLockBaseAddress(self, .readOnly)
+        CVPixelBufferLockBaseAddress(destination, [])
+        defer {
+            CVPixelBufferUnlockBaseAddress(self, .readOnly)
+            CVPixelBufferUnlockBaseAddress(destination, [])
+        }
+        
+        if let srcAddr = CVPixelBufferGetBaseAddress(self), let dstAddr = CVPixelBufferGetBaseAddress(destination) {
+            let bytesPerRow = CVPixelBufferGetBytesPerRow(self)
+            // Copy line by line if bytesPerRow mismatch, or just memcpy if same
+            // For simplicity in ARKit (same format), assuming memcpy works for plane 0 (Y) and 1 (UV) if biplanar
+            // Or just use CoreImage to render
+            
+            // Safer: Use CoreImage to copy? Or Memcpy.
+            // Memcpy is fastest for identical buffers.
+            let srcSize = CVPixelBufferGetDataSize(self)
+            memcpy(dstAddr, srcAddr, srcSize)
+        }
+        return destination
+    }
 }
