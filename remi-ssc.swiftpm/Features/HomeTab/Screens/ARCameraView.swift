@@ -19,20 +19,12 @@ struct ARCameraView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Card Overlay:
-            if let location = detector.faceLocation {
-                // if location is not nil (means face on-screen)
-                ARPersonCard(
-                    detector: detector,
-                    onAddFriend: { showRegisterSheet = true },
-                    onViewProfile: { person in
-                        print("View profile callback (navigate to person details)")
-                    }
-                )
-                    .position(x: location.x, y: location.y)
-                    .animation(.spring(), value: location)
+            // Card Overlay:
+            if let rect = detector.faceRect {
+                FaceOverlayView(rect: rect, isUnknown: detector.isUnknown)
             }
             
-            // Dismiss Button:
+            // UI Layer
             VStack {
                 HStack {
                     Button(action: {
@@ -42,14 +34,32 @@ struct ARCameraView: View {
                             .font(.system(size: 32))
                             .foregroundColor(.white)
                             .background(Color.black.opacity(0.3).clipShape(Circle()))
-                                                }
+                    }
+                    Spacer()
                 }
                 .padding(.leading, 20)
                 .padding(.top, 50)
                 
                 Spacer()
-
+                
+                // Bottom Detail Panel
+                PersonDetailPanel(
+                    person: detector.identifiedPerson,
+                    isUnknown: detector.isUnknown,
+                    confidence: detector.confidence,
+                    onAddFriend: {
+                        showRegisterSheet = true
+                    },
+                    onViewProfile: {
+                        // FUTURE: Navigate to Person Detail View
+                        print("User tapped view profile for \(detector.identifiedPerson?.name ?? "Unknown")")
+                    }
+                )
+                .animation(.spring, value: detector.identifiedPerson)
+                .animation(.spring, value: detector.isUnknown)
             }
+            
+
             
             Spacer()
         }

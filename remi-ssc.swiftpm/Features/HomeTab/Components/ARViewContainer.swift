@@ -58,11 +58,11 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
                 guard let self = self else { return }
                 
                 if let results = request.results as? [VNFaceObservation], let result = results.first {
-                    self.updateFaceLocation(boundingBox: result.boundingBox)
+                    self.updateFaceRect(boundingBox: result.boundingBox)
                 } else {
                     // no face found, clear the location on the main thread:
                     DispatchQueue.main.async {
-                        self.detector.faceLocation = nil
+                        self.detector.faceRect = nil
                         self.isProcesing = false
                     }
                 }
@@ -155,7 +155,7 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
             }
         }
         
-        func updateFaceLocation(boundingBox: CGRect) {
+        func updateFaceRect(boundingBox: CGRect) {
             DispatchQueue.main.async {
                 defer { self.isProcesing = false }
                 
@@ -164,12 +164,14 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
                 // getting view dimensions:
                 let viewSize = arView.bounds.size
                 
-                // convert vision coords to screen coords:
-                let x = boundingBox.midX * viewSize.width
-                let y = (1 - boundingBox.midY) * viewSize.height
+                // convert vision coords (normalized 0..1, origin bottom-left) to screen coords (pixels, origin top-left):
+                let w = boundingBox.width * viewSize.width
+                let h = boundingBox.height * viewSize.height
+                let x = boundingBox.minX * viewSize.width
+                let y = (1 - boundingBox.maxY) * viewSize.height
                 
                 // updating publisher to add location of face:
-                self.detector.faceLocation = CGPoint(x: x, y: y)
+                self.detector.faceRect = CGRect(x: x, y: y, width: w, height: h)
             }
         }
     }

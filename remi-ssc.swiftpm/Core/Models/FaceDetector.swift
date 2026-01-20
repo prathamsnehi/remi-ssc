@@ -8,9 +8,9 @@ import SwiftUI
 import SwiftData
 
 class FaceDetector: ObservableObject {
-    // if we see a face on the ARView, this object holds the location of the face
-    // and nil if no face
-    @Published var faceLocation: CGPoint? = nil
+    // If we see a face on the ARView, this object holds the bounding box of the face
+    // The rect is in the ARView's coordinate space
+    @Published var faceRect: CGRect? = nil
     
     // Identification Results
     @Published var identifiedPerson: Person? = nil
