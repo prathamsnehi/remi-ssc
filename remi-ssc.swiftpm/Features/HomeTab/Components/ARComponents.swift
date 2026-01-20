@@ -6,7 +6,7 @@ struct FaceOverlayView: View {
     let isUnknown: Bool
     
     var body: some View {
-        Image(systemName: "faceid")
+        Image(systemName: "viewfinder")
             .resizable()
             .scaledToFit()
             .foregroundStyle(isUnknown ? .white.opacity(0.8) : .green.opacity(0.8))
