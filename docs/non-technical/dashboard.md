@@ -1,24 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-19 07:50:09
+### Last Updated: 2026-01-20 01:46:23
 
 ## 🚀 Time to Lift Off
-> **17 days, 16 hours, 10 minutes** until Feb 6, 2026.
+> **16 days, 22 hours, 13 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 12 of 30
-`[████████░░░░░░░░░░░░] 41.1%`
+Day 13 of 30
+`[████████░░░░░░░░░░░░] 43.6%`
 
 ## 💾 Project Diet
-**Total Size**: 12.12 MB / 25 MB
+**Total Size**: 12.13 MB / 25 MB
 `[█████████░░░░░░░░░░░] 48.5%`
 
 ## 🧠 AI Captain's Orders
-- [ ] Kickstart AR Face Tracking Integration: Begin by implementing the basic ARFaceView setup from implementations.md. Focus on successfully displaying the camera feed and detecting a face using ARFaceTrackingConfiguration. Don't worry about displaying specific information yet, just confirm face detection and basic AR scene setup.
-- [ ] Enhance iPad Homepage Visual Hierarchy: Refine the "Your Memories" and "Recent Interactions" sections on the iPad homepage. Experiment with distinct card designs, font sizes, and spacing to create a clear visual hierarchy that guides the user's eye and makes information easily digestible, especially in vertical mode.
-- [ ] Implement Initial Face Recognition Pipeline: Integrate the Vision and CoreML snippets for detectAndCropFace and getFaceEmbedding. Your immediate goal is to take a still image (perhaps from the AR feed or a test image) and successfully generate a face embedding using your MobileFaceNet.mlmodel. Focus on the data flow and ensuring the model receives the correct input.
-- [ ] Incorporate Essential Accessibility Features: As you build out new features (especially the AR interface and homepage elements), consistently add accessibility modifiers like .accessibilityLabel, .accessibilityHint, and consider dynamic type for text. This ensures your app is usable for everyone and is a key judging criterion.
-- [ ] Plan for Conversation Starter Logic: Review the NaturalLanguage and FoundationModels options for conversation starters. Decide whether to prioritize NLTagger for broader device compatibility or FoundationModels for Apple Intelligence, and outline the steps to integrate the chosen method with your Memory data.
+- [ ] Refine the AR face recognition UI to display the recognition card at the bottom of the screen instead of floating next to the head, and apply a Face ID-style box over the detected face.
+- [ ] Enhance the homepage button layout for iPadOS. Ensure "Scan from Camera" and "Scan from Photos" buttons have appropriate width and spacing for both horizontal and vertical orientations, avoiding overly wide buttons horizontally while maintaining good padding.
+- [ ] Transform the "Recent Interactions" section items on iPadOS into cards, matching the visual design of the "Your Memories" section for a cohesive look. Additionally, add more placeholder content to the homepage in vertical iPad mode to fill blank space.
+- [ ] Implement the initial version of conversation starters using the NaturalLanguage framework to extract topics from memories and inject them into pre-generated templates. Ensure a graceful fallback message is in place.
+- [ ] Implement and thoroughly test the `mergeProfiles` SwiftData logic to elegantly handle accidental duplicate person registrations, ensuring all associated memories are correctly transferred before deleting the redundant profile.
 
 ## ✨ Daily Fuel
-> "Remember, the best way to predict the future is to create it. Each line of code in Remi is crafting a brighter, more connected future for its users."
+> "Remembering is not just about the past; it's about enriching the present and strengthening the bonds that truly matter. Your code makes that possible."
