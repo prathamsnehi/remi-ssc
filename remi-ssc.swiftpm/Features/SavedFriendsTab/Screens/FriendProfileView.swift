@@ -11,6 +11,8 @@ struct FriendProfileView: View {
     let person: Person
     @State private var showUpdateSheet = false
     
+    
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -40,6 +42,7 @@ struct FriendProfileView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("Update") {
                     showUpdateSheet = true
+                    print(person.faceEmbedding)
                 }
                 .fontWeight(.semibold)
             }

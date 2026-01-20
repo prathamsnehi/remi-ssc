@@ -17,6 +17,9 @@ class FaceDetector: ObservableObject {
     @Published var isUnknown: Bool = false
     @Published var confidence: Double = 0.0
     
+    // Store the last valid frame (used for registration)
+    @Published var lastCapturedImage: UIImage? = nil
+    
     // published to update SwiftUI whenever this updates
     // so that we can keep updating the position of the card based on if the person's face moves on camera
 }

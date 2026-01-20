@@ -16,7 +16,7 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
     typealias UIViewType = RealityKit.ARView
     @Environment(\.modelContext) var modelContext
 
-    var detector: FaceDetector // contains info of the location of the face
+    var detector: FaceDetector // contains info of the location of the face and related info
     
     func makeCoordinator() -> Coordinator {
         return Coordinator(detector: detector, modelContext: modelContext)
@@ -45,6 +45,7 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
         var detector: FaceDetector
         var modelContext: ModelContext
         var isProcesing = false
+        var lastScanTime: Date = Date.distantPast
         
         init(detector: FaceDetector, modelContext: ModelContext) {
             self.detector = detector
@@ -69,8 +70,10 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
         }()
         
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
-            guard !isProcesing else { return }
+            // Throttling: only scan every 0.5 seconds to prevent flickering
+            guard !isProcesing, Date().timeIntervalSince(lastScanTime) > 0.5 else { return }
             isProcesing = true
+            lastScanTime = Date()
             
             guard let copiedBuffer = frame.capturedImage.copy() else { return }
             let pixelBufferWrapper = SendablePixelBuffer(buffer: copiedBuffer)
@@ -105,6 +108,15 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
                                             
                                             // 4. Update UI (Main Actor)
                                             await MainActor.run {
+                                                // Create a snapshot for registration if needed
+                                                let ciImage = CIImage(cvPixelBuffer: pixelBufferWrapper.buffer)
+                                                let context = CIContext() // Re-using context is better but creating one here is acceptable for now
+                                                if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+                                                    // Fix orientation: AR capturedImage is usually .right (landscape)
+                                                    // We rotate it to .up for the UI
+                                                    self.detector.lastCapturedImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+                                                }
+                                                
                                                 if let (matchedID, confidence) = matchResult,
                                                    let person = allPersons.first(where: { $0.persistentModelID == matchedID }) {
                                                     

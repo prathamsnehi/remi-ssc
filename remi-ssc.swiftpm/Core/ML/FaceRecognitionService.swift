@@ -32,7 +32,7 @@ actor FaceRecognitionService {
     
     /// Generates an embedding for the RegisterView flow (from UIImage)
     func generateEmbedding(from image: UIImage) async -> [Double]? {
-        guard let buffer = image.pixelBuffer() else { return nil }
+        guard let buffer = image.toCVPixelBuffer() else { return nil }
         return computeEmbedding(from: buffer)
     }
     
@@ -48,7 +48,7 @@ actor FaceRecognitionService {
         guard let model = model else { return nil }
         
         // 1. Detect and Crop Face (112x112)
-        guard let croppedFace = cropFace(from: buffer) else { return nil }
+        guard let croppedFace = buffer.resizeForMobileFaceNet() else { return nil }
         
         // 2. Run Inference
         do {
@@ -66,10 +66,12 @@ actor FaceRecognitionService {
         }
     }
     /// Pure math: finds the best match for an embedding among candidates
+    /// Pure math: finds the best match for an embedding among candidates
     func findBestMatch(for embedding: [Double], candidates: [(PersistentIdentifier, [Double])]) -> (PersistentIdentifier, Double)? {
+        // Clean implementation without redeclarations
         var bestMatchID: PersistentIdentifier?
         var maxSimilarity: Double = -1.0
-        let threshold = 0.6
+        let threshold = 0.70
         
         for (id, knownVector) in candidates {
             guard !knownVector.isEmpty else { continue }
@@ -105,39 +107,9 @@ actor FaceRecognitionService {
         return dotProduct / (sqrt(normA) * sqrt(normB))
     }
     
-    // MARK: - Vision Helpers
     
-    private func cropFace(from buffer: CVPixelBuffer) -> CVPixelBuffer? {
-        let request = VNDetectFaceRectanglesRequest()
-        let handler = VNImageRequestHandler(cvPixelBuffer: buffer, orientation: .up)
-        // Note: For ARFrame capturedImage (landscapeRight sensor), '.up' might be wrong relative to image coordinates if not adjusted.
-        // However, standard VNImageRequestHandler usually works well if we just want *some* face.
-        // If detection fails in AR, we might need to adjust orientation.
-        
-        try? handler.perform([request])
-        
-        guard let results = request.results as? [VNFaceObservation],
-              let face = results.first else { return nil }
-        
-        // Determine crop rect in buffer coordinates
-        let width = CVPixelBufferGetWidth(buffer)
-        let height = CVPixelBufferGetHeight(buffer)
-        
-        let boundingBox = face.boundingBox
-        
-        let w = boundingBox.width * CGFloat(width)
-        let h = boundingBox.height * CGFloat(height)
-        let x = boundingBox.minX * CGFloat(width)
-        let y = (1 - boundingBox.maxY) * CGFloat(height) // Vision origin is bottom-left
-        
-        let cropRect = CGRect(x: x, y: y, width: w, height: h)
-        
-        // Crop and Resize to 112x112 (MobileFaceNet input size)
-        return buffer.cropAndResize(to: cropRect, targetSize: CGSize(width: 112, height: 112))
-    }
+    
 }
-
-// MARK: - Extensions
 
 extension MLMultiArray {
     func toArray() -> [Double] {
@@ -171,35 +143,5 @@ extension CVPixelBuffer {
             return newBuffer
         }
         return nil
-    }
-}
-
-extension UIImage {
-    func pixelBuffer() -> CVPixelBuffer? {
-        let width = Int(self.size.width)
-        let height = Int(self.size.height)
-        
-        let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue, kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
-        var pixelBuffer : CVPixelBuffer?
-        let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attrs, &pixelBuffer)
-        
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else { return nil }
-        
-        CVPixelBufferLockBaseAddress(buffer, [])
-        let pixelData = CVPixelBufferGetBaseAddress(buffer)
-        
-        let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-        let context = CGContext(data: pixelData, width: width, height: height, bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(buffer), space: rgbColorSpace, bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
-        
-        // Fix Orientation
-        context?.translateBy(x: 0, y: CGFloat(height))
-        context?.scaleBy(x: 1.0, y: -1.0)
-        
-        UIGraphicsPushContext(context!)
-        self.draw(in: CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
-        UIGraphicsPopContext()
-        CVPixelBufferUnlockBaseAddress(buffer, [])
-        
-        return buffer
     }
 }

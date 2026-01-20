@@ -17,9 +17,8 @@ struct HomeActionButtons: View {
     
     // Callbacks
     var onScanFaceTap: () -> Void = {}
-    var onCameraTap: () -> Void = {}
     var onPhotosTap: () -> Void = {}
-    var onIdentifyTap: () -> Void = {} // Kept for backward compatibility if needed, or reused
+
     
     var body: some View {
         GeometryReader { geometry in
@@ -53,7 +52,7 @@ struct HomeActionButtons: View {
                         height: 120,
                         titleFont: .headline,
                         iconFont: .largeTitle,
-                        action: onCameraTap
+                        action: onScanFaceTap
                     )
                     .frame(width: usefulWidth * 0.66)
                     

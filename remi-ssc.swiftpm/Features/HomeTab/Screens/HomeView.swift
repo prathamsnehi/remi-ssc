@@ -17,6 +17,7 @@ struct HomeView: View {
     }
     
     @State private var showARScanner = false
+    @State private var showRegisterSheet = false
     
     var body: some View {
         NavigationStack {
@@ -49,8 +50,9 @@ struct HomeView: View {
                             onScanFaceTap: {
                                 showARScanner = true
                             },
-                            onCameraTap: { print("Camera Tapped") },
-                            onPhotosTap: { print("Photos Tapped") }
+                            onPhotosTap: {
+                                showRegisterSheet = true
+                            }
                         )
                         // pulling the button by ~66% of it's height (80px)
                         // so that it sits intersecting the HomeHero's gradient
@@ -106,6 +108,9 @@ struct HomeView: View {
             .ignoresSafeArea() // place HomeHero right against the safe area (padding accounted for, i.e. ipad tab bar & iphone dynamic island)
             .fullScreenCover(isPresented: $showARScanner) { // show AR Scanner when clicked
                 ARCameraView(isPresented: $showARScanner)
+            }
+            .fullScreenCover(isPresented: $showRegisterSheet) {
+                RegisterView()
             }
             
         }

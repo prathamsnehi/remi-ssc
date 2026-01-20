@@ -9,28 +9,38 @@ import SwiftUI
 import SwiftData
 
 struct RegisterView: View {
-    // Access to the database
+    // Access to the database of stored vectors and stuff
     @Environment(\.modelContext) private var modelContext
+    
     @Environment(\.dismiss) private var dismiss
     
-    // Data State
+    // Inputs from the user about friend registration:
     @State private var name: String = ""
     @State private var relation: String = ""
     @State private var firstMemory: String = ""
     @State private var inputImage: UIImage?
-    @State private var personID: String? // Unused in local ML logic
-    @State private var currentEmbedding: [Double]? // Store the calculated vector
+    @State private var personID: String? // identifier of friend
+    @State private var currentEmbedding: [Double]?
     
     // Navigation State
-    @State private var currentStep = 1
+    @State private var currentStep: Int
     @State private var isSubmitting = false
     @State private var errorMessage: String?
     @State private var showErrorAlert = false
     
+    init(initialImage: UIImage? = nil) {
+        if let image = initialImage {
+            _inputImage = State(initialValue: image)
+            _currentStep = State(initialValue: 2) // Skip to Name step
+        } else {
+            _currentStep = State(initialValue: 1)
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             VStack {
-                // Progress Bar (Optional, but nice for wizards)
+                // progress bar
                 ProgressView(value: Double(currentStep), total: 4)
                     .padding(.horizontal)
                     .tint(.blue)
@@ -73,10 +83,10 @@ struct RegisterView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            // Error Alert for API Failure
+            // error message if something failed:
             .alert("Registration Failed", isPresented: $showErrorAlert) {
                 Button("Retake Photo") {
-                    // Go back to step 1 to fix the photo
+                    // go back to step 1 to fix the photo
                     currentStep = 1
                     inputImage = nil
                 }
@@ -88,15 +98,13 @@ struct RegisterView: View {
             }
         }
     }
-    
-    // --- LOGIC ---
-    
+        
     func registerFace() {
         guard let image = inputImage else { return }
         isSubmitting = true
         
         Task {
-            // Generate embedding using local ML
+            // generate embedding using local ML
             if let embedding = await FaceRecognitionService.shared.generateEmbedding(from: image) {
                 await MainActor.run {
                     self.currentEmbedding = embedding

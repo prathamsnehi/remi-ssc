@@ -54,7 +54,7 @@ struct ARCameraView: View {
             Spacer()
         }
         .sheet(isPresented: $showRegisterSheet) {
-            RegisterView()
+            RegisterView(initialImage: detector.lastCapturedImage)
         }
     }
 }
