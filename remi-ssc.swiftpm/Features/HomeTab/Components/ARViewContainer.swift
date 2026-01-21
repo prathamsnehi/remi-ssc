@@ -43,6 +43,8 @@ struct ARViewContainer: UIViewRepresentable { // Setting up the camera feed for 
     class Coordinator: NSObject, ARSessionDelegate {
         var arView: RealityKit.ARView?
         var detector: FaceDetector
+        var modelContext: ModelContext
+        var isProcesing = false
         var lastScanTime: Date = Date.distantPast
         
         init(detector: FaceDetector, modelContext: ModelContext) {

@@ -65,50 +65,32 @@ actor FaceRecognitionService {
             return nil
         }
     }
+    
     /// Pure math: finds the best match for an embedding among candidates
-    /// Pure math: finds the best match for an embedding among candidates
+    /// Returns (bestMatchId, confidence)
     func findBestMatch(for embedding: [Double], candidates: [(PersistentIdentifier, [Double])]) -> (PersistentIdentifier, Double)? {
-        // Clean implementation without redeclarations
         var bestMatchID: PersistentIdentifier?
-        var maxSimilarity: Double = -1.0
-        let threshold = 0.70
+        var minDistance: Double = 1.0
+        let strictThreshold = 0.6
         
         for (id, knownVector) in candidates {
             guard !knownVector.isEmpty else { continue }
             
-            let similarity = cosineSimilarity(embedding, knownVector)
-            if similarity > maxSimilarity {
-                maxSimilarity = similarity
-                bestMatchID = id
+            var distance = getFaceDistance(embedding, knownVector)
+            if distance < strictThreshold {
+                if distance < minDistance {
+                    minDistance = distance
+                    bestMatchID = id
+                }
             }
         }
         
-        if let id = bestMatchID, maxSimilarity > threshold {
-            return (id, maxSimilarity)
+        if let id = bestMatchID {
+            return (id, (1.0 - minDistance))
         }
         
         return nil
     }
-    
-    private func cosineSimilarity(_ v1: [Double], _ v2: [Double]) -> Double {
-        guard v1.count == v2.count else { return 0.0 }
-        
-        var dotProduct = 0.0
-        var normA = 0.0
-        var normB = 0.0
-        
-        for i in 0..<v1.count {
-            dotProduct += v1[i] * v2[i]
-            normA += v1[i] * v1[i]
-            normB += v2[i] * v2[i]
-        }
-        
-        if normA == 0 || normB == 0 { return 0.0 }
-        return dotProduct / (sqrt(normA) * sqrt(normB))
-    }
-    
-    
-    
 }
 
 extension MLMultiArray {
@@ -119,29 +101,5 @@ extension MLMultiArray {
             array[i] = self[i].doubleValue
         }
         return array
-    }
-}
-
-extension CVPixelBuffer {
-    func cropAndResize(to rect: CGRect, targetSize: CGSize) -> CVPixelBuffer? {
-        let ciImage = CIImage(cvPixelBuffer: self)
-        let cropped = ciImage.cropped(to: rect)
-        
-        // Scale to target size
-        let scaleX = targetSize.width / rect.width
-        let scaleY = targetSize.height / rect.height
-        let scaled = cropped.transformed(by: CGAffineTransform(scaleX: scaleX, y: scaleY))
-        
-        // Render back to CVPixelBuffer
-        let context = CIContext()
-        var newBuffer: CVPixelBuffer?
-        // Create formatted buffer (32BGRA is standard for ML inputs usually)
-        CVPixelBufferCreate(nil, Int(targetSize.width), Int(targetSize.height), kCVPixelFormatType_32BGRA, nil, &newBuffer)
-        
-        if let newBuffer = newBuffer {
-            context.render(scaled, to: newBuffer)
-            return newBuffer
-        }
-        return nil
     }
 }
