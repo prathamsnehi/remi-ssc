@@ -1,28 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-20 02:17:44
+### Last Updated: 2026-01-21 01:58:10
 
 ## 🚀 Time to Lift Off
-
-> **16 days, 21 hours, 42 minutes** until Feb 6, 2026.
+> **15 days, 22 hours, 2 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 13 of 30
-`[████████░░░░░░░░░░░░] 43.7%`
+Day 14 of 30
+`[█████████░░░░░░░░░░░] 46.9%`
 
 ## 💾 Project Diet
-
 **Total Size**: 12.13 MB / 25 MB
 `[█████████░░░░░░░░░░░] 48.5%`
 
 ## 🧠 AI Captain's Orders
-
-- Refine AR Face Recognition Visuals: Implement the updated AR interface, where the detected face is highlighted with a "Face ID"-style box, and the recognition card is moved to the bottom of the screen for a cleaner, less intrusive display.
-- Develop a Compelling Onboarding & Interactive Demo: Create an engaging onboarding experience that tells Remi's story. Crucially, integrate an interactive demo mode within the app that showcases its core functionality (face recognition, memory recall) without requiring a live camera feed, making the app immediately understandable and impressive for judges.
-- Master iPadOS Layout with NavigationSplitView: Fully leverage NavigationSplitView to implement the side navigation for iPadOS. Ensure it seamlessly transitions between expanded and collapsed states, adapts correctly to both horizontal and vertical orientations, and provides a fluid, native iPad experience.
-- Intelligently Implement Conversation Starters: Build out the conversation starter logic, utilizing NLTagger from the NaturalLanguage framework for pre-Apple Intelligence devices and conditionally incorporating FoundationModels for newer devices, demonstrating adaptive API usage and thoughtful platform compatibility.
-- Integrate Comprehensive Accessibility Features: Systematically enhance Remi's accessibility by incorporating dynamic type sizing, adding meaningful accessibilityLabel attributes to UI elements, and providing VoiceOver hints, ensuring the app is inclusive and usable for all.
+- [ ] Refine AR Face Overlay & Recognition Card UI: Update the `ARFaceView` to replace the "glass card" next to the head with a dynamic, FaceID-style bounding box around the detected face. Simultaneously, redesign the recognition details to appear in a card anchored at the bottom of the AR view, as per the latest design decisions.
+- [ ] Integrate "Your Memories" & Milestones on Homepage: Develop the new "Your Memories" section for the homepage. Populate it with placeholder content for upcoming milestones (e.g., birthdays) and a selection of random memories from `SwiftData`'s `Memory` store, ensuring visual hierarchy consistent with the "Recent Interactions" section on iPad.
+- [ ] Complete Robust MobileFaceNet Integration & Concurrency: Fully implement the `Vision` -> `CoreML` (MobileFaceNet) -> Cosine Similarity pipeline for face recognition. Critically, ensure proper `CVPixelBuffer.copy()` for thread-safe processing and verify `MobileFaceNet.mlmodelc` is correctly bundled and loaded.
+- [ ] Refactor `FaceRecognitionService` to an Actor: Convert `FaceRecognitionService` into a Swift `actor` to enforce strict concurrency. Modify data transfer to use `Sendable` types like `[(PersistentIdentifier, [Double])]` for candidate embeddings, ensuring all `SwiftData` operations remain on the `MainActor` to prevent crashes.
+- [ ] Implement iPadOS Horizontal Side Navigation & Hero Layout: Build the collapsible side navigation for iPadOS horizontal mode, including "Home", "Friends", "Quick Items" (Favorites, New Memory), "Quick Register" (From Photos, From Camera), and "Preferences". Adjust the homepage hero section to accommodate two distinct "Scan" buttons and proper vertical spacing when the side navigation is open/collapsed.
 
 ## ✨ Daily Fuel
-
-> "Every line of code you write is a step towards unlocking a cherished memory and strengthening a vital connection. Keep building, and remember the profound impact Remi will have."
+> "It always seems impossible until it's done. - Nelson Mandela"
