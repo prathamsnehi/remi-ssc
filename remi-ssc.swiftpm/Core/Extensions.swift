@@ -8,127 +8,41 @@
 import UIKit
 import CoreVideo
 import VideoToolbox
+import CoreImage
+import Vision
 
 extension UIImage {
-    /// converting UIImage to CVPixelBuffer for MobileFaceNet ML Model:
+    /// converting UIImage to CVPixelBuffer for MobileFaceNet ML Model, respecting orientation
     func toCVPixelBuffer(pixelFormat: OSType = kCVPixelFormatType_32BGRA) -> CVPixelBuffer? {
-        // getting CGImage (contains pixel data & dimension info) from the UIImage:
-        guard let cgImage = self.cgImage else {
-            print("Conversion Failed")
-            return nil
-        }
+        // Use CIImage to handle orientation and conversion easily
+        guard let ciImage = CIImage(image: self) else { return nil }
         
-        let width = cgImage.width
-        let height = cgImage.height
+        // If UIImage has orientation metadata, apply it so the buffer is UPRIGHT
+        // CIImage(image:) usually preserves the orientation property derived from UIImage
+        // But we want to 'bake' it into the pixels.
+        // We can just render the CIImage as is (CIContext handles flexible input) to a new buffer
         
-        // defining buffer attributes in memory (because CVPixelBuffer only exists in memory):
-        let attributes: [String: Any] = [
-            kCVPixelBufferCGImageCompatibilityKey as String: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey as String: true
-        ]
+        // However, CIImage(image: self) creates a CIImage with the orientation applied (virtual).
+        // Standardizing to a new buffer:
         
-        // allocating the buffer:
-        var pixelBuffer: CVPixelBuffer?
-        let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, pixelFormat, attributes as CFDictionary, &pixelBuffer) // & means passing the address of the pixelbuffer
+        let context = CIContext()
         
-        // confirmation check of cvpixelbuffer was successfully allocated in memory:
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
-            print("Conversion failed, \(status)")
-            return nil
-        }
-        
-        // locking the memory location to prevent overwriting on it by sth else:
-        CVPixelBufferLockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0))
-        
-        defer {
-            // to prevent deadlock, memory is always freed up at the end of the process
-            CVPixelBufferUnlockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0))
-        }
-        
-        // drawing the pixelbuffer from the ui image:
-        guard let contextData = CVPixelBufferGetBaseAddress(buffer) else {
-            print("Conversion failed")
-            return nil
-        }
-        
-        
-        let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.noneSkipFirst.rawValue
-        guard let context = CGContext(
-            data: contextData,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: CVPixelBufferGetBytesPerRow(buffer),
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: bitmapInfo
-        ) else {
-            print("Conversion Failed")
-            return nil
-        }
-        
-        context.draw(cgImage, in:CGRect(x: 0, y: 0, width: width, height: height))
-        
-        return buffer
-        
-    }
-}
-
-extension CVPixelBuffer {
-    /// resizes CVPixelBuffer to 112x112 for MobileFaceNet ML Model:
-    func resizeForMobileFaceNet() -> CVPixelBuffer? {
-        // creating CGImage from CVPixelBuffer (so that we can deal with dimensions)
-        var cgImage: CGImage?
-        let status = VTCreateCGImageFromCVPixelBuffer(self, options: nil, imageOut: &cgImage)
-        
-        guard status == noErr, let sourceImage = cgImage else {
-            print("Rsize failed")
-            return nil
-        }
-        
-        // defining attributes for the updated CVPixelBuffer:
-        let attributes: [String: Any] = [
-            kCVPixelBufferCGImageCompatibilityKey as String: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey as String: true
-        ]
-        
-        // create new cvpixelbuffer with 112x112:
         var buffer: CVPixelBuffer?
-        let createStatus = CVPixelBufferCreate(kCFAllocatorDefault, 112, 112, kCVPixelFormatType_32BGRA, attributes as CFDictionary, &buffer)
+        // Create buffer with swapped dims if needed? 
+        // CIImage.extent gives us the oriented dimensions.
+        let width = Int(ciImage.extent.width)
+        let height = Int(ciImage.extent.height)
         
-        guard createStatus == kCVReturnSuccess, let newBuffer = buffer else {
-            print("Resize failed")
-            return nil
-        }
+        let attrs = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ] as [String : Any]
         
-        // locking new buffer so that we can write to it:
-        CVPixelBufferLockBaseAddress(newBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, pixelFormat, attrs as CFDictionary, &buffer)
         
-        defer {
-            // prevent deadlock, free memory in the end
-            CVPixelBufferUnlockBaseAddress(newBuffer, CVPixelBufferLockFlags(rawValue: 0))
-        }
+        guard status == kCVReturnSuccess, let pixelBuffer = buffer else { return nil }
         
-        // create context for new buffer:
-        guard let contextData = CVPixelBufferGetBaseAddress(newBuffer) else { return nil }
-        
-        let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.noneSkipFirst.rawValue
-        
-        guard let context = CGContext(
-            data: contextData,
-            width: 112,
-            height: 112,
-            bitsPerComponent: 8,
-            bytesPerRow: CVPixelBufferGetBytesPerRow(newBuffer),
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: bitmapInfo
-        ) else {
-            return nil
-        }
-        
-        // drawing image:
-        context.draw(sourceImage, in: CGRect(x: 0, y: 0, width: 112, height: 112))
-        
-        return newBuffer
-        
+        context.render(ciImage, to: pixelBuffer)
+        return pixelBuffer
     }
 }
