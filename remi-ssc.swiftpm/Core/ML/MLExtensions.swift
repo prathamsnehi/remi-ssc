@@ -12,10 +12,10 @@ import CoreML
 
 extension CVPixelBuffer {
     /// crops the given pixel buffer to a given bouding rectangle, resize to 112x112
-    func resizeForMobileFaceNet(normRect: CGRect, targetSize: CGSize = CGSize(width: 112, height: 112)) -> CVPixelBuffer? {
+    func resizeForMobileFaceNet(normRect: CGRect, targetSize: CGSize = CGSize(width: 112, height: 112), orientation: CGImagePropertyOrientation = .right) -> CVPixelBuffer? {
         // note: expects .right orientation of the input buffer
         
-        let ciImage = CIImage(cvPixelBuffer: self).oriented(.right)
+        let ciImage = CIImage(cvPixelBuffer: self).oriented(orientation)
         
         let rotatedExtent = ciImage.extent
         let cropRect = VNImageRectForNormalizedRect(normRect, Int(rotatedExtent.width), Int(rotatedExtent.height))
