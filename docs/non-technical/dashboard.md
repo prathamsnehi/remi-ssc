@@ -1,28 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-22 03:25:08
+### Last Updated: 2026-01-22 04:49:16
 
 ## 🚀 Time to Lift Off
-
-> **14 days, 20 hours, 35 minutes** until Feb 6, 2026.
+> **14 days, 19 hours, 10 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
 Day 15 of 30
-`[██████████░░░░░░░░░░] 50.5%`
+`[██████████░░░░░░░░░░] 50.7%`
 
 ## 💾 Project Diet
-
 **Total Size**: 12.13 MB / 25 MB
 `[█████████░░░░░░░░░░░] 48.5%`
 
 ## 🧠 AI Captain's Orders
-
-- Implement Dynamic AR UI for Face Recognition: Refine the AR experience by replacing the floating "glass card" with a FaceID-style bounding box around detected faces and displaying the recognition details card prominently at the bottom of the screen, as outlined in your latest daily goal.
-- Connect ARKit Camera Feed to Face Recognition Logic: Integrate the `detectAndCropFace`, `getFaceEmbedding`, and `isMatch` functions from `implementations.md` directly into your `ARFaceView`'s `ARSessionDelegate`. Ensure you're leveraging the `CVPixelBuffer.copy()` and actor-isolated `FaceRecognitionService` patterns for thread-safe and crash-free performance as detailed in `arkit-implementation-with-coreml.md`.
-- Develop the Post-Recognition Registration Flow: When an unfamiliar face is detected in AR, implement the UI flow to guide the user through registering a new person. This includes collecting their name, relation, and saving the generated face embedding to SwiftData, leading into the "merge profiles" functionality if a duplicate is later found.
-- Enhance iPad Homepage Vertical Layout: Address the "blank" feeling on the iPad vertical homepage by strategically adding more engaging content, perhaps a larger "Your Memories" section with more prominent cards or integrating a subtle "onboarding" hint for new users, building on your recent UI fixes.
-- Begin Implementing Conversation Starters with NLTagger Fallback: Start coding the `generateStarter(from:)` function using `NaturalLanguage`'s `NLTagger` to extract topics from memories for pre-Apple Intelligence devices. Prepare the groundwork for `FoundationModels` as a more advanced option, ensuring graceful degradation.
+- [ ] Implement the updated AR UI for face detection: cover the detected face with a Face ID-style bounding box and display the recognition card at the bottom of the screen, as outlined in recent daily accomplishments.
+- [ ] Refine the `ARView` to correctly attach RealityKit entities (the Face ID-style box and recognition card) to the detected `ARFaceAnchor`, ensuring they track the face's position and orientation accurately.
+- [ ] Develop a robust helper function to crop a `CGImage` based on a `VNFaceObservation` bounding box and resize it to the `MobileFaceNet` model's expected 112x112 `CVPixelBuffer` format.
+- [ ] Fully integrate the `ARSessionDelegate`'s camera feed output with the `FaceRecognitionService` (which uses Vision for face detection and CoreML for embeddings), leveraging the established actor-isolated concurrency pattern to update the AR scene with real-time recognition results.
+- [ ] Implement the `NLTagger`-based conversation starter generation for pre-Apple Intelligence devices, and set up the logic to dynamically switch to `FoundationModels` or `TF-IDF/TextRank` for more advanced devices, ensuring graceful fallback for offline and older devices.
 
 ## ✨ Daily Fuel
-
-> "Remember, every great app starts with a spark of empathy and grows with relentless dedication to the user."
+> "We do not remember days, we remember moments."
