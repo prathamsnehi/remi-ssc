@@ -1,24 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-21 01:58:10
+### Last Updated: 2026-01-22 03:25:08
 
 ## 🚀 Time to Lift Off
-> **15 days, 22 hours, 2 minutes** until Feb 6, 2026.
+> **14 days, 20 hours, 35 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 14 of 30
-`[█████████░░░░░░░░░░░] 46.9%`
+Day 15 of 30
+`[██████████░░░░░░░░░░] 50.5%`
 
 ## 💾 Project Diet
 **Total Size**: 12.13 MB / 25 MB
 `[█████████░░░░░░░░░░░] 48.5%`
 
 ## 🧠 AI Captain's Orders
-- [ ] Refine AR Face Overlay & Recognition Card UI: Update the `ARFaceView` to replace the "glass card" next to the head with a dynamic, FaceID-style bounding box around the detected face. Simultaneously, redesign the recognition details to appear in a card anchored at the bottom of the AR view, as per the latest design decisions.
-- [ ] Integrate "Your Memories" & Milestones on Homepage: Develop the new "Your Memories" section for the homepage. Populate it with placeholder content for upcoming milestones (e.g., birthdays) and a selection of random memories from `SwiftData`'s `Memory` store, ensuring visual hierarchy consistent with the "Recent Interactions" section on iPad.
-- [ ] Complete Robust MobileFaceNet Integration & Concurrency: Fully implement the `Vision` -> `CoreML` (MobileFaceNet) -> Cosine Similarity pipeline for face recognition. Critically, ensure proper `CVPixelBuffer.copy()` for thread-safe processing and verify `MobileFaceNet.mlmodelc` is correctly bundled and loaded.
-- [ ] Refactor `FaceRecognitionService` to an Actor: Convert `FaceRecognitionService` into a Swift `actor` to enforce strict concurrency. Modify data transfer to use `Sendable` types like `[(PersistentIdentifier, [Double])]` for candidate embeddings, ensuring all `SwiftData` operations remain on the `MainActor` to prevent crashes.
-- [ ] Implement iPadOS Horizontal Side Navigation & Hero Layout: Build the collapsible side navigation for iPadOS horizontal mode, including "Home", "Friends", "Quick Items" (Favorites, New Memory), "Quick Register" (From Photos, From Camera), and "Preferences". Adjust the homepage hero section to accommodate two distinct "Scan" buttons and proper vertical spacing when the side navigation is open/collapsed.
+- [ ] Implement Dynamic AR UI for Face Recognition: Refine the AR experience by replacing the floating "glass card" with a FaceID-style bounding box around detected faces and displaying the recognition details card prominently at the bottom of the screen, as outlined in your latest daily goal.
+- [ ] Connect ARKit Camera Feed to Face Recognition Logic: Integrate the `detectAndCropFace`, `getFaceEmbedding`, and `isMatch` functions from `implementations.md` directly into your `ARFaceView`'s `ARSessionDelegate`. Ensure you're leveraging the `CVPixelBuffer.copy()` and actor-isolated `FaceRecognitionService` patterns for thread-safe and crash-free performance as detailed in `arkit-implementation-with-coreml.md`.
+- [ ] Develop the Post-Recognition Registration Flow: When an unfamiliar face is detected in AR, implement the UI flow to guide the user through registering a new person. This includes collecting their name, relation, and saving the generated face embedding to SwiftData, leading into the "merge profiles" functionality if a duplicate is later found.
+- [ ] Enhance iPad Homepage Vertical Layout: Address the "blank" feeling on the iPad vertical homepage by strategically adding more engaging content, perhaps a larger "Your Memories" section with more prominent cards or integrating a subtle "onboarding" hint for new users, building on your recent UI fixes.
+- [ ] Begin Implementing Conversation Starters with NLTagger Fallback: Start coding the `generateStarter(from:)` function using `NaturalLanguage`'s `NLTagger` to extract topics from memories for pre-Apple Intelligence devices. Prepare the groundwork for `FoundationModels` as a more advanced option, ensuring graceful degradation.
 
 ## ✨ Daily Fuel
-> "It always seems impossible until it's done. - Nelson Mandela"
+> "Remember, every great app starts with a spark of empathy and grows with relentless dedication to the user."
