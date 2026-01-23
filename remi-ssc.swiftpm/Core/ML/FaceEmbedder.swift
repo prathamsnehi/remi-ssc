@@ -51,16 +51,25 @@ class FaceEmbedder {
     
     // MARK: - Math Helpers (Rule 10 & 11)
     
+    /// L2 Normalize a vector using Apple's Accelerate framework (Super Fast)
     private func l2Normalize(_ vector: [Float]) -> [Float] {
-        // Calculate magnitude (sqrt of sum of squares)
-        let sumOfSquares = vector.reduce(0) { $0 + ($1 * $1) }
-        let magnitude = sqrt(sumOfSquares)
+        // 1. Calculate the squared sum
+        var squaredSum: Float = 0
+        vDSP_svesq(vector, 1, &squaredSum, vDSP_Length(vector.count))
         
-        // Avoid division by zero
+        // 2. Calculate magnitude (sqrt)
+        let magnitude = sqrt(squaredSum)
+        
+        // 3. Avoid division by zero
         let epsilon: Float = 1e-9
-        let divisor = max(magnitude, epsilon)
+        if magnitude < epsilon { return vector }
         
-        return vector.map { $0 / divisor }
+        // 4. Divide vector by magnitude
+        var normalizedVector = [Float](repeating: 0, count: vector.count)
+        var scale = 1.0 / magnitude
+        vDSP_vsmul(vector, 1, &scale, &normalizedVector, 1, vDSP_Length(vector.count))
+        
+        return normalizedVector
     }
     
     private func convertMultiArrayToFloat(_ array: MLMultiArray) -> [Float] {
@@ -79,8 +88,10 @@ class FaceEmbedder {
     func cosineSimilarity(_ a: [Float], _ b: [Float]) -> Float {
         guard a.count == b.count else { return 0 }
         
-        // Since vectors are already L2 normalized, Cosine Similarity is just the Dot Product
-        let dotProduct = zip(a, b).map(*).reduce(0, +)
+        // Since vectors are already L2 normalized, Cosine Similarity == Dot Product
+        var dotProduct: Float = 0
+        vDSP_dotpr(a, 1, b, 1, &dotProduct, vDSP_Length(a.count))
+        
         return dotProduct
     }
 }
