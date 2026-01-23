@@ -8,6 +8,7 @@
 import Vision
 import CoreML
 import UIKit
+import Accelerate
 
 class FaceEmbedder {
     // Keep a single instance to avoid reloading the heavy model every time

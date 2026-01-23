@@ -6,7 +6,6 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            // 1. Main Tabs
             Tab("Home", systemImage: "house.fill") {
                 HomeView()
             }
