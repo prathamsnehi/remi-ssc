@@ -12,7 +12,7 @@ import Accelerate
 /// Helper to align faces to the standard ArcFace/MobileFaceNet/MobileNetV3 reference points using a Similarity Transform.
 class RefAlignment {
     
-    // Standard Reference Points for 112x112 input (InsightFace Standard)
+    // Standard Reference Points for 112x112 input (InsightFace Standard) - TOP LEFT Origin
     // Coordinates: [x, y]
     static let referencePoints: [CGPoint] = [
         CGPoint(x: 38.2946, y: 51.6963), // Left Eye
@@ -22,15 +22,28 @@ class RefAlignment {
         CGPoint(x: 70.7299, y: 92.2041)  // Right Mouth
     ]
     
+    // Reference Points for CoreImage (Bottom-Left Origin)
+    // Derived as (x, 112 - y)
+    static let referencePointsBottomLeft: [CGPoint] = [
+        CGPoint(x: 38.2946, y: 112 - 51.6963), // Left Eye
+        CGPoint(x: 73.5318, y: 112 - 51.5014), // Right Eye
+        CGPoint(x: 56.0252, y: 112 - 71.7366), // Nose
+        CGPoint(x: 41.5493, y: 112 - 92.3655), // Left Mouth
+        CGPoint(x: 70.7299, y: 112 - 92.2041)  // Right Mouth
+    ]
+    
     /// Computes the similarity transform (scale, rotation, translation) to map detected landmarks to reference landmarks.
-    /// Uses Least Squares (Umeyama optimization for 2D).
+    /// Default: Maps to Standard Top-Left Reference Points.
     static func estimateSimilarityTransform(from source: [CGPoint]) -> CGAffineTransform {
-        guard source.count == 5 else {
-            print("❌ [RefAlignment] Need exactly 5 source points")
+        return estimateSimilarityTransform(from: source, to: referencePoints)
+    }
+    
+    /// Computes the similarity transform to map source points to arbitrary destination points.
+    static func estimateSimilarityTransform(from source: [CGPoint], to dest: [CGPoint]) -> CGAffineTransform {
+        guard source.count == 5, dest.count == 5 else {
+            print("❌ [RefAlignment] Need exactly 5 source and 5 dest points")
             return .identity
         }
-        
-        let dest = referencePoints
         
         // Compute Means
         var srcMean = CGPoint.zero
@@ -77,20 +90,6 @@ class RefAlignment {
         // ty = dstMean.y - (b * srcMean.x + a * srcMean.y)
         let tx = Double(dstMean.x) - (val_a * Double(srcMean.x) - val_b * Double(srcMean.y))
         let ty = Double(dstMean.y) - (val_b * Double(srcMean.x) + val_a * Double(srcMean.y))
-        
-        // CGAffineTransform definition:
-        // x' = ax + cy + tx
-        // y' = bx + dy + ty
-        //
-        // Our Similarity EQ (for standard axes):
-        // x' = ax - by + tx
-        // y' = bx + ay + ty
-        //
-        // Mapping:
-        // CoreGraphics a = val_a
-        // CoreGraphics b = val_b (coeff of x in y')
-        // CoreGraphics c = -val_b (coeff of y in x')
-        // CoreGraphics d = val_a
         
         return CGAffineTransform(a: CGFloat(val_a), b: CGFloat(val_b), c: CGFloat(-val_b), d: CGFloat(val_a), tx: CGFloat(tx), ty: CGFloat(ty))
     }

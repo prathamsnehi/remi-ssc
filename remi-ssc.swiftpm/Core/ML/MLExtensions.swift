@@ -14,9 +14,12 @@ extension CVPixelBuffer {
     /// crops the given pixel buffer to a given bouding rectangle, resize to 112x112
     /// crops the given pixel buffer to a given bouding rectangle, resize to 112x112
     /// using RefAlignment (Similarity Transform)
+    /// crops the given pixel buffer to a given bouding rectangle, resize to 112x112
+    /// using RefAlignment (Similarity Transform)
+    /// **UPDATED**: Uses CIImage physics (Bottom-Left Origin) to avoid Context flipping issues.
     func alignToRefPoints(landmarks: VNFaceLandmarks2D, faceBoundingBox: CGRect, orientation: CGImagePropertyOrientation = .right) -> CVPixelBuffer? {
         
-        // 1. Setup Image
+        // 1. Setup Image (CIImage is conceptually infinite, origin at 0,0)
         let ciImage = CIImage(cvPixelBuffer: self).oriented(orientation)
         let width = CGFloat(ciImage.extent.width)
         let height = CGFloat(ciImage.extent.height)
@@ -31,11 +34,11 @@ extension CVPixelBuffer {
             return nil
         }
         
-        // Helper to get center of a region
-        let leftEyePt = getRegionCenter(leftEye, in: faceBoundingBox, imageW: width, imageH: height)
-        let rightEyePt = getRegionCenter(rightEye, in: faceBoundingBox, imageW: width, imageH: height)
-        let nosePt = getRegionCenter(nose, in: faceBoundingBox, imageW: width, imageH: height)
-        let mouthPts = getMouthCorners(outerLips, in: faceBoundingBox, imageW: width, imageH: height)
+        // Helper to get center of a region in BOTTOM-LEFT (Core Image) Coordinates
+        let leftEyePt = getRegionCenterBL(leftEye, in: faceBoundingBox, imageW: width, imageH: height)
+        let rightEyePt = getRegionCenterBL(rightEye, in: faceBoundingBox, imageW: width, imageH: height)
+        let nosePt = getRegionCenterBL(nose, in: faceBoundingBox, imageW: width, imageH: height)
+        let mouthPts = getMouthCornersBL(outerLips, in: faceBoundingBox, imageW: width, imageH: height)
         
         let leftMouthPt = mouthPts.0
         let rightMouthPt = mouthPts.1
@@ -48,63 +51,36 @@ extension CVPixelBuffer {
             rightMouthPt
         ]
         
-        // 3. Solve for Transform
-        // Our 'getRegionCenter' converts to Top-Left Image Coords.
-        // RefAlignment expects Top-Left.
-        let transform = RefAlignment.estimateSimilarityTransform(from: sourcePoints)
+        // 3. Solve for Transform (Source BL -> Dest BL)
+        // We map our source image points to the 112x112 box, respecting BL origin.
+        let transform = RefAlignment.estimateSimilarityTransform(from: sourcePoints, to: RefAlignment.referencePointsBottomLeft)
         
-        // 4. Render to 112x112 Buffer
+        // 4. Apply Transform
+        // Warps the image so the face lands at the correct coordinates in global space.
+        let outputImage = ciImage.transformed(by: transform)
+        
+        // 5. Crop & Render
+        // We want the 112x112 box at (0,0) of the transformed space.
+        // Since we mapped Source -> Dest(0..112, 0..112), the face is now at (0,0) in the output.
+        // CVPixelBuffer creation
         var newPixelBuffer: CVPixelBuffer?
         let status = CVPixelBufferCreate(kCFAllocatorDefault, 112, 112, kCVPixelFormatType_32BGRA, nil, &newPixelBuffer)
         guard status == kCVReturnSuccess, let destBuffer = newPixelBuffer else { return nil }
         
+        // Render using CIContext (Handles texturing and coords correctly)
+        // We render the region (0,0) -> (112,112) of the outputImage to the buffer.
         let ciContext = CIContext()
+        let destRect = CGRect(x: 0, y: 0, width: 112, height: 112)
         
-        CVPixelBufferLockBaseAddress(destBuffer, [])
-        defer { CVPixelBufferUnlockBaseAddress(destBuffer, []) }
-        
-        guard let destCtx = CGContext(data: CVPixelBufferGetBaseAddress(destBuffer),
-                                      width: 112,
-                                      height: 112,
-                                      bitsPerComponent: 8,
-                                      bytesPerRow: CVPixelBufferGetBytesPerRow(destBuffer),
-                                      space: CGColorSpaceCreateDeviceRGB(),
-                                      bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
-        else {
-            return nil
-        }
-        
-        // Apply Transform
-        // Context is Top-Left (Row 0 is top).
-        // Transform calculated Src(TL) -> Dst(TL).
-        // Standard concatenation works.
-        destCtx.concatenate(transform)
-        
-        // Draw the Upright Image
-        // We use ciContext to create a CGImage from the oriented CIImage.
-        // This CGImage is "upright" (width/height match logical orientation).
-        guard let sourceCGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return nil }
-        
-        // Draw at (0,0)
-        let imageRect = CGRect(x: 0, y: 0, width: CGFloat(sourceCGImage.width), height: CGFloat(sourceCGImage.height))
-        destCtx.draw(sourceCGImage, in: imageRect)
+        ciContext.render(outputImage, to: destBuffer, bounds: destRect, colorSpace: CGColorSpaceCreateDeviceRGB())
         
         return destBuffer
     }
     
+    // ... (resizeForMobileFaceNet omitted or kept? I'll leave it as you requested replace up to line 171)
+    
     // Fallback: Simple Square Crop (Only if strictly needed, but Rule A says Alignment Mandatory)
     func resizeForMobileFaceNet(normRect: CGRect, targetSize: CGSize = CGSize(width: 112, height: 112), orientation: CGImagePropertyOrientation = .right) -> CVPixelBuffer? {
-        // ... (Keep existing implementation as safety net?)
-        // Actually, let's keep it for now but FaceRecognitionService will prefer alignToRef.
-        // Replicating logic here for compactness or just leaving it as viewed?
-        // The previous tool call showed lines 1-56. I will REPLACE that block.
-        
-        // Wait, I should probably NOT delete resizeForMobileFaceNet if I can avoid it, or rename it.
-        // But the user said "do NOT pass raw cropped faces".
-        // So `resizeForMobileFaceNet` is technically "illegal" under Rule A.
-        // However, detection might fail landmarks but find rect.
-        // I will keep it but rename/deprecate it mentally.
-        
         let ciImage = CIImage(cvPixelBuffer: self).oriented(orientation)
         let rotatedExtent = ciImage.extent
         let cropRect = VNImageRectForNormalizedRect(normRect, Int(rotatedExtent.width), Int(rotatedExtent.height))
@@ -123,8 +99,8 @@ extension CVPixelBuffer {
         return nil
     }
     
-    // Helper to get center of landmark region in Image Top-Left Coords
-    private func getRegionCenter(_ region: VNFaceLandmarkRegion2D, in normBox: CGRect, imageW: CGFloat, imageH: CGFloat) -> CGPoint {
+    // Helper to get center of landmark region in Image BOTTOM-LEFT Coords
+    private func getRegionCenterBL(_ region: VNFaceLandmarkRegion2D, in normBox: CGRect, imageW: CGFloat, imageH: CGFloat) -> CGPoint {
         let boxX = normBox.origin.x * imageW
         let boxY = normBox.origin.y * imageH
         let boxW = normBox.size.width * imageW
@@ -140,17 +116,15 @@ extension CVPixelBuffer {
         let avgX = sumX / CGFloat(points.count)
         let avgY = sumY / CGFloat(points.count)
         
-        // Vision (Bottom-Left) -> Image Top-Left
-        // 1. Calc Bottom-Left Image Coord
+        // Vision (Bottom-Left) -> Image Bottom-Left (Direct map, just denormalize)
         let imageX_bl = boxX + avgX * boxW
         let imageY_bl = boxY + avgY * boxH
         
-        // 2. Flip Y
-        return CGPoint(x: imageX_bl, y: imageH - imageY_bl)
+        return CGPoint(x: imageX_bl, y: imageY_bl)
     }
     
-    // Helper for mouth corners
-    private func getMouthCorners(_ region: VNFaceLandmarkRegion2D?, in normBox: CGRect, imageW: CGFloat, imageH: CGFloat) -> (CGPoint, CGPoint) {
+    // Helper for mouth corners in BOTTOM-LEFT
+    private func getMouthCornersBL(_ region: VNFaceLandmarkRegion2D?, in normBox: CGRect, imageW: CGFloat, imageH: CGFloat) -> (CGPoint, CGPoint) {
         guard let region = region else { return (.zero, .zero) }
         let points = region.normalizedPoints
         guard let leftNorm = points.min(by: { $0.x < $1.x }),
@@ -166,8 +140,8 @@ extension CVPixelBuffer {
         let rightX_bl = boxX + rightNorm.x * boxW
         let rightY_bl = boxY + rightNorm.y * boxH
         
-        return (CGPoint(x: leftX_bl, y: imageH - leftY_bl),
-                CGPoint(x: rightX_bl, y: imageH - rightY_bl))
+        return (CGPoint(x: leftX_bl, y: leftY_bl),
+                CGPoint(x: rightX_bl, y: rightY_bl))
     }
 }
 

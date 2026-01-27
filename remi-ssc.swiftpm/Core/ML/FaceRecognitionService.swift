@@ -66,14 +66,57 @@ actor FaceRecognitionService {
                     return nil
                 }
                 
-                // 3. Convert Aligned Buffer -> UIImage (Rule: Embedder takes UIImage)
-                guard let alignedImage = createUIImage(from: alignedBuffer) else { return nil }
-                
-                // 4. Generate Embedding
-                // Rule D: Embedder returns [Float]. We convert to [Double] for app storage.
-                if let floatEmbedding = embedder.generateEmbedding(from: alignedImage) {
-                    return floatEmbedding.map { Double($0) }
+                // 3. Debug: Save Registration Image (Still useful for visual verify)
+                if let alignedImage = createUIImage(from: alignedBuffer) {
+                    saveDebugImage(alignedImage, prefix: "reg")
                 }
+
+                // 4. Generate Robust Embedding (TTA)
+                // To match Python/dlib robustness, we use TTA (Test Time Augmentation).
+                // We generate an embedding for the original image, AND for the flipped image.
+                // Averaging them enforces symmetry and improves generalization.
+                
+                // Embedding 1 (Original)
+                guard let e1 = embedder.generateEmbedding(from: alignedBuffer) else { return nil }
+                
+                // Embedding 2 (Flipped)
+                // Flip horizontally using CIImage
+                let ciOriginal = CIImage(cvPixelBuffer: alignedBuffer)
+                let transform = CGAffineTransform(scaleX: -1, y: 1)
+                    .translatedBy(x: -CGFloat(CVPixelBufferGetWidth(alignedBuffer)), y: 0)
+                let ciFlipped = ciOriginal.transformed(by: transform)
+                
+                // Render flipped to new buffer
+                // Note: We need a new buffer of same size/format
+                var flippedBuffer: CVPixelBuffer?
+                CVPixelBufferCreate(kCFAllocatorDefault, 112, 112, kCVPixelFormatType_32BGRA, nil, &flippedBuffer)
+                
+                if let fBuff = flippedBuffer {
+                    ciContext.render(ciFlipped, to: fBuff)
+                    
+                    if let e2 = embedder.generateEmbedding(from: fBuff) {
+                        // Average e1 and e2
+                        var sum = [Float](repeating: 0, count: 512)
+                        vDSP_vadd(e1, 1, e2, 1, &sum, 1, 512)
+                        
+                        // L2 Normalize Result
+                        // Note: We need access to l2Normalize. It's private in Embedder. 
+                        // Let's make a public helper in Embedder or just ask Embedder to avg.
+                        // Actually, I'll just expose a public `normalize` in Embedder or do it here.
+                        // Wait, I can't access private `l2Normalize`.
+                        // I will add `averageEmbeddings([e1, e2])` to Embedder in a moment.
+                        // For now, let's assume I will add `embedder.computeCentroid` back or similar helper.
+                        // Actually, I removed computeCentroid. I should add `computeAverage([Float], [Float])` or similar.
+                        
+                        // Let's invoke a helper I WILL add to Embedder.
+                        if let avg = embedder.averageAndNormalize([e1, e2]) {
+                            return avg.map { Double($0) }
+                        }
+                    }
+                }
+                
+                // Fallback if flip fails (just use e1)
+                return e1.map { Double($0) }
             }
         } catch {
             print("❌ Registration face detection failed: \(error)")
@@ -116,11 +159,13 @@ actor FaceRecognitionService {
                 return nil
             }
             
-            // 3. Convert to UIImage
-            guard let alignedImage = createUIImage(from: alignedBuffer) else { return nil }
-            
-            // 4. Generate Embedding
-            if let floatEmbedding = embedder.generateEmbedding(from: alignedImage) {
+            // 3. Debug: Save Scan Image
+            if let alignedImage = createUIImage(from: alignedBuffer) {
+                saveDebugImage(alignedImage, prefix: "scan")
+            }
+
+            // 4. Generate Embedding (Pass Buffer Directly)
+            if let floatEmbedding = embedder.generateEmbedding(from: alignedBuffer) {
                 return floatEmbedding.map { Double($0) }
             }
             
@@ -153,8 +198,8 @@ actor FaceRecognitionService {
             // Rule 11: Cosine Similarity
             let similarity = embedder.cosineSimilarity(floatProbe, floatCandidate)
             
-            // Debug Log
-            // print("🔍 Candidate: \(similarity)")
+            // Detailed Debug Log
+            print("🔍 Candidate ID: \(id) - Score: \(similarity)")
             
             if similarity > threshold {
                 if similarity > maxSimilarity {
@@ -179,6 +224,30 @@ actor FaceRecognitionService {
         // Note: buffer from alignToRefPoints is already 112x112 BGRA and upright.
         guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return nil }
         return UIImage(cgImage: cgImage)
+    }
+    
+    // Debug Helper: Save image to Documents/Debug_Faces
+    private func saveDebugImage(_ image: UIImage, prefix: String) {
+        Task.detached(priority: .background) {
+            do {
+                guard let data = image.jpegData(compressionQuality: 0.9) else { return }
+                
+                let fileManager = FileManager.default
+                let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                let debugDir = docs.appendingPathComponent("Debug_Faces")
+                
+                if !fileManager.fileExists(atPath: debugDir.path) {
+                    try fileManager.createDirectory(at: debugDir, withIntermediateDirectories: true)
+                }
+                
+                let filename = "\(prefix)_\(Int(Date().timeIntervalSince1970)).jpg"
+                let url = debugDir.appendingPathComponent(filename)
+                try data.write(to: url)
+                print("💾 Saved debug image: \(url.path)")
+            } catch {
+                print("⚠️ Failed to save debug image: \(error)")
+            }
+        }
     }
 }
 

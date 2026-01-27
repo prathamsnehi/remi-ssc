@@ -23,22 +23,25 @@ class FaceEmbedder {
         }
     }
     
-    /// Generates a 512-float embedding from a cropped face image
+    /// Generates a 512-float embedding from a cropped face image (UIImage)
     func generateEmbedding(from faceImage: UIImage) -> [Float]? {
+        // Fallback: Convert to CVPixelBuffer if needed, but prefer passing buffer directly
+        guard let cvBuffer = faceImage.toCVPixelBuffer() else { return nil }
+        return generateEmbedding(from: cvBuffer)
+    }
+    
+    /// Generates a 512-float embedding from a CVPixelBuffer (Standard Entry Point)
+    /// **Important**: Expects 112x112 size. Ideally BGRA/BGR.
+    func generateEmbedding(from buffer: CVPixelBuffer) -> [Float]? {
         do {
-            // 1. Resize and Convert to CVPixelBuffer
-            // We use the generated input class's convenience initializer which handles
-            // the 112x112 resizing and format conversion (BGRA) automatically.
-            guard let cgImage = faceImage.cgImage else { return nil }
-            
-            // This 'try' handles the 112x112 resize and pixel format check (Rule 4 & 5)
-            let input = try FaceRec_MobileNetV3Input(input_imageWith: cgImage)
+            // 1. Direct Input (Avoids extra ARGB conversion if using convenience init)
+            // The model input expects a CVPixelBuffer.
+            let input = FaceRec_MobileNetV3Input(input_image: buffer)
             
             // 2. Run Prediction
             let output = try model.prediction(input: input)
             
             // 3. Extract and L2 Normalize (Rule 10)
-            // The output is a raw 512 vector. We must normalize it so its magnitude is 1.0.
             let rawVector = self.convertMultiArrayToFloat(output.embedding)
             let normalizedVector = self.l2Normalize(rawVector)
             
@@ -83,6 +86,21 @@ class FaceEmbedder {
         return floatArray
     }
     
+    /// Averages multiple vectors and L2 normalizes the result.
+    /// Useful for TTA (Test Time Augmentation).
+    func averageAndNormalize(_ vectors: [[Float]]) -> [Float]? {
+        guard !vectors.isEmpty else { return nil }
+        let dim = vectors[0].count
+        var sumVector = [Float](repeating: 0, count: dim)
+        
+        for vec in vectors {
+            guard vec.count == dim else { continue }
+            vDSP_vadd(sumVector, 1, vec, 1, &sumVector, 1, vDSP_Length(dim))
+        }
+        
+        return l2Normalize(sumVector)
+    }
+
     /// Calculates Cosine Similarity between two embeddings (Rule 11)
     /// Returns a value between -1.0 and 1.0.
     /// > 0.4 usually means "Same Person" for this model.

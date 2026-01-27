@@ -39,6 +39,12 @@ struct ARViewContainer: UIViewRepresentable {
         var isProcessing = false
         var lastRecognitionTime: Date = .distantPast
         
+        // Hysteresis State
+        var consecutiveMisses: Int = 0
+        
+        // Jitter Fix: Smoother
+        let smoother = FaceBoxSmoother()
+        
         init(parent: ARViewContainer) {
             self.parent = parent
         }
@@ -54,6 +60,13 @@ struct ARViewContainer: UIViewRepresentable {
         // This runs on Main Thread (because the class is @MainActor)
         private func processFrame(_ frame: ARFrame) {
             guard !isProcessing else { return }
+            
+            // Global Throttle: Only run every 0.5s (per user request to stop wiggling)
+            if Date().timeIntervalSince(lastRecognitionTime) < 0.5 {
+                return
+            }
+            lastRecognitionTime = Date()
+            
             isProcessing = true
             
             // Extract data we need so we don't pass 'ARFrame' to background
@@ -98,22 +111,14 @@ struct ARViewContainer: UIViewRepresentable {
                     height: finalRect.height * viewportSize.height
                 )
                 
-                // C. Recognition (Throttled Check)
-                // We ask MainActor: "Is it time yet?"
-                let shouldRecognize = await MainActor.run {
-                    if Date().timeIntervalSince(self.lastRecognitionTime) > 0.5 {
-                        self.lastRecognitionTime = Date()
-                        return true
-                    }
-                    // Just update box, skip ML
-                    self.parent.detector.faceRect = screenRect
-                    return false
-                }
                 
-                guard shouldRecognize else { return }
-                
+                // C. Recognition (Always run, because we are globally throttled)
                 // D. Run ML (Heavy work, still in background)
-                guard let embedding = await FaceRecognitionService.shared.generateEmbedding(from: wrapper, faceRect: boundingBox) else { return }
+                guard let embedding = await FaceRecognitionService.shared.generateEmbedding(from: wrapper, faceRect: boundingBox) else {
+                    // Even if embedding fails, show the box?
+                    await self.updateUI(faceRect: screenRect, match: nil, buffer: buffer)
+                    return
+                }
                 
                 // E. Fetch Candidates (Must hop to MainActor for SwiftData)
                 let candidates = await MainActor.run {
@@ -136,28 +141,50 @@ struct ARViewContainer: UIViewRepresentable {
         @MainActor
         private func updateUI(faceRect: CGRect?, match: (PersistentIdentifier, Double)? = nil, buffer: CVPixelBuffer? = nil, person: Person? = nil) {
             let detector = parent.detector
-            detector.faceRect = faceRect
+            
+            // Apply smoothing
+            // We do this on MainActor to keep the smoother state consistent with UI updates
+            detector.faceRect = self.smoother.smooth(faceRect)
             
             if let buffer = buffer {
                 detector.lastCapturedImage = createUIImage(from: buffer)
             }
             
-            guard let (id, confidence) = match else {
-                if faceRect == nil { // Clear everything
+            // Hysteresis Logic: Prevent flickering "Unknown"
+            if let (id, confidence) = match {
+                // Success! Reset miss counter.
+                consecutiveMisses = 0
+                
+                // Fetch Person object
+                if let person = try? parent.modelContext.fetch(FetchDescriptor<Person>(predicate: #Predicate { $0.persistentModelID == id })).first {
+                    detector.identifiedPerson = person
+                    detector.confidence = confidence
+                    detector.isUnknown = false
+                }
+            } else {
+                // No Match Found
+                if faceRect == nil {
+                    // Face Lost completely -> Clear immediately
                     detector.identifiedPerson = nil
                     detector.isUnknown = false
-                } else { // Face found but no match yet
+                    self.smoother.reset()
+                    consecutiveMisses = 0
+                } else {
+                    // Face Detected, but Recognition Failed (or Low Confidence)
+                    if detector.identifiedPerson != nil {
+                        // We HAD a match. Maybe just a bad frame?
+                        consecutiveMisses += 1
+                        if consecutiveMisses < 4 {
+                            // "Sticky" Mode: Ignore this failure, keep showing old match
+                            print("⚠️ Missed match (\(consecutiveMisses)/4) - Holding previous result")
+                            return
+                        }
+                    }
+                    
+                    // Real Unknown
                     detector.identifiedPerson = nil
                     detector.isUnknown = true
                 }
-                return
-            }
-            
-            // Fetch Person object
-            if let person = try? parent.modelContext.fetch(FetchDescriptor<Person>(predicate: #Predicate { $0.persistentModelID == id })).first {
-                detector.identifiedPerson = person
-                detector.confidence = confidence
-                detector.isUnknown = false
             }
         }
         
