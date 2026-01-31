@@ -14,9 +14,14 @@ class Person {
     var relation: String
     @Attribute(.externalStorage) var photoData: Data // Store the photo
     var lastInteracted: Date // For "Frequently Met" sorting
-    var faceEmbedding: [Double] // vector fingerprint of the peron's face
+    
+    // Legacy: Single embedding (Deprecated, but kept for migration safety)
+    var faceEmbedding: [Double] 
     
     @Relationship(deleteRule: .cascade) var memories: [Memory] = []
+    
+    // New: Multi-Vector Registry
+    @Relationship(deleteRule: .cascade) var samples: [FaceSample] = []
     
     init(name: String, relation: String = "Friend", photoData: Data, faceEmbedding: [Double] = []) {
         self.name = name
@@ -24,5 +29,6 @@ class Person {
         self.photoData = photoData
         self.lastInteracted = Date()
         self.faceEmbedding = faceEmbedding
+        self.samples = [] // Initialize empty
     }
 }

@@ -20,7 +20,9 @@ struct RegisterView: View {
     @State private var firstMemory: String = ""
     @State private var inputImage: UIImage?
     @State private var personID: String? // identifier of friend
-    @State private var currentEmbedding: [Double]?
+    // Multi-Vector Registry State
+    @State private var currentSamples: [[Double]] = []
+    @State private var currentEmbedding: [Double]? // Still used for backward compat / profile?
     
     // Navigation State
     @State private var currentStep: Int
@@ -48,14 +50,22 @@ struct RegisterView: View {
                 // Step Views
                 switch currentStep {
                 case 1:
-                    RegisterPhotoScreen(inputImage: $inputImage, onNext: {
+                    // Step 1: Scan Face (3s Loop)
+                    FaceScanningView(onScanned: { image, samples in
+                        self.inputImage = image
+                        self.currentSamples = samples
+                        // For legacy/display field, we can use the average or first sample
+                        self.currentEmbedding = samples.first 
+                        
                         withAnimation { currentStep = 2 }
+                    }, onCancel: {
+                        dismiss()
                     })
                 case 2:
                     RegisterNameScreen(
                         name: $name,
                         image: inputImage,
-                        onNext: registerFace,
+                        onNext: registerFace, // This is now just a pass-through
                         isSubmitting: isSubmitting
                     )
                 case 3:
@@ -100,25 +110,32 @@ struct RegisterView: View {
     }
         
     func registerFace() {
-        guard let image = inputImage else { return }
-        isSubmitting = true
+        // Step 2 Action: Previously generated embedding.
+        // Now: We already have samples from Step 1.
+        // Just proceed.
+        guard inputImage != nil else { return }
         
-        Task {
-            // generate embedding using local ML
-            if let embedding = await FaceRecognitionService.shared.generateEmbedding(from: image) {
-                await MainActor.run {
-                    self.currentEmbedding = embedding
-                    self.isSubmitting = false
-                    withAnimation { currentStep = 3 }
-                }
-            } else {
-                await MainActor.run {
-                    self.isSubmitting = false
-                    self.errorMessage = "Could not detect a face. Please try a clearer photo."
-                    self.showErrorAlert = true
-                }
-            }
+        if currentSamples.isEmpty && currentEmbedding == nil {
+             // Should not happen if Step 1 worked, but guard against "Initial Image" flow logic
+             // If initialImage provided (e.g. from Unknown Result), we might not have samples?
+             // Ah, CameraScannerView passes initialImage. If so, we have NO SAMPLES.
+             // We need to generate one if it's missing.
+             
+             if let img = inputImage {
+                 Task {
+                     if let embedding = await FaceRecognitionService.shared.generateEmbedding(from: img) {
+                         await MainActor.run {
+                             self.currentSamples = [embedding]
+                             self.currentEmbedding = embedding
+                             withAnimation { currentStep = 3 }
+                         }
+                     }
+                 }
+                 return
+             }
         }
+        
+        withAnimation { currentStep = 3 }
     }
     
     func finishRegistration() {
@@ -138,6 +155,12 @@ struct RegisterView: View {
             photoData: data,
             faceEmbedding: currentEmbedding ?? []
         )
+        
+        // Save Samples
+        for sampleVec in currentSamples {
+            let sample = FaceSample(embedding: sampleVec, source: "registration")
+            newPerson.samples.append(sample)
+        }
         
         // Create the Memory (if they typed one)
         if !firstMemory.isEmpty {

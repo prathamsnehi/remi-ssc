@@ -43,7 +43,7 @@ let package = Package(
             name: "AppModule",
             path: ".",
             resources: [
-                .copy("Resources/FaceRec_MobileNetV3.mlmodelc"),
+                .copy("Resources/SFace.mlmodelc"),
             ]
         )
     ],

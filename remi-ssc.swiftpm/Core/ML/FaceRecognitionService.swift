@@ -11,19 +11,6 @@ import CoreML
 import SwiftData
 import Accelerate
 
-//
-//  FaceRecognitionService.swift
-//  remi
-//
-//  Created by Pratham S on 1/19/26.
-//
-
-import UIKit
-import Vision
-import CoreML
-import SwiftData
-import Accelerate
-
 /// Helper service to identify and register faces using the new FaceRec_MobileNetV3
 actor FaceRecognitionService {
     static let shared = FaceRecognitionService()
