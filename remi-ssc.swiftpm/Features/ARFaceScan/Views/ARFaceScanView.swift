@@ -1,0 +1,16 @@
+//
+//  ARFaceScanView.swift
+//  remi-ssc
+//
+//  Created by Pratham S on 1/31/26.
+//
+
+import SwiftUI
+
+struct ARFaceScanView: View {
+    var body: some View {
+        ZStack {
+            ARViewContainer()
+        }
+    }
+}

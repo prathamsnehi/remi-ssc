@@ -42,7 +42,6 @@ struct FriendProfileView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("Update") {
                     showUpdateSheet = true
-                    print(person.faceEmbedding)
                 }
                 .fontWeight(.semibold)
             }

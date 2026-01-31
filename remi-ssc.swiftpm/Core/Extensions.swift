@@ -1,48 +1,64 @@
-//
-//  Extensions.swift
-//  remi-ssc
-//
-//  Created by Pratham S on 1/19/26.
-//
-
 import UIKit
-import CoreVideo
-import VideoToolbox
-import CoreImage
 import Vision
+import SwiftUI
+import ImageIO // Required for CGImagePropertyOrientation
+import VideoToolbox
+
 
 extension UIImage {
-    /// converting UIImage to CVPixelBuffer for MobileFaceNet ML Model, respecting orientation
-    func toCVPixelBuffer(pixelFormat: OSType = kCVPixelFormatType_32BGRA) -> CVPixelBuffer? {
-        // Use CIImage to handle orientation and conversion easily
-        guard let ciImage = CIImage(image: self) else { return nil }
+    
+    // 1. Helper to convert UIImage.Orientation to CGImagePropertyOrientation
+    var cgImagePropertyOrientation: CGImagePropertyOrientation {
+        switch imageOrientation {
+        case .up: return .up
+        case .upMirrored: return .upMirrored
+        case .down: return .down
+        case .downMirrored: return .downMirrored
+        case .left: return .left
+        case .leftMirrored: return .leftMirrored
+        case .right: return .right
+        case .rightMirrored: return .rightMirrored
+        @unknown default: return .up
+        }
+    }
+
+    /// Detects the center of the first face found in the image.
+    /// Returns a UnitPoint where (0,0) is top-left and (1,1) is bottom-right.
+    /// Returns nil if no face is found.
+    func detectFaceCenter() -> UnitPoint? {
+        guard let cgImage = self.cgImage else { return nil }
         
-        // If UIImage has orientation metadata, apply it so the buffer is UPRIGHT
-        // CIImage(image:) usually preserves the orientation property derived from UIImage
-        // But we want to 'bake' it into the pixels.
-        // We can just render the CIImage as is (CIContext handles flexible input) to a new buffer
+        let request = VNDetectFaceRectanglesRequest()
         
-        // However, CIImage(image: self) creates a CIImage with the orientation applied (virtual).
-        // Standardizing to a new buffer:
+        // 2. Use the new helper property here
+        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: self.cgImagePropertyOrientation, options: [:])
         
-        let context = CIContext()
+        do {
+            try handler.perform([request])
+            guard let observation = request.results?.first else { return nil }
+            
+            // Vision coordinates: Origin is bottom-left, normalized 0...1
+            let boundingBox = observation.boundingBox
+            
+            // Calculate center
+            let x = boundingBox.midX
+            let y = 1.0 - boundingBox.midY // Flip Y for SwiftUI coordinate system (top-left origin)
+            
+            return UnitPoint(x: x, y: y)
+        } catch {
+            print("Face detection failed: \(error)")
+            return nil
+        }
+    }
+}
+
+
+extension CVPixelBuffer {
+    func toUIImage(orientation: UIImage.Orientation = .up) -> UIImage? {
+        var cgImage: CGImage?
+        VTCreateCGImageFromCVPixelBuffer(self, options: nil, imageOut: &cgImage)
         
-        var buffer: CVPixelBuffer?
-        // Create buffer with swapped dims if needed? 
-        // CIImage.extent gives us the oriented dimensions.
-        let width = Int(ciImage.extent.width)
-        let height = Int(ciImage.extent.height)
-        
-        let attrs = [
-            kCVPixelBufferCGImageCompatibilityKey: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey: true
-        ] as [String : Any]
-        
-        let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, pixelFormat, attrs as CFDictionary, &buffer)
-        
-        guard status == kCVReturnSuccess, let pixelBuffer = buffer else { return nil }
-        
-        context.render(ciImage, to: pixelBuffer)
-        return pixelBuffer
+        guard let createdCGImage = cgImage else { return nil }
+        return UIImage(cgImage: createdCGImage, scale: 1.0, orientation: orientation)
     }
 }

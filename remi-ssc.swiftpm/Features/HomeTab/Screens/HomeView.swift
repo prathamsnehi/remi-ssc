@@ -16,8 +16,8 @@ struct HomeView: View {
         sizeClass == .regular
     }
     
-    @State private var showARScanner = false
     @State private var showRegisterSheet = false
+    @State private var showARView = false
     
     var body: some View {
         NavigationStack {
@@ -48,10 +48,10 @@ struct HomeView: View {
                         HomeActionButtons(
                             mode: isiPad ? .ipad : .ios,
                             onScanFaceTap: {
-                                showARScanner = true
+                                showARView = true
                             },
                             onPhotosTap: {
-                                showRegisterSheet = true
+                                print("get up on me, so get up on dat dihh")
                             }
                         )
                         // pulling the button by ~66% of it's height (80px)
@@ -62,7 +62,7 @@ struct HomeView: View {
                     }
                     .ignoresSafeArea()
                     
-
+                    
                     
                     if isiPad {
                         ScrollView {
@@ -106,16 +106,17 @@ struct HomeView: View {
                 }
             }
             .ignoresSafeArea() // place HomeHero right against the safe area (padding accounted for, i.e. ipad tab bar & iphone dynamic island)
-            .fullScreenCover(isPresented: $showARScanner) { // show AR Scanner when clicked
-                ARCameraView(isPresented: $showARScanner)
-            }
-            .fullScreenCover(isPresented: $showRegisterSheet) {
-                RegisterView()
-            }
-            
         }
+        .fullScreenCover(isPresented: $showRegisterSheet) {
+            RegisterView()
+        }
+        .fullScreenCover(isPresented: $showARView) {
+            ARFaceScanView()
+        }
+        
     }
 }
+
 
 
 #Preview {
