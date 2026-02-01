@@ -47,7 +47,26 @@ struct HeaderCapsule: View {
             .padding(.trailing, 6)
         }
         .padding(.vertical, 6)
+        .background(.ultraThinMaterial, in: Capsule())
         .glassEffect()
         .foregroundStyle(.white)
+    }
+}
+
+#Preview {
+    ZStack {
+        // Gradient background to make glass effect visible
+        LinearGradient(
+            colors: [.blue, .purple, .pink],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+        
+        VStack {
+            HeaderCapsule()
+            Spacer()
+        }
+        .padding()
     }
 }

@@ -4,6 +4,8 @@ import Vision
 
 struct ARViewContainer: UIViewRepresentable {
     
+    @ObservedObject var detector: FaceDetector
+    
     func makeUIView(context: Context) -> ARSCNView {
         let arView = ARSCNView(frame: .zero)
         arView.session.delegate = context.coordinator
@@ -18,15 +20,22 @@ struct ARViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: ARSCNView, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(detector: detector)
     }
     
     // MARK: - Coordinator
     class Coordinator: NSObject, ARSessionDelegate {
         
+        // face detector:
+        let detector: FaceDetector
+        init(detector: FaceDetector) {
+            self.detector = detector
+        }
+        
         // Flag to prevent clogging the thread
         private var isProcessing = false
         private var lastSaveTime = Date.distantPast
+        private var lastDebugTime = Date.distantPast
         
         // MARK: - ARSessionDelegate
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
@@ -43,8 +52,12 @@ struct ARViewContainer: UIViewRepresentable {
                     
                     self.handleDetectedFace(face)
                     
-                    // debugger function call:
                     self.debugFaceScan(pixelBuffer: pixelBuffer)
+                } else {
+                    let detector = self.detector
+                    Task { @MainActor in
+                        detector.faceRect = nil
+                    }
                 }
                 
                 self.isProcessing = false
@@ -66,19 +79,26 @@ struct ARViewContainer: UIViewRepresentable {
         
         // MARK: - Helper Methods
         private func handleDetectedFace(_ observation: VNFaceObservation) {
-            let boundingBox = observation.boundingBox
-            let x = String(format: "%.2f", boundingBox.origin.x)
-            let y = String(format: "%.2f", boundingBox.origin.y)
-            let w = String(format: "%.2f", boundingBox.width)
-            let h = String(format: "%.2f", boundingBox.height)
             
-            print("👤 Face Detected! [x: \(x), y: \(y), w: \(w), h: \(h)]")
+            // throttling face detection to every 0.5 seconds
+            guard Date().timeIntervalSince(lastSaveTime) > 0.5 else { return }
+            lastSaveTime = Date()
+            
+            // applying 15% increase in both dir as padding (for ml model):
+            let boundingBox = observation.boundingBox
+            let scaleTransform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+            
+            // saving in detector (it will cause the face scan rectangle to move on the screen)
+            let detector = self.detector
+            Task { @MainActor in
+                detector.faceRect = boundingBox.applying(scaleTransform)
+            }
         }
         
         private func debugFaceScan(pixelBuffer: CVPixelBuffer) {
             // Check throttle (e.g., save only once every 2 seconds)
-            guard Date().timeIntervalSince(lastSaveTime) > 2.0 else { return }
-            lastSaveTime = Date()
+            guard Date().timeIntervalSince(lastDebugTime) > 2.0 else { return }
+            lastDebugTime = Date()
 
             // Convert to UIImage (ensure you have the extension I provided earlier)
             // We use .right because ARKit buffers are usually rotated 90 degrees

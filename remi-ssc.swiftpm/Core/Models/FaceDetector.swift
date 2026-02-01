@@ -7,6 +7,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 class FaceDetector: ObservableObject {
     // If we see a face on the ARView, this object holds the bounding box of the face
     // The rect is in the ARView's coordinate space
