@@ -37,6 +37,12 @@ struct ARFaceScanView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
+            
+            VStack {
+                Spacer()
+                FaceScanWarning(detector: detector)
+                    .padding(.bottom, 30)
+            }
         }
     }
 }
