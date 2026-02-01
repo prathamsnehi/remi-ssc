@@ -23,7 +23,13 @@ struct FaceOverlayViewfinder: View {
                     .frame(width: rect.width, height: rect.height)
                     .foregroundStyle(detector.identifiedPerson == nil ? Color.blue : Color.green)
                     .position(x: rect.midX, y: rect.midY)
+                    // transition for smooth box moving when faceRect updates
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                        removal: .opacity.combined(with: .scale(scale: 0.8))
+                    ))
             }
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: detector.faceRect)
     }
 }
