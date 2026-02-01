@@ -9,8 +9,12 @@ import SwiftUI
 
 struct ARFaceScanView: View {
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             ARViewContainer()
+                .ignoresSafeArea()
+            
+            HeaderCapsule()
+                .padding(.top, 16)
         }
     }
 }
