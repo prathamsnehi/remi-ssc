@@ -3,6 +3,8 @@ import Vision
 import SwiftUI
 import ImageIO // Required for CGImagePropertyOrientation
 import VideoToolbox
+import CoreImage
+import CoreVideo
 
 
 extension UIImage {
@@ -60,5 +62,46 @@ extension CVPixelBuffer {
         
         guard let createdCGImage = cgImage else { return nil }
         return UIImage(cgImage: createdCGImage, scale: 1.0, orientation: orientation)
+    }
+}
+
+extension CIImage {
+    
+    /// Renders the CIImage into a new CVPixelBuffer with SFace-compatible settings (BGRA).
+    /// - Parameters:
+    ///   - context: The shared CIContext (Passed in to avoid performance drops).
+    ///   - size: The target size (e.g., 112x112).
+    /// - Returns: A ready-to-use CVPixelBuffer or nil if allocation fails.
+    func toCVPixelBuffer(using context: CIContext, size: CGSize) -> CVPixelBuffer? {
+        
+        // 1. Define Attributes: We force BGRA here for your model
+        let attrs = [
+            kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferWidthKey: Int(size.width),
+            kCVPixelBufferHeightKey: Int(size.height),
+            kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA // <--- CRITICAL for our ML Model
+        ] as CFDictionary
+        
+        // 2. Allocate the Buffer
+        var pixelBuffer: CVPixelBuffer?
+        let status = CVPixelBufferCreate(kCFAllocatorDefault,
+                                         Int(size.width),
+                                         Int(size.height),
+                                         kCVPixelFormatType_32BGRA,
+                                         attrs,
+                                         &pixelBuffer)
+        
+        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            print("❌ Extension Error: Could not allocate PixelBuffer. Status: \(status)")
+            return nil
+        }
+        
+        // 3. Render
+        // Note: This renders the CIImage *into* the buffer's bounds.
+        // Ensure your CIImage is already transformed/cropped correctly before calling this.
+        context.render(self, to: buffer)
+        
+        return buffer
     }
 }

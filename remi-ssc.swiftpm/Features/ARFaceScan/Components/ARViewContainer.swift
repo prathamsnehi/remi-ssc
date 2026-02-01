@@ -85,36 +85,34 @@ struct ARViewContainer: UIViewRepresentable {
             
             // applying square padding logic:
             let bufferSize = CGSize(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
-            let expandedRect = getSquareFaceRect(observation.boundingBox, bufferSize: bufferSize)
+            
+            let uiRect = observation.boundingBox // narrower bounding box for tight UI
+            let mlRect = getSquareFaceRect(observation.boundingBox, bufferSize: bufferSize) // normalized rect for ml prediction on image
             
             // saving in detector (it will cause the face scan rectangle to move on the screen)
             let detector = self.detector
             Task { @MainActor in
-                detector.faceRect = expandedRect
+                detector.faceRect = uiRect // <- uiRect because it only impacts the UI
             }
             
-            self.debugFaceScan(pixelBuffer: pixelBuffer, cropRect: expandedRect)
+            guard let croppedFaceBuffer: CVPixelBuffer = extractCroppedFacePixelBuffer(from: pixelBuffer, normalizedRect: mlRect) else {
+                print("Error bro, couldn't crop pixel buffer")
+                return
+            }
+            self.debugFaceScan(pixelBuffer: croppedFaceBuffer)
         }
         
-        private func debugFaceScan(pixelBuffer: CVPixelBuffer, cropRect: CGRect) {
+        private func debugFaceScan(pixelBuffer: CVPixelBuffer) {
             // Check throttle (e.g., save only once every 1 second)
             guard Date().timeIntervalSince(lastDebugTime) > 1.0 else { return }
             lastDebugTime = Date()
 
             // Using CIImage to rotate and crop (can't do these operations on pixel buffer)
-            let ciImage = CIImage(cvPixelBuffer: pixelBuffer).oriented(.right)
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
             let context = CIContext()
             
-            // Map normalized cropRect to pixel coordinates
-            let cropX = cropRect.origin.x * ciImage.extent.width
-            let cropY = cropRect.origin.y * ciImage.extent.height
-            let cropW = cropRect.width * ciImage.extent.width
-            let cropH = cropRect.height * ciImage.extent.height
             
-            let ciCropRect = CGRect(x: cropX, y: cropY, width: cropW, height: cropH)
-            let croppedCiImage = ciImage.cropped(to: ciCropRect)
-            
-            guard let cgImageResult = context.createCGImage(croppedCiImage, from: croppedCiImage.extent) else { return }
+            guard let cgImageResult = context.createCGImage(ciImage, from: ciImage.extent) else { return }
             let finalImage = UIImage(cgImage: cgImageResult)
             
             guard let data = finalImage.jpegData(compressionQuality: 0.8) else {
@@ -139,22 +137,25 @@ struct ARViewContainer: UIViewRepresentable {
 }
 
 private func getSquareFaceRect(_ rect: CGRect, bufferSize: CGSize) -> CGRect {
-    // 1. Calculate the oriented size (ARKit buffers are landscape, we use .right orientation)
-    // Buffer is [W: 1920, H: 1080], oriented portrait it becomes [W: 1080, H: 1920]
+    // golder cropping ratio crop (perfectly includes the whole face, and gives coordinates of a square
+    // job: give squares of the perfect crop, and pass to the function extractCroppedFacePixelBuffer
+    
+    // calculate the oriented size (ARKit buffers are landscape, we use .right orientation)
+    // buffer is [W: 1920, H: 1080], oriented portrait it becomes [W: 1080, H: 1920]
     let orientedWidth = bufferSize.height
     let orientedHeight = bufferSize.width
     
-    // 2. Map normalized center and dimensions to pixels
+    // map normalized center and dimensions to pixels
     let centerX = rect.midX * orientedWidth
     let centerY = rect.midY * orientedHeight
     let faceWidthPx = rect.width * orientedWidth
     let faceHeightPx = rect.height * orientedHeight
     
-    // 3. Size our square based on the larger dimension (usually height)
-    // Using 1.6x padding to ensure we get the whole head + context
+    // size our square based on the larger dimension (usually height)
+    // using 1.6x padding to ensure we get the whole head + context
     let sidePx = max(faceWidthPx, faceHeightPx) * 1.6
     
-    // 4. Create the square in pixel space
+    // create the square in pixel space
     var squarePx = CGRect(
         x: centerX - sidePx / 2,
         y: centerY - sidePx / 2,
@@ -162,14 +163,78 @@ private func getSquareFaceRect(_ rect: CGRect, bufferSize: CGSize) -> CGRect {
         height: sidePx
     )
     
-    // 5. Shift UP in pixels to capture hairline (Vision 0 is bottom, so += moves up)
+    // shift UP in pixels to capture hairline (Vision 0 is bottom, so += moves up)
     squarePx.origin.y += sidePx * 0.12
     
-    // 6. Convert BACK to normalized coordinates [0, 1] for the detector
+    // convert BACK to normalized coordinates [0, 1] for the detector
     return CGRect(
         x: squarePx.origin.x / orientedWidth,
         y: squarePx.origin.y / orientedHeight,
         width: squarePx.width / orientedWidth,
         height: squarePx.height / orientedHeight
     )
+}
+
+private func extractCroppedFacePixelBuffer(from uncroppedBuffer: CVPixelBuffer, normalizedRect: CGRect) -> CVPixelBuffer? {
+    // job: take the crop from getSquareFaceRect, and turn it into a CVPixelBuffer
+        // create the CIImage and orient it properly
+        let ciImage = CIImage(cvPixelBuffer: uncroppedBuffer).oriented(.right)
+        
+        let cropX = normalizedRect.origin.x * ciImage.extent.width
+        let cropY = normalizedRect.origin.y * ciImage.extent.height
+        let cropW = normalizedRect.width * ciImage.extent.width
+        let cropH = normalizedRect.height * ciImage.extent.height
+        
+        let pixelCropRect = CGRect(x: cropX, y: cropY, width: cropW, height: cropH)
+        let croppedImage = ciImage.cropped(to: pixelCropRect)
+        
+        // move to origin and scale
+        // problem: 'croppedImage' is still floating at (x: 500, y: 500).
+        // fix: we must move it to (0,0) and scale it to 112x112.
+        
+        // move to (0,0)
+        let translation = CGAffineTransform(translationX: -pixelCropRect.origin.x,
+                                            y: -pixelCropRect.origin.y)
+        
+        // B. Scale to 112x112
+        // We calculate how much we need to shrink/grow to hit exactly 112px.
+        let targetSize = CGSize(width: 112, height: 112)
+        let scaleX = targetSize.width / pixelCropRect.width
+        let scaleY = targetSize.height / pixelCropRect.height
+        let scale = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        
+        // combine transforms: move first, then scale
+        let finalTransform = translation.concatenating(scale)
+        let finalImage = croppedImage.transformed(by: finalTransform)
+        
+        // render to pixel buffer (efficiently)
+        // reuse the logic from the extension I gave you, or inline it here.
+        // ideally, make sure 'self.ciContext' is a property of Coordinator so we reuse it.
+        
+        var newPixelBuffer: CVPixelBuffer?
+        let attrs = [
+            kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferWidthKey: Int(targetSize.width),
+            kCVPixelBufferHeightKey: Int(targetSize.height),
+            kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA // SFace Requirement
+        ] as CFDictionary
+        
+        let status = CVPixelBufferCreate(kCFAllocatorDefault,
+                                         Int(targetSize.width),
+                                         Int(targetSize.height),
+                                         kCVPixelFormatType_32BGRA,
+                                         attrs,
+                                         &newPixelBuffer)
+        
+        guard status == kCVReturnSuccess, let buffer = newPixelBuffer else {
+            print("Failed to create pixel buffer")
+            return nil
+        }
+        
+        // create a temporary context just for this (or reuse a class property for speed)
+        let context = CIContext()
+        context.render(finalImage, to: buffer)
+        
+        return buffer
 }
