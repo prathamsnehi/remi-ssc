@@ -1,14 +1,14 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-01-31 06:25:27
+### Last Updated: 2026-02-01 06:30:18
 
 ## 🚀 Time to Lift Off
 
-> **5 days, 17 hours, 34 minutes** until Feb 6, 2026.
+> **4 days, 17 hours, 29 minutes** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 24 of 30
-`[████████████████░░░░] 80.9%`
+Day 25 of 30
+`[████████████████░░░░] 84.2%`
 
 ## 💾 Project Diet
 
@@ -17,12 +17,12 @@ Day 24 of 30
 
 ## 🧠 AI Captain's Orders
 
-- Fully implement the MobileNetV3 face recognition pipeline, ensuring 5-point landmark alignment, L2-normalization of embeddings post-model, and direct CVPixelBuffer passing to the CoreML model for high accuracy, as detailed in 'face-recognition-accuracy-implementations.md'.
-- Refactor your FaceRecognitionService to be an actor for thread safety, and implement CVPixelBuffer deep copying to prevent crashes. Additionally, apply global throttling (2 FPS), aggressive box smoothing (EMA), and hysteresis for a smooth real-time AR experience, as outlined in 'arkit-implementation-with-coreml.md'.
-- Update the AR face recognition UI to display a 'FaceID logo style box' covering the detected face, and redesign the recognition information card to consistently appear at the bottom of the screen, as per your daily accomplishment for January 19.
-- Complete the iPadOS homepage layouts by implementing the horizontal side navigation with 'Quick Items' and 'Quick Register' sections, and ensure both horizontal and vertical modes correctly display two distinct 'scan' buttons while managing hero section spacing as specified in 'homepage.md'.
-- Begin integrating the 'Conversation Starters' feature for friend profiles by utilizing the NaturalLanguage framework, specifically NLTagger, to extract relevant topics from memories and fit them into pre-generated templates, as described in 'implementations.md'.
+- [ ] Set up the foundational ARKit `ARView` by integrating the camera feed and implementing initial face detection using `ARFaceTrackingConfiguration` to begin the AR scanning feature.
+- [ ] Implement `Vision` framework to perform detailed face analysis on `CVPixelBuffer`s, specifically extracting 5-point landmarks (eyes, nose, mouth corners) required for precise face alignment with `MobileNetV3`.
+- [ ] Integrate the `MobileNetV3.mlmodel` into the project, ensuring the input pipeline strictly adheres to its requirements: perform 5-point landmark alignment to warp faces to 112x112 pixels, and feed `RGB 0-255` `CVPixelBuffer`s directly, avoiding manual pixel normalization.
+- [ ] Refactor face embedding generation and comparison logic into a `FaceRecognitionService` `actor` to guarantee thread safety. Ensure deep copies of `CVPixelBuffer` are made and L2 normalization is applied to embeddings before cosine similarity comparison.
+- [ ] Design and implement the AR recognition user interface to display a 'FaceID logo style box' over the detected face and position the recognition card (with name, relation, and conversation starter) at the bottom of the screen, as per the latest UX refinement.
 
 ## ✨ Daily Fuel
 
-> "Your dedication to the details will transform a good idea into an extraordinary experience."
+> "Every challenge in code is an opportunity to craft a truly unforgettable experience, for yourself and for those you touch."
