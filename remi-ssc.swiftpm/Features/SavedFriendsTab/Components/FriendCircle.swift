@@ -60,7 +60,8 @@ private struct PreviewHelper {
         let person = Person(
             name: "Ishowspeed",
             relation: "Streamer and sensational personality",
-            photoData: data
+            photoData: data,
+            embeddingSamples: []
         )
         
         let memory = Memory(content: "We went hiking last weekend and saw a deer.", type: .general)

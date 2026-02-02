@@ -5,6 +5,7 @@ import ARKit
 struct ARViewContainer: UIViewRepresentable {
     
     @ObservedObject var detector: FaceDetector
+    var savedPersons: [Person] // synced with SwiftData (source of truth)
     
     func makeUIView(context: Context) -> ARSCNView {
         let arView = ARSCNView(frame: .zero)
@@ -17,7 +18,13 @@ struct ARViewContainer: UIViewRepresentable {
         return arView
     }
     
-    func updateUIView(_ uiView: ARSCNView, context: Context) {}
+    func updateUIView(_ uiView: ARSCNView, context: Context) {
+        // syncing SwiftData data to fetch latest People data
+        // and store it in the detector
+        if detector.savedPersons != savedPersons {
+            detector.savedPersons = savedPersons
+        }
+    }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(detector: detector)
@@ -29,11 +36,16 @@ struct ARViewContainer: UIViewRepresentable {
         // creating ciContext once (less hardware intensive rather than creating multiple times a second in helper methods)
         private let ciContext = CIContext() // used for cropping the buffer for each face observation
         
+        // face recognition services:
+        private let recognizer: FaceRecognitionService
+        
         // face detector:
         let detector: FaceDetector
         init(detector: FaceDetector) {
             self.detector = detector
+            self.recognizer = FaceRecognitionService(detector: detector)
         }
+        
         
         // Flag to prevent clogging the thread
         private var isProcessing = false
@@ -51,15 +63,17 @@ struct ARViewContainer: UIViewRepresentable {
             let request = VNDetectFaceRectanglesRequest { [weak self] request, error in
                 guard let self = self else { return }
                 
+                let detector = self.detector
+                
                 if let results = request.results as? [VNFaceObservation], let face = results.first {
                     
+                    // when the person is found on-screen:
+                    Task { await detector.setPersonOnCamera(true)}
                     self.handleDetectedFace(face, pixelBuffer: pixelBuffer)
                     
                 } else {
-                    let detector = self.detector
-                    Task { @MainActor in
-                        detector.faceRect = nil
-                    }
+                    // when no faces are found on the screen:
+                    Task { await detector.setPersonOnCamera(false)}
                 }
                 
                 self.isProcessing = false
@@ -81,12 +95,13 @@ struct ARViewContainer: UIViewRepresentable {
         
         // MARK: Session Methods:
         private func handleDetectedFace(_ observation: VNFaceObservation, pixelBuffer: CVPixelBuffer) {
+            let detector = self.detector
             
             // checking to make sure observation quality is upto the mark:
             if isGoodQualityFaceObservation(observation: observation) != true { return }
             
             // proceed if no problems detected with the scan:
-            resetDetectorErrorStatus()
+            Task { await detector.resetDetectorErrorStatus() }
             
             // throttling face detection to every 0.5 seconds
             guard Date().timeIntervalSince(lastSaveTime) > 0.5 else { return }
@@ -100,9 +115,8 @@ struct ARViewContainer: UIViewRepresentable {
             let mlRect = getSquareFaceRect(observation.boundingBox, bufferSize: bufferSize) // normalized CGRect for ml prediction on image
             
             // saving in detector (it will cause the face scan rectangle to move on the screen)
-            let detector = self.detector
-            Task { @MainActor in
-                detector.faceRect = uiRect // <- uiRect because it only impacts the UI
+            Task {
+                await detector.setUIFaceRect(uiRect) // <- uiRect because it only impacts the UI
             }
             
             // this croppedFaceBuffer is the perfectly cropped buffer needed to feed into the ml model
@@ -110,14 +124,43 @@ struct ARViewContainer: UIViewRepresentable {
                 print("Error bro, couldn't crop pixel buffer")
                 return
             }
+            
+            let modelInput = UnsafeTransfer(value: croppedFaceBuffer) // to safely pass to a Task block
+            
+            // face recognition pipeline flow:
+            Task { [recognizer = self.recognizer, modelInput] in // because ml model interactions is async
+                let inputBuffer = modelInput.value
+                
+                // 1. get embedding
+                guard let faceEmbedding = await recognizer.generateEmbedding(from: inputBuffer) else {
+                    print("Couldn't generate embedding")
+                    return
+                }
+                
+                let candidateMap: [UUID: [[Float]]] = await detector.personLookupMap
+                
+                // find if there is a match
+                guard let (bestMatchId, confidence) = await recognizer.identify(probeVector: faceEmbedding, candidateMap: candidateMap) else {
+                    // no match logic, prompt to registration
+                    return
+                }
+                
+                // yes match, update detector to include the detected person for UI:
+                
+                print("VECTOR GENERATED: \(faceEmbedding)")
+                print("VECTOR SIZE: \(faceEmbedding.count)")
+            }
+            
             self.debugFaceScan(pixelBuffer: croppedFaceBuffer)
         }
         
         // MARK: Detector Helper Methods:
         private func isGoodQualityFaceObservation(observation: VNFaceObservation) -> Bool {
+            let detector = self.detector
+            
             // scanning for face tilt (yaw):
             if let yaw = observation.yaw?.doubleValue, abs(yaw) > 0.5 {
-                showUIError(errorType: .headTilted)
+                Task { await detector.showUIError(errorType: .headTilted) }
                 return false
             }
             
@@ -125,21 +168,6 @@ struct ARViewContainer: UIViewRepresentable {
             return true
         }
         
-        private func resetDetectorErrorStatus() {
-            // resets the ui instructions that are set in the detector
-            
-            let detector = self.detector
-            Task { @MainActor in
-                detector.uiError = nil
-            }
-        }
-        
-        private func showUIError(errorType: UIErrors) {
-            let detector = self.detector
-            Task { @MainActor in
-                detector.uiError = errorType
-            }
-        }
         
         // MARK: Debug Methods:
         private func debugFaceScan(pixelBuffer: CVPixelBuffer) {
@@ -277,3 +305,9 @@ private func extractCroppedFacePixelBuffer(from uncroppedBuffer: CVPixelBuffer, 
     
     return buffer
 }
+
+/// A generic wrapper to safely pass non-Sendable types (like CVPixelBuffer)
+struct UnsafeTransfer<T>: @unchecked Sendable {
+    let value: T
+}
+

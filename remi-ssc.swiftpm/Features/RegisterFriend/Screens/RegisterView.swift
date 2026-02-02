@@ -125,7 +125,8 @@ struct RegisterView: View {
         let newPerson = Person(
             name: name,
             relation: relation.isEmpty ? "Friend" : relation,
-            photoData: data
+            photoData: data,
+            embeddingSamples: []
         )
         
         // Create the Memory (if they typed one)

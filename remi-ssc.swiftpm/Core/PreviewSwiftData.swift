@@ -34,7 +34,8 @@ struct PreviewSwiftData {
             let person1 = Person(
                 name: "Ishowspeed",
                 relation: "Streamer of the year",
-                photoData: data1
+                photoData: data1,
+                embeddingSamples: []
             )
             let memory1 = Memory(content: "Please speed I need this. My mom is kinda homeless. I live w my dad", type: .general)
             person1.memories.append(memory1)
@@ -43,7 +44,8 @@ struct PreviewSwiftData {
             let person2 = Person(
                 name: "Kai Cenat",
                 relation: "Just a normal streamer",
-                photoData: data2
+                photoData: data2,
+                embeddingSamples: []
             )
             let memory2 = Memory(content: "Idk just stream to a bunch of people I guess", type: .general)
             person2.memories.append(memory2)

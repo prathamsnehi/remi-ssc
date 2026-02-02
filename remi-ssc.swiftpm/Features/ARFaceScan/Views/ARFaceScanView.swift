@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ARFaceScanView: View {
     @Environment(\.dismiss) private var dismiss
+    @Query var savedPersons: [Person]
     @StateObject private var detector = FaceDetector()
     
     var body: some View {
         ZStack(alignment: .top) {
-            ARViewContainer(detector: detector)
+            ARViewContainer(detector: detector, savedPersons: savedPersons)
                 .ignoresSafeArea()
             
             FaceOverlayViewfinder(detector: detector)

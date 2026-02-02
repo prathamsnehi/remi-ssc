@@ -103,5 +103,5 @@ struct UpdateOptionsSheet: View {
 
 
 #Preview {
-    UpdateOptionsSheet(person: Person(name: "Test", relation: "Friend", photoData: Data()))
+    UpdateOptionsSheet(person: Person(name: "Test", relation: "Friend", photoData: Data(), embeddingSamples: []))
 }

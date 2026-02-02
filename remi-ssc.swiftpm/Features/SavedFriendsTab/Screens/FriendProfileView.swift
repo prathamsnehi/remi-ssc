@@ -71,7 +71,8 @@ private struct PreviewHelper {
         return Person(
             name: "LeVar Burton",
             relation: "Mentor",
-            photoData: data
+            photoData: data,
+            embeddingSamples: []
         )
     }
 }

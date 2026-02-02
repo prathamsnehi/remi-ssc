@@ -97,7 +97,7 @@ struct SuggestionCard: View {
     ZStack {
         Color("AppBackground")
             .ignoresSafeArea()
-        SuggestionCard(person: Person(name: "Test", relation: "Friend", photoData: Data()))
+        SuggestionCard(person: Person(name: "Test", relation: "Friend", photoData: Data(), embeddingSamples: []))
             .padding()
     }
 }
