@@ -73,7 +73,7 @@ struct ARViewContainer: UIViewRepresentable {
                     
                 } else {
                     // when no faces are found on the screen:
-                    Task { await detector.setPersonOnCamera(false)}
+                    Task { await detector.resetFaceDetector()}
                 }
                 
                 self.isProcessing = false
@@ -100,12 +100,13 @@ struct ARViewContainer: UIViewRepresentable {
             // checking to make sure observation quality is upto the mark:
             if isGoodQualityFaceObservation(observation: observation) != true { return }
             
-            // proceed if no problems detected with the scan:
-            Task { await detector.resetDetectorErrorStatus() }
             
             // throttling face detection to every 0.5 seconds
             guard Date().timeIntervalSince(lastSaveTime) > 0.5 else { return }
             lastSaveTime = Date()
+            
+            // proceed if no problems detected with the scan:
+            Task { await detector.resetDetectorErrorStatus() }
             
             
             // separate bounding boxes depending on UI or ML Calculations:

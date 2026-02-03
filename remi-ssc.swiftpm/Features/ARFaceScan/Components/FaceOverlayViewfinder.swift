@@ -17,17 +17,36 @@ struct FaceOverlayViewfinder: View {
                     height: faceRect.height * height
                 )
                 
-                Image(systemName: "viewfinder")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: rect.width, height: rect.height)
-                    .foregroundStyle(detector.identifiedPerson == nil ? Color.blue : Color.green)
-                    .position(x: rect.midX, y: rect.midY)
-                    // transition for smooth box moving when faceRect updates
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                        removal: .opacity.combined(with: .scale(scale: 0.8))
-                    ))
+                ZStack {
+                    if detector.isScanningFace {
+                        // Circular scan progress ring
+                        Circle()
+                            .stroke(.white.opacity(0.3), lineWidth: 4)
+                            .frame(width: rect.width * 1.2, height: rect.height * 1.2)
+                        
+                        Circle()
+                            .trim(from: 0, to: detector.scanProgress)
+                            .stroke(
+                                Color.white.mix(with: .green, by: detector.scanProgress),
+                                style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                            )
+                            .frame(width: rect.width * 1.2, height: rect.height * 1.2)
+                            .rotationEffect(.degrees(-90))
+                    } else {
+                        // Standard viewfinder
+                        Image(systemName: "viewfinder")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: rect.width, height: rect.height)
+                            .foregroundStyle(detector.identifiedPerson == nil ? Color.blue : Color.green)
+                    }
+                }
+                .position(x: rect.midX, y: rect.midY)
+                // transition for smooth box moving when faceRect updates
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                    removal: .opacity.combined(with: .scale(scale: 0.8))
+                ))
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: detector.faceRect)

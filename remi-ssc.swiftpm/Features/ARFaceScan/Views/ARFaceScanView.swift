@@ -14,36 +14,42 @@ struct ARFaceScanView: View {
     @StateObject private var detector = FaceDetector()
     
     var body: some View {
-        ZStack(alignment: .top) {
-            ARViewContainer(detector: detector, savedPersons: savedPersons)
-                .ignoresSafeArea()
-            
-            FaceOverlayViewfinder(detector: detector)
-                .ignoresSafeArea()
-            
-            HStack {
-                HeaderCapsule()
-                .padding(.leading, 16)
+        NavigationStack {
+            ZStack(alignment: .top) {
+                ARViewContainer(detector: detector, savedPersons: savedPersons)
+                    .ignoresSafeArea()
                 
-                Spacer()
+                FaceOverlayViewfinder(detector: detector)
+                    .ignoresSafeArea()
                 
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
+                HStack {
+                    HeaderCapsule(
+                        title: detector.isScanningFace ? "Registering Person" : "AR Scan",
+                        isScanning: detector.isScanningFace
+                    )
+                    .padding(.leading, 16)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 36, height: 36)
+                    }
+                    .glassEffect()
                 }
-                .glassEffect()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            
-            VStack {
-                Spacer()
-                FaceScanWarning(detector: detector)
-                    .padding(.bottom, 30)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                
+                VStack {
+                    Spacer()
+                    
+                    ARFooterCard(detector: detector)
+                        .padding(.bottom, 24)
+                }
             }
         }
     }

@@ -33,41 +33,41 @@ struct RegisterView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                                   // Progress Bar (Optional, but nice for wizards)
-                    ProgressView(value: Double(currentStep), total: 4)
-                        .padding(.horizontal)
-                        .tint(.blue)
-                    
-                    // Step Views
-                    switch currentStep {
-                    case 1:
-                        RegisterPhotoScreen(inputImage: $inputImage, onNext: {
-                            withAnimation { currentStep = 2 }
-                        })
-                    case 2:
-                        RegisterNameScreen(
-                            name: $name,
-                            image: inputImage,
-                            onNext: registerFace,
-                            isSubmitting: isSubmitting
-                        )
-                    case 3:
-                        RegisterRelationScreen(
-                            relation: $relation,
-                            image: inputImage,
-                            onNext: {
-                                withAnimation { currentStep = 4 }
-                            }
-                        )
-                    case 4:
-                        RegisterMemoryScreen(
-                            memory: $firstMemory,
-                            image: inputImage,
-                            onFinish: finishRegistration
-                        )
-                    default:
-                        EmptyView()
-                    }
+                // Progress Bar (Optional, but nice for wizards)
+                ProgressView(value: Double(currentStep), total: 4)
+                    .padding(.horizontal)
+                    .tint(.blue)
+                
+                // Step Views
+                switch currentStep {
+                case 1:
+                    RegisterPhotoScreen(inputImage: $inputImage, onNext: {
+                        withAnimation { currentStep = 2 }
+                    })
+                case 2:
+                    RegisterNameScreen(
+                        name: $name,
+                        image: inputImage,
+                        onNext: registerFace,
+                        isSubmitting: isSubmitting
+                    )
+                case 3:
+                    RegisterRelationScreen(
+                        relation: $relation,
+                        image: inputImage,
+                        onNext: {
+                            withAnimation { currentStep = 4 }
+                        }
+                    )
+                case 4:
+                    RegisterMemoryScreen(
+                        memory: $firstMemory,
+                        image: inputImage,
+                        onFinish: finishRegistration
+                    )
+                default:
+                    EmptyView()
+                }
                 
             }
             .navigationTitle("New Friend")

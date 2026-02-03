@@ -39,6 +39,11 @@ class FaceDetector: ObservableObject {
     @Published var identifiedPerson: Person? = nil
     @Published var confidence: Double = 0.0
     
+    // registration state:
+    @Published var isScanningFace: Bool = false
+    @Published var isScanning: Bool = false
+    @Published var scanProgress: Double = 0.0
+    
     // published to update SwiftUI whenever this updates
     // so that we can keep updating the position of the card based on if the person's face moves on camera
     
@@ -69,5 +74,13 @@ class FaceDetector: ObservableObject {
     func showMatchFound(identifiedPerson: Person, confidence: Double) {
         self.identifiedPerson = identifiedPerson
         self.confidence = confidence
+    }
+    
+    func resetFaceDetector () {
+        self.faceRect = nil
+        self.isPersonOnCamera = false
+        self.identifiedPerson = nil
+        self.confidence = 0.0
+        self.uiError = nil
     }
 }
