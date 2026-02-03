@@ -24,8 +24,8 @@ struct ARFaceScanView: View {
                 
                 HStack {
                     HeaderCapsule(
-                        title: detector.isScanningFace ? "Registering Person" : "AR Scan",
-                        isScanning: detector.isScanningFace
+                        title: detector.isScanModeOn ? "Registering Person" : "AR Scan",
+                        isScanning: detector.isScanModeOn
                     )
                     .padding(.leading, 16)
                     

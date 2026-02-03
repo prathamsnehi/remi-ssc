@@ -98,7 +98,7 @@ struct ARViewContainer: UIViewRepresentable {
             let detector = self.detector
             
             // checking to make sure observation quality is upto the mark:
-            if isGoodQualityFaceObservation(observation: observation) != true { return }
+            if checkFaceObservationQuality(observation: observation) != true { return } // checks for basic face scan killers (face tilt, blurry, etc. If this is case, give UI error and don't generate embedding
             
             
             // throttling face detection to every 0.5 seconds
@@ -127,10 +127,13 @@ struct ARViewContainer: UIViewRepresentable {
             }
             
             let modelInput = UnsafeTransfer(value: croppedFaceBuffer) // to safely pass to a Task block
+            let originalInput = UnsafeTransfer(value: pixelBuffer)
             
             // face recognition pipeline flow:
             Task { [recognizer = self.recognizer, modelInput] in // because ml model interactions is async
                 let inputBuffer = modelInput.value
+                let originalBuffer = originalInput.value // for converting to jpeg and save as user's registration photo
+                
                 
                 // 1. get embedding
                 guard let faceEmbedding = await recognizer.generateEmbedding(from: inputBuffer) else {
@@ -138,13 +141,31 @@ struct ARViewContainer: UIViewRepresentable {
                     return
                 }
                 
+                // REGISTRATION SCAN FLOW
+                // based on the flow, this is the perfect place to put that logic
+                if (await detector.isScanning) {
+                    await detector.addRegistrationEmbedding(faceEmbedding)
+                    
+                    if await detector.registrationImage == nil {
+                        // only one time save the person's photo when clicked on the scan button on frontend
+                        if let jpegData = originalBuffer.jpegData(croppedTo: mlRect, quality: 0.8) {
+                            await detector.saveRegistrationPhoto(jpegData)
+                        }
+                    }
+                    return // because the stuff ahead of this is the logic of detecting match: we're not finding a match when scanning and storing embeddings for a person
+                }
+                
+                // FACE DETECTION FLOW:
                 let candidateMap: [UUID: [[Float]]] = await detector.personLookupMap
                 
                 // find if there is a match
                 guard let (bestMatchId, confidence) = await recognizer.identify(probeVector: faceEmbedding, candidateMap: candidateMap) else {
-                    // no match logic, prompt to registration
+                    // no match logic, try going to the registration screen
+                    await detector.setUnidentifiedFace() // sets identifiedPerson to nil for the frontend logic        
                     return
                 }
+                
+                // find the person who matches with that Id, adding this info + confidence in the detector
                 
                 // yes match, update detector to include the detected person for UI:
                 
@@ -156,7 +177,7 @@ struct ARViewContainer: UIViewRepresentable {
         }
         
         // MARK: Detector Helper Methods:
-        private func isGoodQualityFaceObservation(observation: VNFaceObservation) -> Bool {
+        private func checkFaceObservationQuality(observation: VNFaceObservation) -> Bool {
             let detector = self.detector
             
             // scanning for face tilt (yaw):

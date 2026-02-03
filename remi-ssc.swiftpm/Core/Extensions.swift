@@ -23,7 +23,7 @@ extension UIImage {
         @unknown default: return .up
         }
     }
-
+    
     /// Detects the center of the first face found in the image.
     /// Returns a UnitPoint where (0,0) is top-left and (1,1) is bottom-right.
     /// Returns nil if no face is found.
@@ -62,6 +62,31 @@ extension CVPixelBuffer {
         
         guard let createdCGImage = cgImage else { return nil }
         return UIImage(cgImage: createdCGImage, scale: 1.0, orientation: orientation)
+    }
+    
+    /// Returns a cropped JPEG from the pixel buffer, oriented to `.right`.
+    /// - Parameters:
+    ///   - normalizedRect: The rect in normalized coordinates (0-1)
+    ///   - quality: JPEG compression quality
+    /// - Returns: JPEG Data or nil if failed
+    func jpegData(croppedTo normalizedRect: CGRect, quality: CGFloat = 0.8) -> Data? {
+        // Create CIImage
+        let ciImage = CIImage(cvPixelBuffer: self).oriented(.right)
+        
+        // Convert normalized rect to pixel rect
+        let pixelRect = CGRect(
+            x: normalizedRect.origin.x * ciImage.extent.width,
+            y: normalizedRect.origin.y * ciImage.extent.height,
+            width: normalizedRect.width * ciImage.extent.width,
+            height: normalizedRect.height * ciImage.extent.height
+        )
+        
+        // Crop
+        let cropped = ciImage.cropped(to: pixelRect)
+        
+        // Convert to UIImage and encode JPEG
+        let uiImage = UIImage(ciImage: cropped)
+        return uiImage.jpegData(compressionQuality: quality)
     }
 }
 

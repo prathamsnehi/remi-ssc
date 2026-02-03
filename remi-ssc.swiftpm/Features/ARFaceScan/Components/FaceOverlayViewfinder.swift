@@ -18,7 +18,7 @@ struct FaceOverlayViewfinder: View {
                 )
                 
                 ZStack {
-                    if detector.isScanningFace {
+                    if detector.isScanModeOn {
                         // Circular scan progress ring
                         Circle()
                             .stroke(.white.opacity(0.3), lineWidth: 4)

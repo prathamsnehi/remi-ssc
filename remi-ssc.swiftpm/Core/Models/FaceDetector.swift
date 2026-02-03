@@ -9,10 +9,12 @@ import SwiftData
 
 enum UIErrors {
     case headTilted
+    case generic
     
     var uiMessage: String {
         switch self {
         case .headTilted: return "head is tilted, please face the camera"
+        case .generic: return "something went wrong"
         }
     }
 }
@@ -40,9 +42,11 @@ class FaceDetector: ObservableObject {
     @Published var confidence: Double = 0.0
     
     // registration state:
-    @Published var isScanningFace: Bool = false
+    @Published var isScanModeOn: Bool = false
     @Published var isScanning: Bool = false
     @Published var scanProgress: Double = 0.0
+    @Published var registrationEmbeddings: [[Float]] = []
+    @Published var registrationImage: Data? = nil
     
     // published to update SwiftUI whenever this updates
     // so that we can keep updating the position of the card based on if the person's face moves on camera
@@ -74,6 +78,30 @@ class FaceDetector: ObservableObject {
     func showMatchFound(identifiedPerson: Person, confidence: Double) {
         self.identifiedPerson = identifiedPerson
         self.confidence = confidence
+    }
+    
+    func openFaceRegistrationScanView () {
+        self.isScanModeOn = true
+    }
+    
+    func addRegistrationEmbedding(_ embedding: [Float]) {
+        self.registrationEmbeddings.append(embedding)
+    }
+    
+    func saveRegistrationPhoto(_ data: Data) {
+        self.registrationImage = data
+        print("📸 Registration Photo Saved!")
+    }
+    
+    func resetFaceScanState () { // called from UI when the registration 3 second (or whatever) ticker is over
+        self.isScanning = false
+        self.registrationEmbeddings = []
+        self.scanProgress = 0.0
+        self.registrationImage = nil
+    }
+    
+    func setUnidentifiedFace () {
+        self.identifiedPerson = nil
     }
     
     func resetFaceDetector () {
