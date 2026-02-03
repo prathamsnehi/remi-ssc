@@ -18,7 +18,15 @@ struct RegisterView: View {
     @State private var relation: String = ""
     @State private var firstMemory: String = ""
     @State private var inputImage: UIImage?
-    @State private var personID: String? // Stored after API success
+    
+    // AR Pre-captured Data
+    private let preCapturedImage: UIImage?
+    private let preCapturedEmbeddings: [[Float]]?
+    
+    init(preCapturedImage: UIImage? = nil, preCapturedEmbeddings: [[Float]]? = nil) {
+        self.preCapturedImage = preCapturedImage
+        self.preCapturedEmbeddings = preCapturedEmbeddings
+    }
     
     // Navigation State
     @State private var currentStep = 1
@@ -99,18 +107,25 @@ struct RegisterView: View {
                 ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                     .ignoresSafeArea()
             }
+            .onAppear {
+                if let preImage = preCapturedImage {
+                    self.inputImage = preImage
+                    self.currentStep = 2 // Skip photo selection
+                }
+            }
         }
     }
     
     
     func registerFace() {
-        guard let image = inputImage else { return }
-        isSubmitting = true
-        
+        // Validation could go here
+        withAnimation {
+            currentStep = 3
+        }
     }
     
     func finishRegistration() {
-        guard let id = personID, let image = inputImage else { return }
+        guard let image = inputImage else { return }
         
         // Resize and convert image to Data
         guard let data = image.jpegData(compressionQuality: 0.8) else {
@@ -118,15 +133,12 @@ struct RegisterView: View {
             return
         }
         
-        // Detect Face Center (Pre-calculate to avoid runtime stutter)
-        let faceCenter = image.detectFaceCenter()
-        
         // Create the Person
         let newPerson = Person(
             name: name,
             relation: relation.isEmpty ? "Friend" : relation,
             photoData: data,
-            embeddingSamples: []
+            embeddingSamples: preCapturedEmbeddings ?? []
         )
         
         // Create the Memory (if they typed one)
@@ -137,7 +149,7 @@ struct RegisterView: View {
         
         // Save to Database
         modelContext.insert(newPerson)
-        print("Saved \(name) to local database with ID: \(id)")
+        print("Saved \(name) to local database")
         
         dismiss()
     }

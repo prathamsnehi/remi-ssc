@@ -91,7 +91,7 @@ private struct UnregisteredPersonView: View {
 
 private struct IdentifiedPersonView: View {
     let person: Person
-    let confidence: Double
+    let confidence: Float
     
     var body: some View {
         HStack(spacing: 16) {

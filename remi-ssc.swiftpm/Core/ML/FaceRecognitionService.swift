@@ -58,8 +58,13 @@ actor FaceRecognitionService {
     func identify(
         probeVector: [Float],
         candidateMap: [UUID : [[Float]]],
-        threshold: Float = 0.50
+        threshold: Float = 0.50 // Default threshold
     ) -> (UUID, Float)? {
+        
+        print("\n---------------------------------------------------")
+        print("🔍 [FaceRec] STARTING IDENTIFICATION")
+        print("   👥 Candidates Loaded: \(candidateMap.count) people")
+        print("   🎯 Match Threshold: \(String(format: "%.2f", threshold))")
         
         var bestMatchId: UUID? = nil
         var bestScore: Float = -1.0
@@ -67,28 +72,54 @@ actor FaceRecognitionService {
         // Loop 1: Iterate through every person in the database
         for (personId, embeddings) in candidateMap {
             
+            // We track the best score just for this specific person for debugging
+            var highestScoreForThisPerson: Float = -1.0
+            
             // Loop 2: Iterate through every embedding sample (20-30 per person)
             for storedVector in embeddings {
                 
                 // calculate Similarity
                 let score = cosineSimilarity(probeVector, storedVector)
                 
-                // keeping the winner
+                // Update local tracking (just for logs)
+                if score > highestScoreForThisPerson {
+                    highestScoreForThisPerson = score
+                }
+                
+                // Update Global Winner logic
                 if score > bestScore {
+                    print("      📈 NEW GLOBAL BEST: \(String(format: "%.4f", score)) (ID: \(personId.uuidString.prefix(4))...)")
                     bestScore = score
                     bestMatchId = personId
                 }
             }
+            
+            // Log the summary for this person so you can compare them
+            // Prints: "👤 Checked 8A2F... | Max Score: 0.7231"
+            print("   👤 Checked \(personId.uuidString.prefix(4))... | Max Score: \(String(format: "%.4f", highestScoreForThisPerson))")
         }
         
-        // final Decision: Did the winner beat the threshold?
+        print("   ---------------------------------------------")
+        
+        // Final Decision: Did the winner beat the threshold?
         if bestScore >= threshold, let matchPersonId = bestMatchId {
+            print("✅ MATCH FOUND! 🎉")
+            print("   🆔 ID: \(matchPersonId)")
+            print("   💯 Score: \(String(format: "%.4f", bestScore)) (Threshold passed)")
+            print("---------------------------------------------------\n")
             return (matchPersonId, bestScore)
         }
         
-        // if best score was 0.3, we return nil (Unknown Person)
+        // Failure Logging
+        print("❌ NO MATCH FOUND")
+        if let bestId = bestMatchId {
+            print("   ⚠️ Closest match was \(bestId.uuidString.prefix(4))...")
+            print("   ⚠️ Score: \(String(format: "%.4f", bestScore)) (Failed to beat \(threshold))")
+        } else {
+            print("   ⚠️ No scores calculated (Candidate map might be empty).")
+        }
+        print("---------------------------------------------------\n")
+        
         return nil
     }
-    
-    
 }

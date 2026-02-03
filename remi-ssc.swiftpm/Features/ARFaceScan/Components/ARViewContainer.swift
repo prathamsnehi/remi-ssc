@@ -22,7 +22,9 @@ struct ARViewContainer: UIViewRepresentable {
         // syncing SwiftData data to fetch latest People data
         // and store it in the detector
         if detector.savedPersons != savedPersons {
-            detector.savedPersons = savedPersons
+            DispatchQueue.main.async {
+                detector.savedPersons = savedPersons
+            }
         }
     }
     
@@ -161,13 +163,14 @@ struct ARViewContainer: UIViewRepresentable {
                 // find if there is a match
                 guard let (bestMatchId, confidence) = await recognizer.identify(probeVector: faceEmbedding, candidateMap: candidateMap) else {
                     // no match logic, try going to the registration screen
-                    await detector.setUnidentifiedFace() // sets identifiedPerson to nil for the frontend logic        
+                    await detector.setUnidentifiedFace() // sets identifiedPerson to nil for the frontend logic
                     return
                 }
                 
                 // find the person who matches with that Id, adding this info + confidence in the detector
                 
                 // yes match, update detector to include the detected person for UI:
+                await detector.setIdentifiedFace(id: bestMatchId, confidence: confidence)
                 
                 print("VECTOR GENERATED: \(faceEmbedding)")
                 print("VECTOR SIZE: \(faceEmbedding.count)")

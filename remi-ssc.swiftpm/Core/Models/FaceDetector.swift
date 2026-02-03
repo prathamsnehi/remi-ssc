@@ -39,7 +39,7 @@ class FaceDetector: ObservableObject {
     // Identification Results
     @Published var isPersonOnCamera: Bool = false
     @Published var identifiedPerson: Person? = nil
-    @Published var confidence: Double = 0.0
+    @Published var confidence: Float = 0.0
     
     // registration state:
     @Published var isScanModeOn: Bool = false
@@ -75,7 +75,7 @@ class FaceDetector: ObservableObject {
         self.identifiedPerson = nil
     }
     
-    func showMatchFound(identifiedPerson: Person, confidence: Double) {
+    func showMatchFound(identifiedPerson: Person, confidence: Float) {
         self.identifiedPerson = identifiedPerson
         self.confidence = confidence
     }
@@ -102,6 +102,17 @@ class FaceDetector: ObservableObject {
     
     func setUnidentifiedFace () {
         self.identifiedPerson = nil
+    }
+    
+    func setIdentifiedFace (id: UUID, confidence: Float) {
+        if let match = self.savedPersons.first(where: { $0.id == id }) {
+            self.identifiedPerson = match
+            self.confidence = confidence
+        } else {
+            // Safety fallback: If ID works but person isn't in array (rare race condition)
+            print("⚠️ Match ID found but Person object missing from savedPersons")
+            self.identifiedPerson = nil
+        }
     }
     
     func resetFaceDetector () {
