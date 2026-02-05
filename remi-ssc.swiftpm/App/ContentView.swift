@@ -23,4 +23,5 @@ struct ContentView: View {
     ContentView()
         .modelContainer(PreviewSwiftData.container())
         .preferredColorScheme(.dark)
+        .tint(Color("AppPrimary"))
 }

@@ -47,11 +47,26 @@ struct PreviewSwiftData {
                 photoData: data2,
                 embeddingSamples: []
             )
+            let person3 = Person(
+                name: "Kai Cenat",
+                relation: "Just a normal streamer",
+                photoData: data2,
+                embeddingSamples: []
+            )
+            let person4 = Person(
+                name: "Kai Cenat",
+                relation: "Just a normal streamer",
+                photoData: data2,
+                embeddingSamples: []
+            )
             let memory2 = Memory(content: "Idk just stream to a bunch of people I guess", type: .general)
             person2.memories.append(memory2)
             
             container.mainContext.insert(person1)
             container.mainContext.insert(person2)
+            container.mainContext.insert(person3)
+            container.mainContext.insert(person4)
+
             
             return container
         } catch {

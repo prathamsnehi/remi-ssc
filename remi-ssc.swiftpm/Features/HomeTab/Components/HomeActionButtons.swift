@@ -41,8 +41,7 @@ struct HomeActionButtons: View {
                 } else {
                     // Dual Buttons: "Scan from Camera" & "Scan from Photos"
                     // Ratio: 66% vs 33%
-                    let spacing: CGFloat = 20
-                    let usefulWidth = max(0, availableWidth - spacing)
+                    let usefulWidth = max(0, availableWidth)
                     
                     SelectionButton(
                         title: "Camera\nAR Scan",
@@ -69,13 +68,9 @@ struct HomeActionButtons: View {
                      .frame(width: usefulWidth * 0.34)
                 }
             }
-            .padding(.horizontal, 30) // Adjusted from 20 to 30 to match the math (60 total)
+            .padding(.horizontal, 20) // Adjusted from 20 to 30 to match the math (60 total)
             .frame(width: geometry.size.width) // Ensure centered
         }
         .frame(height: 120) // Constrain height to button height
     }
 }
-
-// Internal helper just for this file
-// Removed ActionButton struct as we are now using SelectionButton
-

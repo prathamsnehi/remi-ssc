@@ -75,8 +75,8 @@ struct HomeView: View {
                                     RecentInteractions()
                                         .frame(maxWidth: .infinity)
                                 }
-                                .padding(.leading, 30)
-                                .padding(.trailing, 30)
+                                .padding(.leading, 20)
+                                .padding(.trailing, 20)
                                 .padding(.top, 30)
                             } else {
                                 // iPad Portrait: Vertical Stack
@@ -88,19 +88,20 @@ struct HomeView: View {
                                         .frame(maxWidth: .infinity)
                                 }
                                 .padding(.top, 30)
-                                .padding(.leading, 35)
-                                .padding(.trailing, 35)
+                                .padding(.leading, 20)
+                                .padding(.trailing, 20)
                             }
                         }
                         
                     } else {
                         // iOS Layout
-                        ScrollView() {
-                            MyMemoriesView()
-                            RecentInteractions()
+                            VStack(alignment: .leading, spacing: 24) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    MemoryStoryCardsView(height: 280)
+                                }
+                            }
+                            .padding(.top, 10)
                         }
-                        .padding(.top, 20)
-                    }
                     
                     Spacer()
                 }
