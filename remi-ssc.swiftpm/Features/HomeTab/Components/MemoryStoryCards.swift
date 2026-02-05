@@ -38,43 +38,58 @@ struct MemoryStoryCardsView: View {
     }
     
     var body: some View {
-        GeometryReader { proxy in
-            let cardWidth = proxy.size.width * 0.85
-            let normalPadding = (proxy.size.width - cardWidth) / 2
-            let specialPaddingAmount = 20.0
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(personsToShow) { person in
-                        MemoryStoryCard(
-                            person: person,
-                            width: cardWidth,
-                            height: height,
-                            currentSlideIndex: binding(for: person.id)
-                        )
-                        .id(person.id)
+        VStack(spacing: 8) {
+            GeometryReader { proxy in
+                let cardWidth = proxy.size.width * 0.85
+                let normalPadding = (proxy.size.width - cardWidth) / 2
+                let specialPaddingAmount = 20.0
+
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(personsToShow) { person in
+                            MemoryStoryCard(
+                                person: person,
+                                width: cardWidth,
+                                height: height,
+                                currentSlideIndex: binding(for: person.id)
+                            )
+                            .id(person.id)
+                        }
+                    }
+                    .padding(.leading, specialPadding.0)
+                    .padding(.trailing, specialPadding.1)
+                    .scrollTargetLayout()
+                }
+                .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $activeID)
+                .onAppear {
+                    if activeID == nil {
+                        activeID = personsToShow.first?.id
+                        updateCardPadding(index: 0, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
                     }
                 }
-                .padding(.leading, specialPadding.0)
-                .padding(.trailing, specialPadding.1)
-                .scrollTargetLayout()
-            }
-            .scrollTargetBehavior(.viewAligned)
-            .scrollPosition(id: $activeID)
-            .onAppear {
-                if activeID == nil {
-                   activeID = personsToShow.first?.id
-                   updateCardPadding(index: 0, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+                .onChange(of: activeID) { oldValue, newValue in
+                    if let id = newValue, let index = personsToShow.firstIndex(where: { $0.id == id }) {
+                        // Update padding immediately without animation to avoid scroll lag
+                        updateCardPadding(index: index, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+                    }
                 }
             }
-            .onChange(of: activeID) { oldValue, newValue in
-                if let id = newValue, let index = personsToShow.firstIndex(where: { $0.id == id }) {
-                    // Update padding immediately without animation to avoid scroll lag
-                    updateCardPadding(index: index, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+            .frame(height: height)
+            
+            // Pagination Dots
+            HStack(spacing: 8) {
+                ForEach(personsToShow) { person in
+                    Circle()
+                        .fill(activeID == person.id ? Color.primary : Color.secondary.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                        .scaleEffect(activeID == person.id ? 1.2 : 1.0)
+                        .animation(.spring(), value: activeID)
                 }
             }
+            .padding(.bottom, 10)
         }
-        .frame(height: height)
     }
 }
 
