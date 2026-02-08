@@ -35,11 +35,11 @@ struct HomeHero: View {
                     // Top Logo Area
                     HStack(spacing: 8) {
                         Image(systemName: "bookmark.fill") // Placeholder logo
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color("AppPrimaryText"))
                         Text("remi")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color("AppPrimaryText"))
                     }
                     // custom padding, avoids dynamic island in iOS
                     // and avoids the top padding in iPadOS
@@ -55,30 +55,31 @@ struct HomeHero: View {
                         if (sizeClass == .regular) {
                             HStack (spacing: 20) {
                                 Image(systemName: "hand.wave.fill")
-                                    .font(.system(size: sizeClass == .compact ? 24 : 32))
+                                    .font(.system(sizeClass == .compact ? .title2 : .title))
                                     .foregroundColor(.yellow)
                                 
                                 Text("Hi User,")
-                                    .font(.system(size: sizeClass == .compact ? 36 : 48, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
+                                    .font(.system(sizeClass == .compact ? .largeTitle : .largeTitle, design: .rounded, weight: .bold))
+                                    .foregroundColor(Color("AppPrimaryText"))
                             }
                             
                         } else {
                             // normal separated wave and text for iphone
                             Image(systemName: "hand.wave.fill")
-                                .font(.system(size: sizeClass == .compact ? 24 : 32))
+                                .font(.system(sizeClass == .compact ? .title2 : .title))
                                 .foregroundColor(.yellow)
                             
                             Text("Hi User,")
-                                .font(.system(size: sizeClass == .compact ? 36 : 48, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .font(.system(sizeClass == .compact ? .largeTitle : .largeTitle, design: .rounded, weight: .bold))
+                                .foregroundColor(Color("AppPrimaryText"))
                         }
+
                         
                         
                         Text("Who is with you?")
                             .font(sizeClass == .compact ? .title3 : .title2)
                             .fontWeight(.medium)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color("AppSecondaryText"))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }

@@ -29,12 +29,12 @@ private struct ScanErrorView: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("Scanning Problem")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color("AppSecondaryText"))
                 
                 Text(message)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(Color("AppPrimaryText"))
             }
             
             Spacer()
@@ -46,12 +46,12 @@ private struct ScanPromptView: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: "face.dashed")
-                .font(.system(size: 24))
+                .font(.title3)
                 .foregroundStyle(.blue.opacity(0.8))
             
             Text("Point camera towards a face")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(Color("AppPrimaryText"))
             
             Spacer()
         }
@@ -65,12 +65,12 @@ private struct UnregisteredPersonView: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Person Not Recognized")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.white)
+                    .font(.body.weight(.bold))
+                    .foregroundStyle(Color("AppPrimaryText"))
                 
                 Text("Register them to save memories")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .font(.subheadline)
+                    .foregroundStyle(Color("AppSecondaryText"))
             }
             
             Spacer()
@@ -79,7 +79,7 @@ private struct UnregisteredPersonView: View {
                 detector.isScanModeOn = true
             } label: {
                 Text("Register")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundStyle(.black)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
@@ -107,11 +107,11 @@ private struct IdentifiedPersonView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(person.name)
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(Color("AppPrimaryText"))
                     
                     Text("\(Int(confidence * 100))% Match")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.caption2.weight(.bold))
                         .foregroundStyle(.green)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -119,16 +119,16 @@ private struct IdentifiedPersonView: View {
                 }
                 
                 Text(person.relation)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .font(.footnote)
+                    .foregroundStyle(Color("AppSecondaryText"))
             }
             
             Spacer()
             
             NavigationLink(destination: FriendProfileView(person: person)) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color("AppPrimaryText").opacity(0.5))
                     .frame(width: 32, height: 32)
                     .background(Circle().fill(.white.opacity(0.1)))
             }

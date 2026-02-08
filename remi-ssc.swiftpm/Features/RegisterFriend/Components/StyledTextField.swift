@@ -14,7 +14,7 @@ struct StyledTextField: View {
     
     var body: some View {
         TextField(placeholder, text: $text)
-            .font(.system(size: 40, weight: .bold, design: .rounded))
+            .font(.system(.largeTitle, design: .rounded, weight: .bold))
             .multilineTextAlignment(.center)
             .submitLabel(.next)
             .onSubmit(onCommit)
@@ -23,7 +23,7 @@ struct StyledTextField: View {
             .overlay(
                 Rectangle()
                     .frame(height: 2)
-                    .foregroundColor(.gray.opacity(0.3))
+                    .foregroundColor(Color("AppSecondaryText").opacity(0.3))
                     .padding(.top, 50), // Underline effect
                 alignment: .bottom
             )

@@ -26,7 +26,7 @@ struct SuggestionCard: View {
                 Text("REMI SUGGESTS")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("AppSecondaryText"))
                     .tracking(1.2) // Adds spacing for a premium feel
             }
             
@@ -52,7 +52,7 @@ struct SuggestionCard: View {
                     Text(summary)
                         .font(.system(.headline, design: .rounded))
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color("AppPrimaryText"))
                         .lineSpacing(4)
                         .fixedSize(horizontal: false, vertical: true)
                 }

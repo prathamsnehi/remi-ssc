@@ -15,16 +15,16 @@ struct StubView: View {
         VStack(spacing: 20) {
             Image(systemName: iconName)
                 .font(.system(size: 60))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("AppSecondaryText"))
             
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color("AppPrimaryText"))
             
             Text("This feature is coming soon.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("AppSecondaryText"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("AppBackground"))

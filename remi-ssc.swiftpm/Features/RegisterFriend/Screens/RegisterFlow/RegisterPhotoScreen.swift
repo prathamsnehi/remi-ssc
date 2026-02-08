@@ -37,7 +37,7 @@ struct RegisterPhotoScreen: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120)
-                    .foregroundColor(.blue.opacity(0.8))
+                    .foregroundColor(Color("AppSecondaryText").opacity(0.8))
             }
             
             Spacer()
@@ -48,7 +48,7 @@ struct RegisterPhotoScreen: View {
                     title: "Camera",
                     icon: "camera.fill",
                     backgroundColor: .blue,
-                    foregroundColor: .white,
+                    foregroundColor: Color("AppPrimaryText"),
                     action: {
                         showCamera = true
                     }
@@ -58,7 +58,7 @@ struct RegisterPhotoScreen: View {
                     title: "Photos",
                     icon: "photo.on.rectangle",
                     backgroundColor: Color(.systemGray5),
-                    foregroundColor: .primary,
+                    foregroundColor: Color("AppPrimaryText"),
                     action: {
                         showLibrary = true
                     }
@@ -70,7 +70,7 @@ struct RegisterPhotoScreen: View {
                 Button(action: onNext) {
                     Text("Next")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color("AppPrimaryText"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 55)
                         .background(Color.black) // Distinct from the blue buttons

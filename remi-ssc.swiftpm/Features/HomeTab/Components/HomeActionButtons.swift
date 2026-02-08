@@ -34,7 +34,7 @@ struct HomeActionButtons: View {
                         backgroundColor: Color("AppPrimary"),
                         foregroundColor: .white,
                         height: 120,
-                        titleFont: .headline,
+                        titleFont: .title2,
                         iconFont: .largeTitle,
                         action: onScanFaceTap
                     )
@@ -49,7 +49,7 @@ struct HomeActionButtons: View {
                         backgroundColor: Color("AppPrimary"),
                         foregroundColor: .white,
                         height: 120,
-                        titleFont: .headline,
+                        titleFont: .title2,
                         iconFont: .largeTitle,
                         action: onScanFaceTap
                     )
@@ -61,7 +61,7 @@ struct HomeActionButtons: View {
                         backgroundColor: Color("AppPrimary"),
                         foregroundColor: .white,
                         height: 120,
-                        titleFont: .headline,
+                        titleFont: .title2,
                         iconFont: .largeTitle,
                         action: onPhotosTap
                     )

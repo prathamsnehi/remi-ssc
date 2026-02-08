@@ -20,7 +20,7 @@ struct AddMemoryTextScreen: View {
             
             VStack(alignment: .leading) {
                 TextField("Type your memory here...", text: $text, axis: .vertical)
-                    .font(.system(size: 24, weight: .medium, design: .rounded)) // Smaller than 40pt, but still prominent
+                    .font(.system(.title2, design: .rounded, weight: .medium)) // Smaller than 40pt, but still prominent
                     .multilineTextAlignment(.leading)
                     .lineLimit(4...10)
                     .padding()
@@ -33,7 +33,7 @@ struct AddMemoryTextScreen: View {
             Button(action: onNext) {
                 Text("Next")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
                     .background(text.isEmpty ? Color.gray : Color("AppPrimary"))

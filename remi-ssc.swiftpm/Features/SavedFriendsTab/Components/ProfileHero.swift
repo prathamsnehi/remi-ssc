@@ -52,7 +52,7 @@ struct ProfileHero: View {
                         .overlay(
                             Image(systemName: "person.fill")
                                 .font(.system(size: 80))
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color("AppSecondaryText"))
                         )
                 }
             }
@@ -60,13 +60,13 @@ struct ProfileHero: View {
             // 2. Text Content (Name & Relation)
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.system(size: 34, weight: .bold)) // Serif font like reference
-                    .foregroundColor(.primary)
+                    .font(.largeTitle.weight(.bold)) // Serif font like reference
+                    .foregroundColor(Color("AppPrimaryText"))
                 
                 Text(relation)
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("AppSecondaryText"))
                 .padding(.top, 4)
             }
             .padding(.horizontal, 20)

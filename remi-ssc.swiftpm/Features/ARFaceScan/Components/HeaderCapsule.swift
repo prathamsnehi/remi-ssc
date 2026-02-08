@@ -14,8 +14,8 @@ struct HeaderCapsule: View {
     var body: some View {
         HStack(spacing: 0) {
             Text(title)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .font(.system(.caption, design: .rounded, weight: .bold))
+                .foregroundStyle(Color("AppPrimaryText"))
                 .padding(.horizontal, 16)
             
             if !isScanning {
@@ -25,8 +25,8 @@ struct HeaderCapsule: View {
                 
                 HStack(spacing: 8) {
                     Text("or scan with")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .font(.system(.caption2, design: .rounded, weight: .medium))
+                        .foregroundStyle(Color("AppSecondaryText"))
                         .padding(.leading, 12)
                     
                     Button(action: {
@@ -34,10 +34,10 @@ struct HeaderCapsule: View {
                     }) {
                         HStack(spacing: 6) {
                             Image(systemName: "photo.on.rectangle.angled")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.caption)
                             
                             Text("Photos")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .font(.system(.caption, design: .rounded, weight: .bold))
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
@@ -52,7 +52,7 @@ struct HeaderCapsule: View {
         .padding(.vertical, 6)
         .background(.ultraThinMaterial, in: Capsule())
         .glassEffect()
-        .foregroundStyle(.white)
+        .foregroundStyle(Color("AppPrimaryText"))
     }
 }
 

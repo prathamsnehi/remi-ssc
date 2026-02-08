@@ -35,8 +35,8 @@ struct ARFaceScanView: View {
                         dismiss()
                     }) {
                         Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color("AppPrimaryText"))
                             .frame(width: 36, height: 36)
                     }
                     .glassEffect()

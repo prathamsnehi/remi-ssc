@@ -155,12 +155,12 @@ struct MemoryStoryCard: View {
                     // Name and Relation
                     VStack(alignment: .leading, spacing: 4) {
                         Text(person.name)
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                                .foregroundStyle(Color("AppPrimaryText"))
                         
                         Text(person.relation)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.subheadline.weight(.bold))
+                                .foregroundStyle(Color("AppPrimaryText"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(Capsule().fill(.white.opacity(0.2)))
@@ -177,8 +177,8 @@ struct MemoryStoryCard: View {
                                 Text("Add Memory")
                                 
                             }
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.subheadline.weight(.bold))
+                                .foregroundStyle(Color("AppPrimaryText"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(Capsule().fill(.ultraThinMaterial))
@@ -190,8 +190,8 @@ struct MemoryStoryCard: View {
                             // View Action
                         }) {
                             Text("View")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(.white)
+                                .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(Color("AppPrimaryText"))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
                                 .background(Capsule().fill(.ultraThinMaterial))

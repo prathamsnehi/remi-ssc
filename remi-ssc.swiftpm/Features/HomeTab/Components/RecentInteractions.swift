@@ -18,7 +18,7 @@ struct RecentInteractions: View {
                 .font(.title3)
                 .fontWeight(.bold)
                 .padding(.horizontal, sizeClass == .regular ? 0 : 20)
-                .foregroundColor(.primary)
+                .foregroundColor(Color("AppPrimaryText"))
             
             if people.isEmpty {
                 emptyState
@@ -59,7 +59,7 @@ struct RecentInteractions: View {
                                         Text(person.name)
                                             .font(.subheadline)
                                             .fontWeight(.medium)
-                                            .foregroundColor(.primary)
+                                            .foregroundColor(Color("AppPrimaryText"))
                                             .lineLimit(1)
                                             .multilineTextAlignment(.center)
                                             .frame(width: 90)
@@ -80,11 +80,11 @@ struct RecentInteractions: View {
         HStack(spacing: 12) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.title2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
             
             Text("No recent interactions found")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -124,12 +124,12 @@ private struct InteractionCard: View {
                 Text(person.name)
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .lineLimit(1)
                 
                 Text(person.relation)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("AppSecondaryText"))
                     .lineLimit(1)
             }
         }

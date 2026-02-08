@@ -28,7 +28,7 @@ struct FriendCircle: View {
                     .overlay(
                         Image(systemName: "person.fill")
                             .font(.largeTitle)
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color("AppSecondaryText"))
                     )
             }
             
@@ -36,7 +36,7 @@ struct FriendCircle: View {
             Text(person.name)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(.primary)
+                .foregroundColor(Color("AppPrimaryText"))
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity)

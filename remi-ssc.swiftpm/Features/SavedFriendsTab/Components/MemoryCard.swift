@@ -26,7 +26,7 @@ struct MemoryCard: View {
             if !memory.content.isEmpty {
                 Text(memory.content)
                     .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -37,13 +37,13 @@ struct MemoryCard: View {
                 Text(memory.type.rawValue.capitalized)
                     .font(.caption2)
                     .fontWeight(.bold)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("AppSecondaryText"))
                 
                 // Importance
                 if memory.importance == .high {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(.orange)
+                        .foregroundColor(Color("AppPrimaryText"))
                 }
             }
         }

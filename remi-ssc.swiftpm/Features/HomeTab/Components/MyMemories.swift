@@ -85,7 +85,7 @@ struct MyMemoriesView: View {
                         .frame(width: 60, height: 60)
                         .overlay(
                             Image(systemName: "person.fill")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color("AppSecondaryText"))
                         )
                         .background(
                             Circle()
@@ -109,11 +109,11 @@ struct MyMemoriesView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color("AppPrimaryText"))
                     
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color("AppSecondaryText"))
                 }
             }
             .padding(16)

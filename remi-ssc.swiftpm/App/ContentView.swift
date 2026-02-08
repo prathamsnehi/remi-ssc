@@ -1,21 +1,21 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {    
-    var body: some View {
-        TabView {
-            Tab("Home", systemImage: "house.fill") {
-                HomeView()
-            }
-            
-            Tab("Friends", systemImage: "person.2.fill") {
-                SavedFriendsView()
-            }
-        }
+struct ContentView: View {
+    
+    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+    
         
+    
+    var body: some View {
+        if !hasCompletedOnboarding {
+            MainTabView()
+        } else {
+            OnboardingView(isFinished: $hasCompletedOnboarding)
+                .transition(.opacity.combined(with: .scale)) // smooth handoff to non-onboarding content
+        }
     }
 }
-
 
 
 //#Preview (traits: .landscapeLeft) {

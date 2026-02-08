@@ -102,6 +102,7 @@ struct HomeView: View {
                                     Text("Your Recent Memories")
                                         .font(.system(.title2, design: .rounded)) // Matches the card/button curves
                                         .fontWeight(.bold)
+                                        .foregroundStyle(Color("AppPrimaryText"))
                                         .padding(.top, 12)
                                         .padding(.leading, 20)
                                     

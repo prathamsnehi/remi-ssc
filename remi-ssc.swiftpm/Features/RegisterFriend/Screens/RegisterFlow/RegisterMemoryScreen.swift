@@ -21,7 +21,7 @@ struct RegisterMemoryScreen: View {
             Text("Add a first memory (Optional)")
                 .font(.title2)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
             
             StyledTextField(placeholder: "Memory...", text: $memory)
             
@@ -30,7 +30,7 @@ struct RegisterMemoryScreen: View {
             Button(action: onFinish) {
                 Text("Finish")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
                     .background(Color.blue)

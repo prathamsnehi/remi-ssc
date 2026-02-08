@@ -21,7 +21,7 @@ struct RegisterRelationScreen: View {
             Text("How do you know them?")
                 .font(.title2)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
             
             StyledTextField(placeholder: "Relation (e.g. Friend)", text: $relation)
             
@@ -30,7 +30,7 @@ struct RegisterRelationScreen: View {
             Button(action: onNext) {
                 Text("Next")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
                     .background(relation.isEmpty ? Color.gray : Color.blue)

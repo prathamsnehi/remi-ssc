@@ -29,29 +29,29 @@ struct RegistrationButtonView: View {
                 if showCheckmark {
                     HStack(spacing: 12) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.title3)
                             .foregroundStyle(.green)
                         
                         Text("Scan Complete")
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.body.weight(.bold))
+                            .foregroundStyle(Color("AppPrimaryText"))
                     }
                     .frame(maxWidth: .infinity)
                     .transition(.scale.combined(with: .opacity))
                 } else {
                     HStack(spacing: 16) {
                         Image(systemName: detector.isScanning ? "faceid" : "viewfinder")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(Color("AppPrimaryText"))
                         
                         VStack(alignment: detector.isScanning ? .center : .leading, spacing: 2) {
                             Text(detector.isScanning ? "Scanning Face..." : "Start Face Scan")
-                                .font(.system(size: 17, weight: .bold))
-                                .foregroundStyle(.white)
+                                .font(.body.weight(.bold))
+                                .foregroundStyle(Color("AppPrimaryText"))
                             
                             Text("Hold Still")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.7))
+                                .font(.footnote.weight(.medium))
+                                .foregroundStyle(Color("AppSecondaryText"))
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
                     }

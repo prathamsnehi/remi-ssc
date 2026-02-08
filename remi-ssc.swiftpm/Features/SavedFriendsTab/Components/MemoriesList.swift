@@ -43,16 +43,16 @@ struct MemoriesList: View {
                                 Text(memory.dateAdded.formatted(.dateTime.month(.abbreviated)))
                                     .font(.caption2)
                                     .textCase(.uppercase)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Color("AppSecondaryText"))
                                 Text(memory.dateAdded.formatted(.dateTime.day()))
                                     .font(.title3)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Color("AppPrimaryText"))
                                 
                                 if Calendar.current.component(.year, from: memory.dateAdded) != Calendar.current.component(.year, from: Date()) {
                                     Text(memory.dateAdded.formatted(.dateTime.year(.defaultDigits)))
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Color("AppSecondaryText"))
                                 }
                             }
                             .frame(width: 40, alignment: .trailing)

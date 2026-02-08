@@ -24,7 +24,7 @@ struct AddMemoryPhotoScreen: View {
             
             Text("Photos help bring memories to life.")
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
                 .multilineTextAlignment(.center)
             
             Spacer()
@@ -40,7 +40,7 @@ struct AddMemoryPhotoScreen: View {
                         Button(action: { inputImage = nil }) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.title)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color("AppPrimaryText"))
                                 .shadow(radius: 2)
                         }
                         .padding(10),
@@ -51,7 +51,7 @@ struct AddMemoryPhotoScreen: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120)
-                    .foregroundColor(.secondary.opacity(0.5))
+                    .foregroundColor(Color("AppSecondaryText").opacity(0.5))
             }
             
             Spacer()
@@ -73,7 +73,7 @@ struct AddMemoryPhotoScreen: View {
                     title: "Photos",
                     icon: "photo.on.rectangle",
                     backgroundColor: Color(.systemGray5),
-                    foregroundColor: .primary,
+                    foregroundColor: Color("AppPrimaryText"),
                     action: {
                         pickerSourceType = .photoLibrary
                         showCamera = true
@@ -85,7 +85,7 @@ struct AddMemoryPhotoScreen: View {
             Button(action: onFinish) {
                 Text(inputImage == nil ? "Skip & Finish" : "Finish")
                     .font(.headline)
-                    .foregroundColor(inputImage == nil ? .primary : .white)
+                    .foregroundColor(inputImage == nil ? Color("AppPrimaryText") : Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
                     .background(inputImage == nil ? Color(.systemGray5) : Color("AppPrimary"))

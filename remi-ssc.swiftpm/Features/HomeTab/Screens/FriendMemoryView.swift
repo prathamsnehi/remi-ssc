@@ -37,7 +37,7 @@ struct FriendMemoryView: View {
                 } else {
                     Image(systemName: "person.circle.fill")
                         .font(.system(size: 150))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color("AppSecondaryText"))
                         .shadow(radius: 10)
                         .padding(.top, 40)
                 }
@@ -46,15 +46,15 @@ struct FriendMemoryView: View {
                 VStack(spacing: 8) {
                     Text("This is")
                         .font(.title3)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color("AppSecondaryText"))
                     
                     Text(person.name)
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
                     
                     Text(person.relation)
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color("AppPrimaryText"))
                         .padding(.horizontal, 24)
                         .padding(.vertical, 10)
                         .background(Color.blue)
@@ -67,7 +67,7 @@ struct FriendMemoryView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Things you remember:")
                         .font(.headline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color("AppSecondaryText"))
                         .padding(.leading)
                     
                     if person.memories.isEmpty {
@@ -94,11 +94,11 @@ struct MemoryRow: View {
                 Text(memory.content)
                     .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("AppPrimaryText"))
                 
                 Text(memory.dateAdded.formatted(date: .abbreviated, time: .omitted))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color("AppSecondaryText"))
             }
             Spacer()
         }

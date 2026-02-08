@@ -29,12 +29,12 @@ struct UpdateOptionsSheet: View {
             Button(action: { showAddMemory = true }) {
                 VStack(spacing: 12) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 36))
+                        .font(.largeTitle)
                     Text("Add New Memory")
                         .font(.title3)
                         .fontWeight(.bold)
                 }
-                .foregroundColor(.white)
+                .foregroundColor(Color("AppPrimaryText"))
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
                 .background(Color("AppPrimary"))
@@ -48,12 +48,12 @@ struct UpdateOptionsSheet: View {
                 Button(action: { showEditPerson = true }) {
                     VStack(spacing: 12) {
                         Image(systemName: "person.crop.circle.badge.exclamationmark")
-                            .font(.system(size: 36))
+                            .font(.largeTitle)
                         Text("Edit Info")
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 120)
                     .background(Color("AppSurface"))
@@ -68,12 +68,12 @@ struct UpdateOptionsSheet: View {
                 Button(action: { showEditMemories = true }) {
                     VStack(spacing: 12) {
                         Image(systemName: "list.bullet.clipboard")
-                            .font(.system(size: 36))
+                            .font(.largeTitle)
                         Text("Edit Memories")
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color("AppPrimaryText"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 120)
                     .background(Color("AppSurface"))

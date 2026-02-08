@@ -22,7 +22,7 @@ struct RegisterNameScreen: View {
             Text("What is their name?")
                 .font(.title2)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color("AppSecondaryText"))
             
             StyledTextField(placeholder: "Name", text: $name)
             
@@ -34,7 +34,7 @@ struct RegisterNameScreen: View {
                 Button(action: onNext) {
                     Text("Next")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color("AppPrimaryText"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 55)
                         .background(name.isEmpty ? Color.gray : Color.blue)

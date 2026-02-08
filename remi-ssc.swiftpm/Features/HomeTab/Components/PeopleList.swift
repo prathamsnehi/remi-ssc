@@ -41,13 +41,13 @@ struct PeopleList: View {
                                     .font(.headline)
                                 Text(person.relation)
                                     .font(.subheadline)
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(Color("AppSecondaryText"))
                             }
                             Spacer()
                             
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.gray.opacity(0.5))
+                                .foregroundColor(Color("AppSecondaryText").opacity(0.5))
                         }
                         .padding(.vertical, 4)
                     }
