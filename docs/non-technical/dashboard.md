@@ -1,6 +1,6 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-02-08 03:34:58
+### Last Updated: 2026-02-08 04:30:05
 
 ## 🚀 Time to Lift Off
 > **Submission Closed! 🏁** until Feb 6, 2026.
@@ -14,11 +14,11 @@ Day 32 of 30
 `[█████████████████░░░] 87.4%`
 
 ## 🧠 AI Captain's Orders
-- [ ] **Implement the "Remi" Emotional Onboarding Flow:** Follow the detailed 5-screen flow in `docs/non-technical/onboarding.md`, focusing on psychological anchoring, micro-animations, and ensuring every emotional beat has an `accessibilityLabel` for inclusivity.
-- [ ] **Integrate 5-Point Landmark Alignment for MobileNetV3:** Replace the current cropping/resizing logic with robust 5-point landmark alignment (Similarity Transform) to warp faces into a canonical frontal view before embedding, as specified in `docs/technical/face-recognition-accuracy-implementations.md` and `mobilenetv3-specific-instructions.md`. This is critical for high recognition accuracy.
-- [ ] **Refine iPadOS Homepage Layouts for Responsiveness:** Implement the specified iPadOS homepage layouts from `docs/technical/homepage.md`, particularly refining the vertical orientation to add more content (e.g., "Your Memories" and "Recent Interactions" as cards, with visual hierarchy) to fill blank space, and ensure proper spacing for buttons.
-- [ ] **Enhance AR Face Recognition UI with FaceID-style Box and Bottom Card:** Modify the AR face scanning UI to display a FaceID-style bounding box around the detected face and move the recognition card (with name/relation) to the bottom of the screen, as per `docs/daily-accomplishments/2026-01-19.md` and the `Remi Design System` guidelines.
-- [ ] **Ensure High-Quality Image Capture for Profile Photos:** When capturing the last frame during the registration process for a person's profile photo, ensure it's saved as a high-quality `UIImage` (e.g., PNG or high-quality JPEG) to prevent the current issue of "really low quality jpegs" as noted in `docs/non-technical/todo.md`.
+- [ ] Implement the `cropSquareAndResize` helper function (from `sface-must-have-optimizations.md`) to correctly handle pixel format (BGRA), coordinate flipping, squaring, and padding for face input. This is a direct copy-paste solution solving 3 critical issues.
+- [ ] Integrate 5-point landmark alignment (using `CGAffineTransform` for Similarity Transform) to warp detected faces into a canonical frontal view before feeding them to the MobileNetV3 model, ensuring high accuracy as mandated by MobileNetV3's training and `face-recognition-accuracy-implementations.md`.
+- [ ] Refactor `FaceRecognitionService` into an `actor` and implement `CVPixelBuffer.copy()` when handling camera frames in `ARSessionDelegate`. This will resolve critical concurrency issues and runtime crashes, ensuring real-time stability as detailed in `arkit-implementation-with-coreml.md`.
+- [ ] Develop the complete 5-screen emotional onboarding flow described in `onboarding.md`, incorporating psychological anchoring, narrative arc, micro-animations, and accessibility labels to create an engaging and empathetic user introduction.
+- [ ] Conduct a thorough UI audit against the `Remi Design System` (`design-system.md`), focusing on consistent typography (especially `.rounded` for human elements), color palette usage, and component patterns. Prioritize applying these to the iPad layouts and the "Your Memories" section to achieve visual hierarchy and polish.
 
 ## ✨ Daily Fuel
-> "The path to a prize-winning app is paved with meticulous attention to detail and an unwavering commitment to both technical excellence and empathetic design."
+> "Turning every face into an unforgettable story."
