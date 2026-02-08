@@ -1,70 +1,92 @@
 import SwiftUI
 
-struct OnboardingLossView: View {
-    @Binding var isFinished: Bool // Changed from path to isFinished
+struct OnboardingStruggleView: View {
+    @Binding var path: NavigationPath // Changed to path for navigation to Step D
     
-    @State private var blurAmount: CGFloat = 0
-    @State private var imageOpacity: Double = 1.0
+    @State private var bubbles: [ThoughtBubble] = []
+    @State private var showButton = false
     
-    // Animation States
-    @State private var showFirstText: Bool = false
-    @State private var showSecondText: Bool = false
-    @State private var showButton: Bool = false
+    // Thoughts to cycle through
+    private let thoughts = [
+        "Who is that?",
+        "I know them...",
+        "Name?",
+        "Is it Mary?",
+        "So embarrassing",
+        "Just smile",
+        "Don't ask me",
+        "On the tip of my tongue",
+        "Sarah?",
+        "I feel terrible",
+        "Wait...",
+    ]
+    
+    struct ThoughtBubble: Identifiable {
+        let id = UUID()
+        let text: String
+        var xOffset: CGFloat
+        var scale: CGFloat
+        var isVisible: Bool = false
+    }
     
     var body: some View {
         ZStack {
-            Color("AppBackground") // Background base
+            Color("AppBackground")
                 .ignoresSafeArea()
             
-            // Main Content Stack
-            VStack(spacing: 0) {
+            // Content Container
+            VStack {
+                // Header Text
+                Text("Ever had these thoughts before talking to one of your loved ones?")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundStyle(Color("AppPrimaryText"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 30)
+                    .padding(.top, 60)
+                
+                // Center Content
                 Spacer()
                 
-                // Anchored Image (Stays in place)
-                Image("onboarding-grandmother")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 280, height: 280)
-                    .clipShape(Circle())
-                    .blur(radius: blurAmount)
-                    .opacity(imageOpacity)
-                    // Removed saturation modifier to keep color
-                    // Animation is handled by the state changes in withAnimation block
-                
-                // Text Container (Fixed height to prevent jumping, or flexible)
-                VStack(spacing: 8) { // Reduced spacing between lines
-                    // First Text (Always visible after delay)
-                    if showFirstText {
-                        Text("A face you’ve known for years...")
-                            .font(.system(.title, design: .rounded, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Color("AppPrimaryText"))
-                            .transition(.opacity) // Fade in only, no movement
-                    }
-                    
-                    // Second Text (Appears below first)
-                    if showSecondText {
-                        Text("...suddenly feels like a stranger.")
-                            .font(.system(.title2, design: .rounded, weight: .medium))
-                            .multilineTextAlignment(.center)
+                // Bubbles Stack
+                FlowLayout(spacing: 12) {
+                    ForEach($bubbles) { $bubble in
+                        Text(bubble.text)
+                            .font(.system(.body, design: .rounded, weight: .medium))
                             .foregroundStyle(Color("AppSecondaryText"))
-                            .transition(.opacity.combined(with: .move(edge: .bottom))) // Moves up from bottom
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(
+                                Capsule()
+                                    .fill(Color("AppSurface"))
+                                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                            )
+                            .scaleEffect(bubble.scale)
+                            .scaleEffect(y: -1) // Unflip
+                            .opacity(bubble.isVisible ? 1 : 0)
+                            .scaleEffect(bubble.isVisible ? 1 : 0.5)
+                            .animation(.spring(response: 0.5, dampingFraction: 0.7), value: bubble.isVisible)
                     }
                 }
-                .frame(minHeight: 120) // Reduced height
-                .padding(.top, 20) // Reduced padding from image
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 16)
+                .scaleEffect(y: -1) // Flip container
                 
                 Spacer()
-                
-                // Button
+                Color.clear.frame(height: 60) // Space for button
+            }
+            .zIndex(1)
+            
+            // Button Anchored at Bottom
+            VStack {
+                Spacer()
                 if showButton {
                     Button(action: {
-                        withAnimation {
-                            isFinished = true
-                        }
+                        path.append("facescan")
                     }) {
-                        Text("I've seen it happen")
+                        Text("Yes, but want to overcome them")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -76,42 +98,103 @@ struct OnboardingLossView: View {
                             .padding(.bottom, 20)
                     }
                     .transition(.opacity.animation(.easeIn(duration: 1.0)))
-                } else {
-                    Color.clear.frame(height: 76)
                 }
             }
+            .zIndex(3)
         }
         .onAppear {
-            runAnimationSequence()
+            prepareBubbles()
+            startBubbleStream()
+        }
+        .navigationBarBackButtonHidden()
+    }
+    
+    private func prepareBubbles() {
+        if bubbles.isEmpty {
+            for text in thoughts {
+                let scale = CGFloat.random(in: 0.95...1.05)
+                let bubble = ThoughtBubble(text: text, xOffset: 0, scale: scale, isVisible: false)
+                bubbles.append(bubble)
+            }
         }
     }
     
-    private func runAnimationSequence() {
-        // Step 1: Show First Text (0.5s)
-        withAnimation(.easeOut(duration: 1.0).delay(0.5)) {
-            showFirstText = true
+    private func startBubbleStream() {
+        var delay = 0.5
+        
+        for index in bubbles.indices {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                bubbles[index].isVisible = true
+                
+                // Simple Haptic
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+            }
+            delay += 0.15
         }
         
-        // Step 2: Wait 3.5s, then start gradual blur and show second text
-        // Blur takes 3 seconds (was 6s, user requested faster)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation(.easeInOut(duration: 3.0)) { // Changed to easeInOut for smoother start/end
-                blurAmount = 10 
-                imageOpacity = 0.8
-            }
-            
-            // Show second text while blur is happening
-            withAnimation(.easeOut(duration: 1.5).delay(0.5)) {
-                showSecondText = true
-            }
-        }
-        
-        // Step 3: Show Button after blur completes + reading time
-        // 2.5s start + 3.0s duration + .5s reading buffer = ~6.0s
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+        // Show Button after bubbles
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay + 0.5) {
             withAnimation {
                 showButton = true
             }
         }
+    }
+}
+
+// Simple Flow Layout
+struct FlowLayout: Layout {
+    var spacing: CGFloat
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        let height = rows.map { $0.height }.reduce(0, +) + CGFloat(max(0, rows.count - 1)) * spacing
+        return CGSize(width: proposal.width ?? 0, height: height)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        var y = bounds.minY
+        for row in rows {
+            let rowContentWidth = row.items.map { $0.sizeThatFits(.unspecified).width }.reduce(0, +) + CGFloat(max(0, row.items.count - 1)) * spacing
+            let xStart = bounds.minX + (bounds.width - rowContentWidth) / 2
+            
+            var x = xStart
+            for item in row.items {
+                item.place(at: CGPoint(x: x, y: y), proposal: .unspecified)
+                x += item.sizeThatFits(.unspecified).width + spacing
+            }
+            y += row.height + spacing
+        }
+    }
+    
+    struct Row {
+        var items: [LayoutSubview]
+        var height: CGFloat
+    }
+    
+    func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] {
+        var rows: [Row] = []
+        var currentRow: [LayoutSubview] = []
+        var currentX: CGFloat = 0
+        var currentHeight: CGFloat = 0
+        let maxWidth = proposal.width ?? .infinity
+        
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if currentX + size.width > maxWidth && !currentRow.isEmpty {
+                rows.append(Row(items: currentRow, height: currentHeight))
+                currentRow = []
+                currentX = 0
+                currentHeight = 0
+            }
+            currentRow.append(view)
+            currentX += size.width + spacing
+            currentHeight = max(currentHeight, size.height)
+        }
+        if !currentRow.isEmpty {
+            rows.append(Row(items: currentRow, height: currentHeight))
+        }
+        return rows
     }
 }

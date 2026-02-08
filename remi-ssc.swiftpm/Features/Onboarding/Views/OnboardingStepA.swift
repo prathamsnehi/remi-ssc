@@ -57,7 +57,7 @@ struct OnboardingHeroView: View {
                 
                 // Button
                 Button(action: {
-                    path.append("struggle") // Go to Step B (Struggle)
+                    path.append("loss") // Go to Step B (Loss)
                 }) {
                     Text("Tap to Begin Journey")
                         .font(.headline)

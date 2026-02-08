@@ -10,18 +10,23 @@ struct OnboardingView: View {
             OnboardingHeroView(path: $path)
                 .navigationDestination(for: String.self) { destination in
                     switch destination {
+                    case "loss":
+                        // Step B: Loss View (Pass path to allow navigation to Struggle)
+                        OnboardingLossView(path: $path)
+                            .navigationBarBackButtonHidden()
                     case "struggle":
-                        // Step B: Struggle View (Pass path to allow navigation to Loss)
+                        // Step C: Struggle View (Pass path for Step D)
                         OnboardingStruggleView(path: $path)
                             .navigationBarBackButtonHidden()
-                    case "loss":
-                        // Step C: Loss View (Pass isFinished to end onboarding)
-                        OnboardingLossView(isFinished: $isFinished)
+                    case "facescan":
+                        // Step D: Face Scan Intro (Pass isFinished to end onboarding)
+                        OnboardingFaceScanIntroView(isFinished: $isFinished)
                             .navigationBarBackButtonHidden()
                     default:
                         EmptyView()
                     }
+                    
+                    }
                 }
         }
     }
-}
