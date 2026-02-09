@@ -8,16 +8,16 @@ struct OnboardingStruggleView: View {
     
     // Thoughts to cycle through
     private let thoughts = [
-        "Who is that?",
-        "I know them...",
+        "Who Is That?",
+        "I Know Them...",
         "Name?",
-        "Is it Mary?",
-        "So embarrassing",
-        "Just smile",
-        "Don't ask me",
-        "On the tip of my tongue",
+        "Is It Mary?",
+        "So Embarrassing",
+        "Just Smile",
+        "Don't Ask Me",
+        "On The Tip Of My Tongue",
         "Sarah?",
-        "I feel terrible",
+        "I Feel Terrible",
         "Wait...",
     ]
     
@@ -37,8 +37,8 @@ struct OnboardingStruggleView: View {
             // Content Container
             VStack {
                 // Header Text
-                Text("Ever had these thoughts before talking to one of your loved ones?")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                Text("Ever Had These Thoughts Before Talking To A Loved One?")
+                    .font(.system(.title2, design: .rounded).weight(.heavy))
                     .foregroundStyle(Color("AppPrimaryText"))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 30)
@@ -51,7 +51,7 @@ struct OnboardingStruggleView: View {
                 FlowLayout(spacing: 12) {
                     ForEach($bubbles) { $bubble in
                         Text(bubble.text)
-                            .font(.system(.body, design: .rounded, weight: .medium))
+                            .font(.system(.body, design: .rounded, weight: .semibold))
                             .foregroundStyle(Color("AppSecondaryText"))
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
@@ -86,7 +86,7 @@ struct OnboardingStruggleView: View {
                     Button(action: {
                         path.append("facescan")
                     }) {
-                        Text("Yes, but want to overcome them")
+                        Text("Yes, But I Want To Overcome Them")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)

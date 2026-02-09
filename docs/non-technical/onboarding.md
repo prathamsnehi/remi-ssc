@@ -30,7 +30,14 @@ By using **psychological anchoring** and **narrative arc**, we can build a 5-scr
 - **Visual:** Minimalist design featuring the "Scan Face" button from the Home Screen.
 - **Psychology:** **Trust & Empowerment.** Reassures the user that the app is the tool to solve their problem, using a familiar actionable element.
 - **Content:** _"Your Memories, Unlocked by a Face. Remi helps you store and recall details about your loved ones just by seeing them."_
-- **Action:** "Scan Face" button finishes onboarding (placeholder for future face scan mock).
+- **Action:** "Scan Face" button leads to Mock Scan.
+
+**Screen 4: The Experience (Step E) - Proof of Value**
+
+- **Visual:** "Granddaughter" photo starts blurred, then clears up. A camera overlay scans and identifies her as "Granddaughter".
+- **Psychology:** **Instant Gratification & Education.** Shows _exactly_ how the app works and the emotional payoff (recognition) without asking for permissions yet.
+- **Content:** "Scanning..." -> "Identified: Granddaughter".
+- **Action:** "Continue" button finishes onboarding.
 
 ---
 

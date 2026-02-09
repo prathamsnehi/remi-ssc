@@ -8,9 +8,9 @@ struct OnboardingHeroView: View {
     @State private var showSubtitle = false
     
     private let subtitles = [
-        "build stronger relationships with those you love",
-        "have confidence talking to those you love",
-        "never let someone familiar be a stranger again"
+        "Build Stronger Relationships With Those You Love",
+        "Have Confidence Talking To Those You Love",
+        "Never Let Someone Familiar Be A Stranger Again"
     ]
     
     var body: some View {
@@ -21,30 +21,21 @@ struct OnboardingHeroView: View {
             VStack {
                 Spacer()
                 
-                // Logo & App Name
-                VStack(spacing: 24) {
-                    Image("Logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 180, height: 180) // Much bigger
-                        .clipShape(RoundedRectangle(cornerRadius: 40))
-                        .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
-                    
-                    Text("Remi")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color("AppPrimaryText"))
-                }
+                // Reserve space for the logo overlay
+                Spacer()
+                    .frame(height: 240)
                 
                 Spacer()
                 
                 // Subtitles
                 VStack(spacing: 20) {
-                    Text("Your Face Based\nMemory Bank To:")
-                        .font(.title2.bold())
+                    Text("Your Face-Based\nMemory Bank To:")
+                        .font(.system(.title2, design: .rounded).weight(.heavy)) // Extra bold for emphasis
                         .foregroundStyle(Color("AppPrimaryText"))
+                        .multilineTextAlignment(.center)
                     
                     Text(subtitles[subtitleIndex])
-                        .font(.title3)
+                        .font(.system(.title3, design: .rounded).weight(.medium)) // Distinctly lighter than headline
                         .foregroundStyle(Color("AppSecondaryText"))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)

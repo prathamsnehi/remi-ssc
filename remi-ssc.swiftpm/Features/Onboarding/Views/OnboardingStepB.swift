@@ -33,8 +33,8 @@ struct OnboardingLossView: View {
                 VStack(spacing: 8) {
                     // First Text
                     if showFirstText {
-                        Text("A face you’ve known for years...")
-                            .font(.system(.title, design: .rounded, weight: .bold))
+                        Text("A Face You Have Known For Years...")
+                            .font(.system(.title, design: .rounded).weight(.heavy))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppPrimaryText"))
                             .transition(.opacity)
@@ -42,8 +42,8 @@ struct OnboardingLossView: View {
                     
                     // Second Text
                     if showSecondText {
-                        Text("...suddenly feels like a stranger.")
-                            .font(.system(.title2, design: .rounded, weight: .medium))
+                        Text("...Suddenly Feels Like A Stranger.")
+                            .font(.system(.title2, design: .rounded).weight(.medium))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppSecondaryText"))
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -90,9 +90,9 @@ struct OnboardingLossView: View {
         }
         
         // Step 2: Wait 2.5s, then start gradual blur and show second text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation(.easeInOut(duration: 3.0)) {
-                blurAmount = 10 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 2.0)) {
+                blurAmount = 10
                 imageOpacity = 0.8
             }
             
@@ -103,7 +103,7 @@ struct OnboardingLossView: View {
         }
         
         // Step 3: Show Button after blur completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
             withAnimation {
                 showButton = true
             }

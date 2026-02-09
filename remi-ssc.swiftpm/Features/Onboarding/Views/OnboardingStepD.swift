@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingFaceScanIntroView: View {
-    @Binding var isFinished: Bool
+    @Binding var path: NavigationPath
     
     // Animation States
     @State private var showContent = false
@@ -27,13 +27,13 @@ struct OnboardingFaceScanIntroView: View {
                 // Text Content
                 if showContent {
                     VStack(spacing: 16) {
-                        Text("Your Memories,\nUnlocked by a Face")
-                            .font(.system(.title, design: .rounded, weight: .bold))
+                        Text("Your Memories,\nUnlocked By A Face")
+                            .font(.system(.title, design: .rounded).weight(.heavy))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppPrimaryText"))
                         
-                        Text("Remi helps you store and recall\ndetails about your loved ones\njust by seeing them.")
-                            .font(.system(.body, design: .rounded, weight: .regular))
+                        Text("Instantly Recall Details About Your Loved Ones, Just By Seeing Them.")
+                            .font(.system(.body, design: .rounded, weight: .medium))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppSecondaryText"))
                             .padding(.horizontal, 40)
@@ -50,14 +50,11 @@ struct OnboardingFaceScanIntroView: View {
                         icon: "faceid",
                         backgroundColor: Color("AppPrimary"),
                         foregroundColor: .white,
-                        height: 120,
+                        height: 110,
                         titleFont: .title2,
                         iconFont: .largeTitle,
                         action: {
-                            // Step E is deferred, so we finish onboarding now
-                            withAnimation {
-                                isFinished = true
-                            }
+                            path.append("mockscan") // Navigate to Step E
                         }
                     )
                     .padding(.horizontal, 30) // Matches HomeView padding
@@ -87,3 +84,7 @@ struct OnboardingFaceScanIntroView: View {
     }
 }
 
+#Preview {
+    @State var path = NavigationPath()
+    OnboardingFaceScanIntroView(path: $path)
+}
