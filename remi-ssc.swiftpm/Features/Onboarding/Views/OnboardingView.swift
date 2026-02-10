@@ -7,6 +7,8 @@ struct OnboardingView: View {
     @Namespace private var animation
     @Environment(\.horizontalSizeClass) var sizeClass
     
+    @State private var introStep = 0 // 0: Start, 1: Reveal, 2: Final
+    
     var body: some View {
         ZStack {
             NavigationStack(path: $path) {
@@ -47,28 +49,57 @@ struct OnboardingView: View {
                         Image("Logo")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: path.isEmpty ? 80 : 24, height: path.isEmpty ? 80 : 24)
-                            .clipShape(RoundedRectangle(cornerRadius: path.isEmpty ? 22 : 6)) // Animated corner radius too
+                            // Step 0: 120 (Large), Step 1+: 80 (Hero Normal), Step B: 24
+                            .frame(width: path.isEmpty ? (introStep == 0 ? 120 : 80) : 24, 
+                                   height: path.isEmpty ? (introStep == 0 ? 120 : 80) : 24)
+                            .clipShape(RoundedRectangle(cornerRadius: path.isEmpty ? (introStep == 0 ? 30 : 22) : 6)) // Animated corner radius too
                             .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
                         
-                        Text("remi")
-                            .font(.system(size: path.isEmpty ? 60 : 21, weight: .bold, design: .rounded))
-                            .foregroundStyle(Color("AppPrimaryText"))
-                            .fixedSize()
+                        // Text reveals in Step 1
+                        if !path.isEmpty || introStep > 0 {
+                            Text("remi")
+                                .font(.system(size: path.isEmpty ? 60 : 21, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color("AppPrimaryText"))
+                                .fixedSize()
+                                .transition(.scale.combined(with: .opacity)) // Smooth reveal
+                        }
                     }
-                    .frame(maxWidth: .infinity) // Always centered horizontally
+                    .frame(maxWidth: .infinity, alignment: .center) // Explicitly center
+                    .offset(x: path.isEmpty ? -20 : 0) // Visual correction for optical centering
                     .padding(.top, path.isEmpty ? 0 : 25) // Animate top padding
+                    .padding(.bottom, path.isEmpty ? 40 : 0) // Nudge logo up in Step A
                     
                     if path.isEmpty {
                         Spacer()
-                        Spacer()
+                        // In Step 0/1 (Center), we want equal spacers. 
+                        // In Step 2 (Final), we want extra spacer to push it up (approx 1/3 down)
+                        if introStep == 2 {
+                            Spacer()
+                        }
                     } else {
                         Spacer()
                     }
                 }
+                .frame(maxWidth: .infinity) // Ensure the container fills the width
             }
             .allowsHitTesting(false) // Let touches pass through to buttons
-            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: path.isEmpty) // Smooth transition
+            .animation(.spring(response: 0.8, dampingFraction: 0.8), value: path.isEmpty) // Smooth transition
+            .animation(.spring(response: 0.8, dampingFraction: 0.8), value: introStep) // Intro animation
+            .onAppear {
+                // Intro Animation Sequence
+                // Phase 1: Reveal Text
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation {
+                        introStep = 1
+                    }
+                }
+                // Phase 2: Move Up
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    withAnimation {
+                        introStep = 2
+                    }
+                }
+            }
             
             // Skip Button Overlay (Hidden on Step A / Hero)
             if !path.isEmpty {

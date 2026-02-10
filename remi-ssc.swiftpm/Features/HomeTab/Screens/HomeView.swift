@@ -95,7 +95,6 @@ struct HomeView: View {
                         
                     } else {
                         // iOS Layout
-                        ScrollView {
                             VStack(alignment: .leading, spacing: 24) {
                                 VStack(alignment: .leading, spacing: 8) {
                                     
@@ -111,9 +110,6 @@ struct HomeView: View {
                                 }
                             }
                             .padding(.top, 10)
-                        }
-                        .scrollIndicators(.hidden)
-
                         }
                           
                     
