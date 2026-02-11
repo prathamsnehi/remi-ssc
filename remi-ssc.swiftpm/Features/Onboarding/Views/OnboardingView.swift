@@ -65,7 +65,7 @@ struct OnboardingView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .center) // Explicitly center
-                    .offset(x: path.isEmpty ? -20 : 0) // Visual correction for optical centering
+                    .offset(x: (path.isEmpty && introStep > 0) ? -20 : 0) // Visual correction only when text is visible
                     .padding(.top, path.isEmpty ? 0 : 25) // Animate top padding
                     .padding(.bottom, path.isEmpty ? 40 : 0) // Nudge logo up in Step A
                     

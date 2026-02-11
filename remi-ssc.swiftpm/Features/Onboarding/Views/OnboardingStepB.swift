@@ -29,12 +29,14 @@ struct OnboardingLossView: View {
                     .blur(radius: blurAmount)
                     .opacity(imageOpacity)
                 
+                Spacer() // Flexible space above text
+                
                 // Text Container
                 VStack(spacing: 8) {
                     // First Text
                     if showFirstText {
                         Text("A Face You Have Known For Years...")
-                            .font(.system(.title, design: .rounded).weight(.heavy))
+                            .font(.system(.title, design: .rounded).weight(.semibold))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppPrimaryText"))
                             .transition(.opacity)
@@ -42,18 +44,17 @@ struct OnboardingLossView: View {
                     
                     // Second Text
                     if showSecondText {
-                        Text("...Suddenly Feels Like A Stranger.")
+                        Text("Suddenly Feels Like A Stranger.")
                             .font(.system(.title2, design: .rounded).weight(.medium))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color("AppSecondaryText"))
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                 }
-                .frame(minHeight: 120)
-                .padding(.top, 20)
+                .frame(minHeight: 120) // Keep minimum height to prevent jump
                 .padding(.horizontal, 32)
                 
-                Spacer()
+                Spacer() // Flexible space below text
                 
                 // Button
                 if showButton {

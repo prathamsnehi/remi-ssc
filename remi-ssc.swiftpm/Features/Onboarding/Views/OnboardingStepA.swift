@@ -20,18 +20,17 @@ struct OnboardingHeroView: View {
                 .ignoresSafeArea()
             
             VStack {
+                // Logo is at 1/3 screen height (approx).
+                // We want text to be 80pt below the logo (which is 40pt radius, so 120pt from center).
                 Spacer()
                 
-                // Reserve space for the logo overlay
-                Spacer()
-                    .frame(height: 240)
-                
-                Spacer()
+                // Gap below logo center (40 half-height + 80 padding)
+                Color.clear.frame(height: 180)
                 
                 // Subtitles
                 VStack(spacing: 32) {
                     Text("Your Face-Based Memory Bank")
-                        .font(.system(.title2, design: .rounded).weight(.heavy)) // Extra bold for emphasis
+                        .font(.system(.title2, design: .rounded).weight(.semibold)) // Extra bold for emphasis
                         .foregroundStyle(Color("AppPrimaryText"))
                         .multilineTextAlignment(.center)
                     
@@ -43,10 +42,11 @@ struct OnboardingHeroView: View {
                         .opacity(showSubtitle ? 1.0 : 0.0)
                         .animation(.easeInOut(duration: 0.8), value: showSubtitle)
                 }
-                .padding(.horizontal, 35) // Constrain to approx 70% width for narrower look
+                .padding(.horizontal, 45) // Constrain to approx 70% width for narrower look
                 .opacity(opacity) // Sync fade-in with button
                 
                 Spacer()
+                Spacer() // Balance the top Spacer (1:2 ratio)
                 
                 // Button
                 Button(action: {

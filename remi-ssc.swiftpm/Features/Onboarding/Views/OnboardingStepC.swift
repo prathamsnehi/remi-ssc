@@ -36,16 +36,9 @@ struct OnboardingStruggleView: View {
             
             // Content Container
             VStack {
-                // Header Text
-                Text("Ever Had These Thoughts Before Talking To A Loved One?")
-                    .font(.system(.title2, design: .rounded).weight(.heavy))
-                    .foregroundStyle(Color("AppPrimaryText"))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 30)
-                    .padding(.top, 60)
-                
                 // Center Content
                 Spacer()
+                Spacer() // Double spacer to push content lower
                 
                 // Bubbles Stack
                 FlowLayout(spacing: 12) {
@@ -74,8 +67,18 @@ struct OnboardingStruggleView: View {
                 .padding(.horizontal, 16)
                 .scaleEffect(y: -1) // Flip container
                 
+                // Header Text (Moved Below)
+                Text("Ever Had These Thoughts Before Talking To A Loved One?")
+                    .font(.system(.title2, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color("AppPrimaryText"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 30)
+                    .padding(.top, 40) // Breathing room
+                    .padding(.bottom, 20)
+                
+                
                 Spacer()
-                Color.clear.frame(height: 60) // Space for button
+                Color.clear.frame(height: 80)
             }
             .zIndex(1)
             
@@ -197,4 +200,9 @@ struct FlowLayout: Layout {
         }
         return rows
     }
+}
+
+#Preview {
+    @State var path = NavigationPath()
+    OnboardingStruggleView(path: $path)
 }

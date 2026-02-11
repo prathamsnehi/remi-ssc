@@ -25,36 +25,6 @@ struct OnboardingMockScanView: View {
             VStack(spacing: 40) {
                 Spacer()
                 
-                // Psychological / Instructional Text
-                VStack(spacing: 12) {
-                    if textState >= 0 {
-                        Text("Simply Point Your Camera...")
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundStyle(Color("AppSecondaryText"))
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity)
-                    }
-                    
-                    if textState >= 1 {
-                        Text("...And Let The Memories Return.")
-                            .font(.system(.title2, design: .rounded, weight: .bold))
-                            .foregroundStyle(Color("AppPrimaryText"))
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
-                    
-                    if textState >= 2 {
-                        Text("Never Feel Lost Again.")
-                            .font(.system(.headline, design: .rounded, weight: .heavy))
-                            .foregroundStyle(.green)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 8)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
-                .frame(height: 100)
-                .animation(.easeInOut, value: textState)
-                
                 // Central Scanning Area
                 ZStack {
                     // The Image (Un-blurring)
@@ -88,9 +58,30 @@ struct OnboardingMockScanView: View {
                     }
                 }
                 
-                Spacer()
+                // Psychological / Instructional Text (Moved Below)
+                VStack(spacing: 12) {
+                    if textState >= 0 {
+                        Text("Simply Point Your Camera")
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .foregroundStyle(Color("AppSecondaryText"))
+                            .multilineTextAlignment(.center)
+                            .transition(.opacity)
+                    }
+                    
+                    if textState >= 1 {
+                        Text("And Let The Memories Return.")
+                            .font(.system(.title2, design: .rounded, weight: .semibold))
+                            .foregroundStyle(Color("AppPrimaryText"))
+                            .multilineTextAlignment(.center)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    }
+                }
+                .frame(height: 60)
+                .animation(.easeInOut, value: textState)
                 
-                // Footer (Identified Card)
+
+                
+                // Footer (Identified Card + Memories)
                 if showIdentification {
                     VStack(spacing: 16) {
                         // Identified Person Card
@@ -127,6 +118,18 @@ struct OnboardingMockScanView: View {
                         )
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         
+                        // Single Sentimental Memory
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Shared Moment")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color("AppSecondaryText"))
+                                .padding(.horizontal, 4)
+                            
+                            MemoryCard(memory: Memory(content: "Cooking her famous pasta recipe together last Sunday.", type: .general, sentiment: .positive, importance: .high))
+                        }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        
                         // Continue Button
                         if showContinueButton {
                             Button(action: {
@@ -148,10 +151,10 @@ struct OnboardingMockScanView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 30)
                 } else {
-                    // Placeholder space to prevent layout jump if needed, or just let spacer handle it
-                    Color.clear.frame(height: 150)
+                    // Placeholder space
+                    Color.clear.frame(height: 60)
                 }
             }
         }
@@ -199,4 +202,9 @@ struct OnboardingMockScanView: View {
             }
         }
     }
+}
+
+#Preview {
+    @State var isFinished: Bool = false
+    OnboardingMockScanView(isFinished: $isFinished)
 }
