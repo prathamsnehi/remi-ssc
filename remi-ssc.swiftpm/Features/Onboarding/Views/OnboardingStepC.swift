@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OnboardingStruggleView: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     @Binding var path: NavigationPath // Changed to path for navigation to Step D
     
     @State private var bubbles: [ThoughtBubble] = []
@@ -8,18 +9,20 @@ struct OnboardingStruggleView: View {
     
     // Thoughts to cycle through
     private let thoughts = [
-        "Who Is That?",
-        "I Know Them...",
-        "Name?",
-        "Is It Mary?",
-        "So Embarrassing",
-        "Just Smile",
-        "Don't Ask Me",
-        "On The Tip Of My Tongue",
-        "Sarah?",
-        "I Feel Terrible",
-        "Wait...",
+        "Who Is That?", "I Know Them...", "Name?",
+        "Is It Mary?", "So Embarrassing", "Just Smile",
+        "Don't Ask Me", "On The Tip Of My Tongue", "Sarah?",
+        "I Feel Terrible", "Wait..."
     ]
+    
+    // iPad specific thoughts (more density)
+    private let ipadThoughts = [
+        "Who Is That?", "I Know Them...", "Name?", "Is It Mary?",
+        "So Embarrassing", "Just Smile", "Don't Ask Me",
+        "On The Tip Of My Tongue", "Sarah?", "I Feel Terrible",
+        "Wait...", "Why Can't I Remember?", "It's Been Years",
+        "They Look Familiar", "Help Me", "What Was It?"
+        ]
     
     struct ThoughtBubble: Identifiable {
         let id = UUID()
@@ -30,80 +33,82 @@ struct OnboardingStruggleView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color("AppBackground")
-                .ignoresSafeArea()
-            
-            // Content Container
-            VStack {
-                // Center Content
-                Spacer()
-                Spacer() // Double spacer to push content lower
+        GeometryReader { geometry in
+            ZStack {
+                Color("AppBackground")
+                    .ignoresSafeArea()
                 
-                // Bubbles Stack
-                FlowLayout(spacing: 12) {
-                    ForEach($bubbles) { $bubble in
-                        Text(bubble.text)
-                            .font(.system(.body, design: .rounded, weight: .semibold))
-                            .foregroundStyle(Color("AppSecondaryText"))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(
-                                Capsule()
-                                    .fill(Color("AppSurface"))
-                                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-                            )
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                            )
-                            .scaleEffect(bubble.scale)
-                            .scaleEffect(y: -1) // Unflip
-                            .opacity(bubble.isVisible ? 1 : 0)
-                            .scaleEffect(bubble.isVisible ? 1 : 0.5)
-                            .animation(.spring(response: 0.5, dampingFraction: 0.7), value: bubble.isVisible)
+                // Content Container
+                VStack {
+                    // Center Content
+                    Spacer()
+                    Spacer() // Double spacer to push content lower
+                    
+                    // Bubbles Stack
+                    FlowLayout(spacing: sizeClass == .regular ? 20 : 12) {
+                        ForEach($bubbles) { $bubble in
+                            Text(bubble.text)
+                                .font(.system(sizeClass == .regular ? .title3 : .body, design: .rounded, weight: .semibold))
+                                .foregroundStyle(Color("AppSecondaryText"))
+                                .padding(.horizontal, sizeClass == .regular ? 24 : 16)
+                                .padding(.vertical, sizeClass == .regular ? 16 : 12)
+                                .background(
+                                    Capsule()
+                                        .fill(Color("AppSurface"))
+                                        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                                )
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                                )
+                                .scaleEffect(bubble.scale)
+                                .scaleEffect(y: -1) // Unflip
+                                .opacity(bubble.isVisible ? 1 : 0)
+                                .scaleEffect(bubble.isVisible ? 1 : 0.5)
+                                .animation(.spring(response: 0.5, dampingFraction: 0.7), value: bubble.isVisible)
+                        }
+                    }
+                    .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 16)
+                    .scaleEffect(y: -1) // Flip container
+                    
+                    // Header Text (Moved Below)
+                    Text("Ever Had These Thoughts Before Talking To A Loved One?")
+                        .font(.system(sizeClass == .regular ? .largeTitle : .title2, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color("AppPrimaryText"))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 30)
+                        .padding(.top, sizeClass == .regular ? 60 : 40) // Breathing room
+                        .padding(.bottom, 20)
+                    
+                    
+                    Spacer()
+                    Color.clear.frame(height: sizeClass == .regular ? 120 : 80)
+                }
+                .zIndex(1)
+                
+                // Button Anchored at Bottom
+                VStack {
+                    Spacer()
+                    if showButton {
+                        Button(action: {
+                            path.append("facescan")
+                        }) {
+                            Text("Yes, But I Want To Overcome Them")
+                                .font(sizeClass == .regular ? .title3.bold() : .headline)
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity) // Fill available space
+                                .frame(height: sizeClass == .regular ? 64 : 56) // Taller on iPad
+                                .background(Color("AppPrimary"))
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
+                                .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 20)
+                                .padding(.bottom, sizeClass == .regular ? 40 : 20)
+                        }
+                        .transition(.opacity.animation(.easeIn(duration: 1.0)))
                     }
                 }
-                .padding(.horizontal, 16)
-                .scaleEffect(y: -1) // Flip container
-                
-                // Header Text (Moved Below)
-                Text("Ever Had These Thoughts Before Talking To A Loved One?")
-                    .font(.system(.title2, design: .rounded).weight(.semibold))
-                    .foregroundStyle(Color("AppPrimaryText"))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 30)
-                    .padding(.top, 40) // Breathing room
-                    .padding(.bottom, 20)
-                
-                
-                Spacer()
-                Color.clear.frame(height: 80)
+                .zIndex(3)
             }
-            .zIndex(1)
-            
-            // Button Anchored at Bottom
-            VStack {
-                Spacer()
-                if showButton {
-                    Button(action: {
-                        path.append("facescan")
-                    }) {
-                        Text("Yes, But I Want To Overcome Them")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color("AppPrimary"))
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 20)
-                    }
-                    .transition(.opacity.animation(.easeIn(duration: 1.0)))
-                }
-            }
-            .zIndex(3)
         }
         .onAppear {
             prepareBubbles()
@@ -114,7 +119,8 @@ struct OnboardingStruggleView: View {
     
     private func prepareBubbles() {
         if bubbles.isEmpty {
-            for text in thoughts {
+            let ideas = sizeClass == .regular ? ipadThoughts : thoughts
+            for text in ideas {
                 let scale = CGFloat.random(in: 0.95...1.05)
                 let bubble = ThoughtBubble(text: text, xOffset: 0, scale: scale, isVisible: false)
                 bubbles.append(bubble)

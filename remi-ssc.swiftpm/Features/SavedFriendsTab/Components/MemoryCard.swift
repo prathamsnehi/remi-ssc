@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MemoryCard: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     let memory: Memory
     
     var body: some View {
@@ -25,7 +26,7 @@ struct MemoryCard: View {
             // 2. Content
             if !memory.content.isEmpty {
                 Text(memory.content)
-                    .font(.subheadline)
+                    .font(sizeClass == .regular ? .title3 : .subheadline)
                     .foregroundColor(Color("AppPrimaryText"))
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -35,14 +36,14 @@ struct MemoryCard: View {
             HStack(spacing: 8) {
                 // Type
                 Text(memory.type.rawValue.capitalized)
-                    .font(.caption2)
+                    .font(sizeClass == .regular ? .body : .caption2)
                     .fontWeight(.bold)
                     .foregroundColor(Color("AppSecondaryText"))
                 
                 // Importance
                 if memory.importance == .high {
                     Image(systemName: "star.fill")
-                        .font(.caption2)
+                        .font(sizeClass == .regular ? .body : .caption2)
                         .foregroundColor(Color("AppPrimaryText"))
                 }
             }

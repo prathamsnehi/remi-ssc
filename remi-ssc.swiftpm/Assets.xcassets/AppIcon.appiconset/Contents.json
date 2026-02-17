@@ -1,7 +1,31 @@
 {
   "images" : [
     {
-      "filename" : "remi-icon.png",
+      "filename" : "New Project (5).png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "New Project (4) 1.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "New Project (6).png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

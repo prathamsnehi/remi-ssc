@@ -8,7 +8,7 @@ struct ContentView: View {
         
     
     var body: some View {
-        if hasCompletedOnboarding {
+        if  hasCompletedOnboarding {
             MainTabView()
         } else {
             OnboardingView(isFinished: $hasCompletedOnboarding)

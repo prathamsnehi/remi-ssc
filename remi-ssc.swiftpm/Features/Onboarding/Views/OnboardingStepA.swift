@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OnboardingHeroView: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     @Binding var path: NavigationPath
     
     @State private var opacity = 0.0 // Text opacity
@@ -15,55 +16,56 @@ struct OnboardingHeroView: View {
     ]
     
     var body: some View {
-        ZStack {
-            Color("AppBackground")
-                .ignoresSafeArea()
-            
-            VStack {
-                // Logo is at 1/3 screen height (approx).
-                // We want text to be 80pt below the logo (which is 40pt radius, so 120pt from center).
-                Spacer()
+        GeometryReader { geometry in
+            ZStack {
+                Color("AppBackground")
+                    .ignoresSafeArea()
                 
-                // Gap below logo center (40 half-height + 80 padding)
-                Color.clear.frame(height: 180)
-                
-                // Subtitles
-                VStack(spacing: 32) {
-                    Text("Your Face-Based Memory Bank")
-                        .font(.system(.title2, design: .rounded).weight(.semibold)) // Extra bold for emphasis
-                        .foregroundStyle(Color("AppPrimaryText"))
-                        .multilineTextAlignment(.center)
+                VStack {
+                    // Logo is at 1/3 screen height (approx).
+                    Spacer()
                     
-                    Text(subtitles[subtitleIndex])
-                        .font(.system(.title3, design: .rounded).weight(.medium)) // Distinctly lighter than headline
-                        .foregroundStyle(Color("AppSecondaryText"))
-                        .multilineTextAlignment(.center)
-                        .id("subtitle-\(subtitleIndex)")
-                        .opacity(showSubtitle ? 1.0 : 0.0)
-                        .animation(.easeInOut(duration: 0.8), value: showSubtitle)
+                    // Gap below logo center
+                    Color.clear.frame(height: sizeClass == .regular ? geometry.size.height * 0.25 : 180)
+                    
+                    // Subtitles
+                    VStack(spacing: sizeClass == .regular ? 48 : 32) {
+                        Text("Your Face-Based Memory Bank")
+                            .font(.system(sizeClass == .regular ? .largeTitle : .title2, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color("AppPrimaryText"))
+                            .multilineTextAlignment(.center)
+                        
+                        Text(subtitles[subtitleIndex])
+                            .font(.system(sizeClass == .regular ? .title : .title3, design: .rounded).weight(.medium))
+                            .foregroundStyle(Color("AppSecondaryText"))
+                            .multilineTextAlignment(.center)
+                            .id("subtitle-\(subtitleIndex)")
+                            .opacity(showSubtitle ? 1.0 : 0.0)
+                            .animation(.easeInOut(duration: 0.8), value: showSubtitle)
+                    }
+                    .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.2 : 45)
+                    .opacity(opacity) // Sync fade-in with button
+                    
+                    Spacer()
+                    Spacer() // Balance the top Spacer (1:2 ratio)
+                    
+                    // Button
+                    Button(action: {
+                        path.append("loss") // Go to Step B (Loss)
+                    }) {
+                        Text("Tap to Begin Journey")
+                            .font(sizeClass == .regular ? .title3.bold() : .headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity) // Fill available space
+                            .frame(height: sizeClass == .regular ? 64 : 56) // Taller on iPad
+                            .background(Color("AppPrimary"))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
+                    }
+                    .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 20)
+                    .padding(.bottom, sizeClass == .regular ? 50 : 20)
+                    .opacity(buttonOpacity)
                 }
-                .padding(.horizontal, 45) // Constrain to approx 70% width for narrower look
-                .opacity(opacity) // Sync fade-in with button
-                
-                Spacer()
-                Spacer() // Balance the top Spacer (1:2 ratio)
-                
-                // Button
-                Button(action: {
-                    path.append("loss") // Go to Step B (Loss)
-                }) {
-                    Text("Tap to Begin Journey")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color("AppPrimary"))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
-                .opacity(buttonOpacity)
             }
         }
         .onAppear {
