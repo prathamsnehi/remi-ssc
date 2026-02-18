@@ -26,17 +26,23 @@ struct OnboardingMockScanView: View {
                 
                 VStack(spacing: sizeClass == .regular ? 0 : 20) {
                     // Top Safe Area for Logo Overlay (Reduced for landscape visibility)
-                    Spacer(minLength: sizeClass == .regular ? 40 : 20)
+                    Spacer(minLength: sizeClass == .regular ? 80 : 50)
                     
                     // Central Scanning Area
                     ZStack {
+                        // Landscape Scale Factor
+                        let isLandscape = geometry.size.width > geometry.size.height
+                        // Reduce scale in landscape to prevent overlap (0.25 vs 0.3)
+                        let imageScale = sizeClass == .regular ? (isLandscape ? 0.25 : 0.3) : 0.0 // 0.0 is placeholder, iPhone uses fixed 220 below
+                        let ringScale = sizeClass == .regular ? (isLandscape ? 0.3 : 0.35) : 0.0
+                        
                         // The Image (Un-blurring)
                         Image("onboarding-grandmother")
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(
-                                width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.3 : 220,
-                                height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.3 : 220
+                                width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * imageScale : 220,
+                                height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * imageScale : 220
                             )
                             .clipShape(Circle())
                             .blur(radius: blurAmount)
@@ -55,8 +61,8 @@ struct OnboardingMockScanView: View {
                                     style: StrokeStyle(lineWidth: sizeClass == .regular ? 8 : 4, lineCap: .round)
                                 )
                                 .frame(
-                                    width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.35 : 250,
-                                    height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.35 : 250
+                                    width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * ringScale : 250,
+                                    height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * ringScale : 250
                                 ) // Slightly larger than image
                                 .rotationEffect(.degrees(-90))
                         } else if !showIdentification {
@@ -64,8 +70,8 @@ struct OnboardingMockScanView: View {
                             Circle()
                                 .stroke(Color.green, lineWidth: sizeClass == .regular ? 8 : 4)
                                 .frame(
-                                    width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.35 : 250,
-                                    height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * 0.35 : 250
+                                    width: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * ringScale : 250,
+                                    height: sizeClass == .regular ? min(geometry.size.width, geometry.size.height) * ringScale : 250
                                 )
                         }
                     }
@@ -97,67 +103,19 @@ struct OnboardingMockScanView: View {
                     Spacer() // Push Footer to bottom (balancing the Text in middle)
                     
                     // Footer (Identified Card + Memories)
+                    // We use an invisible copy of the footer when not showing identification
+                    // to reserve the space and prevent layout shifts (image jumping up).
                     if showIdentification {
-                        VStack(spacing: sizeClass == .regular ? 32 : 16) {
-                            // Identified Person Card (Compact)
-                            HStack(spacing: 12) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(sizeClass == .regular ? .title2 : .title3)
-                                    .foregroundStyle(.green)
-                                
-                                Text("Person Identified: \(identifiedName)")
-                                    .font(sizeClass == .regular ? .title3.weight(.medium) : .callout.weight(.medium))
-                                    .foregroundStyle(Color("AppPrimaryText"))
-                                
-                                Spacer()
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(.white.opacity(0.15), lineWidth: 1)
-                            )
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                            
-                            // Single Sentimental Memory
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Shared Moment")
-                                    .font(sizeClass == .regular ? .title3 : .subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(Color("AppSecondaryText"))
-                                    .padding(.horizontal, 4)
-                                
-                                MemoryCard(memory: Memory(content: "Cooking her famous pasta recipe together last Sunday.", type: .general, sentiment: .positive, importance: .high))
-                            }
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                            
-                            // Continue Button
-                            if showContinueButton {
-                                Button(action: {
-                                    withAnimation {
-                                        hasCompletedOnboarding = true
-                                        isFinished = true
-                                    }
-                                }) {
-                                    Text("I'm Ready!")
-                                        .font(sizeClass == .regular ? .title3.bold() : .headline)
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity) // Fill available space
-                                        .frame(height: sizeClass == .regular ? 64 : 56) // Taller on iPad
-                                        .background(Color("AppPrimary"))
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
-                                }
-                                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                            }
-                        }
-                        .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 20)
-                        .padding(.bottom, sizeClass == .regular ? 20 : 30) // Reduced padding for visibility
+                        footerView
+                            .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 20)
+                            .padding(.bottom, sizeClass == .regular ? 20 : 30) // Reduced padding for visibility
                     } else {
-                        // Placeholder space
-                        Color.clear.frame(height: 60)
+                        // Invisible placeholder to maintain layout height
+                        footerView
+                            .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 20)
+                            .padding(.bottom, sizeClass == .regular ? 20 : 30)
+                            .hidden()
+                            .allowsHitTesting(false)
                     }
                 }
             }
@@ -168,6 +126,63 @@ struct OnboardingMockScanView: View {
         .navigationBarBackButtonHidden()
     }
     
+    private var footerView: some View {
+        VStack(spacing: sizeClass == .regular ? 32 : 16) {
+            // Identified Person Card (Compact)
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(sizeClass == .regular ? .title2 : .title3)
+                    .foregroundStyle(.green)
+                
+                Text("Person Identified: \(identifiedName)")
+                    .font(sizeClass == .regular ? .title3.weight(.medium) : .callout.weight(.medium))
+                    .foregroundStyle(Color("AppPrimaryText"))
+                
+                Spacer()
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(Color("AppSurface")) // Increased contrast from ultraThin
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.primary.opacity(0.1), lineWidth: 1) // Adaptive stroke color
+            )
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            
+            // Single Sentimental Memory
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Shared Moment")
+                    .font(sizeClass == .regular ? .title3 : .subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("AppSecondaryText"))
+                    .padding(.horizontal, 4)
+                
+                MemoryCard(memory: Memory(content: "Cooking her famous pasta recipe together last Sunday.", type: .general, sentiment: .positive, importance: .high))
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            
+            // Continue Button (Always present in layout, visibility controlled by transition/opacity)
+            Button(action: {
+                withAnimation {
+                    hasCompletedOnboarding = true
+                    isFinished = true
+                }
+            }) {
+                Text("I'm Ready!")
+                    .font(sizeClass == .regular ? .title3.bold() : .headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity) // Fill available space
+                    .frame(height: sizeClass == .regular ? 64 : 56) // Taller on iPad
+                    .background(Color("AppPrimary"))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: Color("AppPrimary").opacity(0.3), radius: 10, x: 0, y: 5)
+            }
+            .opacity(showContinueButton ? 1 : 0) // Fade in without layout shift
+            .disabled(!showContinueButton)
+        }
+    }
+
     private func runMockScanSequence() {
         // 1. Start focusing (unblur) immediately
         withAnimation(.easeInOut(duration: 2.0)) {

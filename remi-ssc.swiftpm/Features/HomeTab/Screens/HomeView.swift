@@ -104,6 +104,7 @@ struct HomeView: View {
                                         .foregroundStyle(Color("AppPrimaryText"))
                                         .padding(.top, 12)
                                         .padding(.leading, 20)
+                                        .padding(.bottom, 5)
                                     
                                     MemoryStoryCardsView(height: proxy.size.height * 0.32)
                                     // because rest of the content takes about 68% of the space (see calculations below)

@@ -4,6 +4,7 @@ import SwiftData
 struct MemoryStoryCardsView: View {
     @Query(sort: \Person.lastInteracted, order: .reverse) var savedPersons: [Person]
     let height: CGFloat
+    var onScanFace: (() -> Void)? = nil
     let maxCardsDisplayed = 5
     
     // Maintain a standard aspect ratio (approx 0.64 which is 320/500)
@@ -28,7 +29,9 @@ struct MemoryStoryCardsView: View {
     @State private var specialPadding: (Double, Double) = (0, 0)
     
     func updateCardPadding(index: Int, normalPaddingAmount: Double, specialPaddingAmount: Double) {
-        if index == 0 {
+        if personsToShow.count == 1 {
+            self.specialPadding = (normalPaddingAmount, normalPaddingAmount)
+        } else if index == 0 {
             self.specialPadding = (specialPaddingAmount, normalPaddingAmount)
         } else if index == personsToShow.count - 1  {
             self.specialPadding = (normalPaddingAmount, specialPaddingAmount)
@@ -41,55 +44,112 @@ struct MemoryStoryCardsView: View {
         VStack(spacing: 8) {
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width * 0.85
-                let normalPadding = (proxy.size.width - cardWidth) / 2
-                let specialPaddingAmount = 20.0
-
                 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(personsToShow) { person in
-                            MemoryStoryCard(
-                                person: person,
-                                width: cardWidth,
-                                height: height,
-                                currentSlideIndex: binding(for: person.id)
-                            )
-                            .id(person.id)
+                if personsToShow.isEmpty {
+                    PlaceholderMemoryCard(width: cardWidth, height: height, action: onScanFace)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    let normalPadding = (proxy.size.width - cardWidth) / 2
+                    let specialPaddingAmount = 20.0
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(personsToShow) { person in
+                                MemoryStoryCard(
+                                    person: person,
+                                    width: cardWidth,
+                                    height: height,
+                                    currentSlideIndex: binding(for: person.id)
+                                )
+                                .id(person.id)
+                            }
+                        }
+                        .padding(.leading, specialPadding.0)
+                        .padding(.trailing, specialPadding.1)
+                        .scrollTargetLayout()
+                    }
+                    .scrollTargetBehavior(.viewAligned)
+                    .scrollPosition(id: $activeID)
+                    .onAppear {
+                        if activeID == nil {
+                            activeID = personsToShow.first?.id
+                            updateCardPadding(index: 0, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
                         }
                     }
-                    .padding(.leading, specialPadding.0)
-                    .padding(.trailing, specialPadding.1)
-                    .scrollTargetLayout()
-                }
-                .scrollTargetBehavior(.viewAligned)
-                .scrollPosition(id: $activeID)
-                .onAppear {
-                    if activeID == nil {
-                        activeID = personsToShow.first?.id
-                        updateCardPadding(index: 0, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
-                    }
-                }
-                .onChange(of: activeID) { oldValue, newValue in
-                    if let id = newValue, let index = personsToShow.firstIndex(where: { $0.id == id }) {
-                        // Update padding immediately without animation to avoid scroll lag
-                        updateCardPadding(index: index, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+                    .onChange(of: activeID) { oldValue, newValue in
+                        if let id = newValue, let index = personsToShow.firstIndex(where: { $0.id == id }) {
+                            // Update padding immediately without animation to avoid scroll lag
+                            updateCardPadding(index: index, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+                        }
                     }
                 }
             }
             .frame(height: height)
             
-            // Pagination Dots
-            HStack(spacing: 8) {
-                ForEach(personsToShow) { person in
-                    Circle()
-                        .fill(activeID == person.id ? Color.primary : Color.secondary.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                        .scaleEffect(activeID == person.id ? 1.2 : 1.0)
-                        .animation(.spring(), value: activeID)
+            // Pagination Dots only if there are people
+            if !personsToShow.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(personsToShow) { person in
+                        Circle()
+                            .fill(activeID == person.id ? Color.primary : Color.secondary.opacity(0.3))
+                            .frame(width: 6, height: 6)
+                            .scaleEffect(activeID == person.id ? 1.2 : 1.0)
+                            .animation(.spring(), value: activeID)
+                    }
+                }
+                .padding(.bottom, 10)
+            }
+        }
+    }
+}
+
+struct PlaceholderMemoryCard: View {
+    let width: CGFloat
+    let height: CGFloat
+    var action: (() -> Void)?
+    
+    var body: some View {
+        Button(action: {
+            action?()
+        }) {
+            ZStack {
+                // Background
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(Color("AppSurface")) // Subtle card background
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                    )
+                
+                VStack(spacing: 24) {
+                    // Icon
+                    ZStack {
+                        Circle()
+                            .fill(Color("AppPrimary").opacity(0.1))
+                            .frame(width: 80, height: 80)
+                        
+                        Image(systemName: "face.dashed") // Scan face icon
+                            .font(.system(size: 40))
+                            .foregroundStyle(Color("AppPrimary"))
+                    }
+                    
+                    // Text
+                    VStack(spacing: 8) {
+                        Text("Add a Loved One")
+                            .font(.system(.title2, design: .rounded, weight: .bold)) // Clean
+                            .foregroundStyle(Color("AppPrimaryText"))
+                        
+                        Text("Scan their face to start remembering.")
+                            .font(.system(.body, design: .rounded)) // Minimalistic
+                            .foregroundStyle(Color("AppSecondaryText"))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
                 }
             }
-            .padding(.bottom, 10)
+            .frame(width: width, height: height)
         }
+        .buttonStyle(.plain) // No press effect needed for card
     }
 }
 
@@ -115,7 +175,7 @@ struct MemoryStoryCard: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Background Image
+            // Background Image & Gradient (Passive Content)
             if let imageData = slides[safe: currentSlideIndex], let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
@@ -129,12 +189,23 @@ struct MemoryStoryCard: View {
             
             // Gradient Overlay for readability
             LinearGradient(
-                gradient: Gradient(colors: [.clear, .black.opacity(0.6)]),
-                startPoint: .center,
+                stops: [
+                    .init(color: .clear, location: 0.65),
+                    .init(color: .black.opacity(0.8), location: 1.0)
+                ],
+                startPoint: .top,
                 endPoint: .bottom
             )
+            .allowsHitTesting(false)
             
-            // Story Progress Pills
+            // Navigation Link (Invisible Overlay - Captures tap on body)
+            NavigationLink(destination: FriendProfileView(person: person)) {
+                Color.clear
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain) // Critical for avoiding list cell styling interference in ScrollView
+            
+            // Story Progress Pills (Top)
             VStack(spacing: 0) {
                 if slides.count > 1 {
                     HStack(spacing: 4) {
@@ -147,71 +218,64 @@ struct MemoryStoryCard: View {
                     .padding(.top, 12)
                     .padding(.horizontal, 12)
                 }
-                
                 Spacer()
-                
-                // Content Overlay
-                VStack(alignment: .leading, spacing: 12) {
-                    // Name and Relation
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(person.name)
-                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                                .foregroundStyle(Color("AppPrimaryText"))
-                        
-                        Text(person.relation)
-                            .font(.subheadline.weight(.bold))
-                                .foregroundStyle(Color("AppPrimaryText"))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Capsule().fill(.white.opacity(0.2)))
+            }
+            .allowsHitTesting(false) // Let touches pass through the empty space
+            
+            // "Add Memory" Button (Top Right Absolute) - Must be ABOVE NavigationLink
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        // Add Memory Action
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 22, weight: .bold)) // Bigger minimalistic icon
+                            .foregroundStyle(Color("AppPrimary")) // Green tint
+                            .frame(width: 44, height: 44) // Circular touch target
+                            .background(.regularMaterial) // Glass effect
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 0.5))
+                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
-                    
-                    // Buttons
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            // Add Memory Action
-                        }) {
-                            HStack {
-                                //                                Image(systemName: "plus")
-                                //                                    .font(.system(size: 16, weight: .bold))
-                                Text("Add Memory")
-                                
-                            }
-                            .font(.subheadline.weight(.bold))
-                                .foregroundStyle(Color("AppPrimaryText"))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Capsule().fill(.ultraThinMaterial))
-                            .overlay(Capsule().stroke(.white.opacity(0.2), lineWidth: 1))
-                            
-                        }
-                        
-                        Button(action: {
-                            // View Action
-                        }) {
-                            Text("View")
-                                .font(.subheadline.weight(.bold))
-                                    .foregroundStyle(Color("AppPrimaryText"))
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Capsule().fill(.ultraThinMaterial))
-                                .overlay(Capsule().stroke(.white.opacity(0.2), lineWidth: 1))
-                        }
-                    }
-                    .padding(.top, 8)
+                    .padding(.top, 20)
+                    .padding(.trailing, 20)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 24)
+                Spacer()
             }
             
-            // Tap areas for navigation
+            // Bottom Content Overlay (Name & Relation) - Purely Visual Overlay
+            VStack(alignment: .leading, spacing: 4) {
+                Text(person.name)
+                    .font(.system(.title, design: .rounded, weight: .bold)) // Requested size
+                    .foregroundStyle(.white) // Requested color
+                
+                Text(person.relation)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.9)) // Requested opacity
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(.white.opacity(0.2))) // Subtle pill background for relation
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
+            .allowsHitTesting(false) // Let taps pass through to NavigationLink below
+            
+            // Tap areas for navigation arrows (Invisible controls for story slides)
+            // Left/Right edges navigate stories, Center falls through to Profile Navigation
             HStack(spacing: 0) {
                 Color.clear
+                    .frame(width: width * 0.25) // Reduced tap width
                     .contentShape(Rectangle())
                     .onTapGesture {
                         navigate(direction: -1)
                     }
+                
+                Spacer() // Middle 50% allows taps to fall through to the NavigationLink behind
+                
                 Color.clear
+                    .frame(width: width * 0.25) // Reduced tap width
                     .contentShape(Rectangle())
                     .onTapGesture {
                         navigate(direction: 1)
@@ -219,7 +283,7 @@ struct MemoryStoryCard: View {
             }
         }
         .frame(width: width, height: height)
-        .background(Color.black.opacity(0.1)) // Base background to prevent square look before image loads
+        .background(Color.black.opacity(0.1)) // Base background
         .clipShape(RoundedRectangle(cornerRadius: 32))
         .onAppear {
             startTimer()
@@ -235,19 +299,17 @@ struct MemoryStoryCard: View {
             if nextIndex >= 0 && nextIndex < slides.count {
                 currentSlideIndex = nextIndex
             } else if nextIndex >= slides.count {
-                currentSlideIndex = 0 // loop back or stay? User said scrolling carousel handles next person
+                currentSlideIndex = 0
             }
         }
-        
         restartTimer()
     }
     
     private func startTimer() {
-        // Only auto-advance if not single slide
         if slides.count > 1 {
-             timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                 navigate(direction: 1)
-             }
+            timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+                navigate(direction: 1)
+            }
         }
     }
     

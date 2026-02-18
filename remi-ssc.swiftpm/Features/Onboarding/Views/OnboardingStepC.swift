@@ -94,7 +94,7 @@ struct OnboardingStruggleView: View {
                             path.append("facescan")
                         }) {
                             Text("Yes, But I Want To Overcome Them")
-                                .font(sizeClass == .regular ? .title3.bold() : .headline)
+                                .font(.system(size: sizeClass == .regular ? 24 : 18, weight: .bold, design: .rounded))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity) // Fill available space
                                 .frame(height: sizeClass == .regular ? 64 : 56) // Taller on iPad
@@ -111,15 +111,34 @@ struct OnboardingStruggleView: View {
             }
         }
         .onAppear {
-            prepareBubbles()
+            // We can't easily pass geometry here without a binding or preferences, 
+            // but for a simpler fix let's rely on UIDevice or just assume standard start.
+            // Actually, we can use a small hack or just check screen bounds if geometry isn't available in onAppear directly contexts.
+            // Better: use the sizeClass to determine iPad, and for landscape/portrait check Main bounds or just proceed.
+            // Since we need to be accurate about "landscape", let's use the UIScreen main bounds as a proxy if needed, 
+            // or better, just pass the logic into a helper that runs on the first frame if possible.
+            // HOWEVER, the cleanest SwiftUI way is using .task or just checking geometry in a proper way.
+            // Given the constraints, I will assume the view loads.
+            // Let's use a Task to allow geometry to propagate if needed, but onAppear is fine.
+            // I'll check horizontal/vertical sizing via UIScreen for simple orientation check if geometry isn't passed.
+            // Actually, let's just use the geometry reader's values inside an onChange or similar? No, complicate.
+            // Simple approach: Use UIDevice orientation or Screen bounds.
+            let isLandscape = UIScreen.main.bounds.width > UIScreen.main.bounds.height
+            prepareBubbles(isLandscape: isLandscape)
             startBubbleStream()
         }
         .navigationBarBackButtonHidden()
     }
     
-    private func prepareBubbles() {
+    private func prepareBubbles(isLandscape: Bool) {
         if bubbles.isEmpty {
-            let ideas = sizeClass == .regular ? ipadThoughts : thoughts
+            var ideas = sizeClass == .regular ? ipadThoughts : thoughts
+            
+            // iPad Landscape Refinement: Reduce by exactly 2
+            if sizeClass == .regular && isLandscape {
+                ideas = Array(ideas.dropLast(2))
+            }
+            
             for text in ideas {
                 let scale = CGFloat.random(in: 0.95...1.05)
                 let bubble = ThoughtBubble(text: text, xOffset: 0, scale: scale, isVisible: false)
@@ -129,17 +148,21 @@ struct OnboardingStruggleView: View {
     }
     
     private func startBubbleStream() {
+        // iPad Refinement: Faster speed for iPad (0.1 vs 0.15)
         var delay = 0.5
+        let increment = sizeClass == .regular ? 0.1 : 0.15
         
         for index in bubbles.indices {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                bubbles[index].isVisible = true
-                
-                // Simple Haptic
-                let generator = UIImpactFeedbackGenerator(style: .light)
-                generator.impactOccurred()
+                if index < bubbles.count { // Safety check
+                    bubbles[index].isVisible = true
+                    
+                    // Simple Haptic
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }
             }
-            delay += 0.15
+            delay += increment
         }
         
         // Show Button after bubbles
