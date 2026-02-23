@@ -65,7 +65,7 @@ struct PreviewSwiftData {
 //            person2.memories.append(memory2)
             
 //            container.mainContext.insert(person1)
-            container.mainContext.insert(person2)
+//            container.mainContext.insert(person2)
 //            container.mainContext.insert(person3)
             container.mainContext.insert(person4)
 

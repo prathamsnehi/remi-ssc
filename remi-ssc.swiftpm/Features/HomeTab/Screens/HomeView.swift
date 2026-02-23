@@ -69,11 +69,7 @@ struct HomeView: View {
                             if isLandscape {
                                 // iPad Landscape: Side-by-Side
                                 HStack(alignment: .top, spacing: 30) {
-                                    MyMemoriesView()
-                                        .frame(maxWidth: .infinity)
-                                    
-                                    RecentInteractions()
-                                        .frame(maxWidth: .infinity)
+                                    MemoryStoryCardsiPadView(height: 350)
                                 }
                                 .padding(.leading, 20)
                                 .padding(.trailing, 20)
@@ -81,8 +77,7 @@ struct HomeView: View {
                             } else {
                                 // iPad Portrait: Vertical Stack
                                 VStack(spacing: 30) {
-                                    MyMemoriesView()
-                                        .frame(maxWidth: .infinity)
+                                    MemoryStoryCardsiPadView(height: 300)
                                     
                                     RecentInteractions()
                                         .frame(maxWidth: .infinity)
