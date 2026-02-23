@@ -7,7 +7,8 @@ struct remiApp: App {
         // CHANGE HERE: We replaced [Item.self] with your actual models
         let schema = Schema([
             Person.self,
-            Memory.self
+            Memory.self,
+            Metadata.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
