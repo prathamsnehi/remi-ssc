@@ -65,27 +65,35 @@ struct HomeView: View {
                     
                     
                     if isiPad {
-                        ScrollView {
                             if isLandscape {
-                                // iPad Landscape: Side-by-Side
+                                // iPad Landscape: Cards Only
+                                let cardsHeight = (proxy.size.height * 0.45) - 70 // Total H - Hero(0.5) - padding
+                                
                                 HStack(alignment: .top, spacing: 30) {
-                                    MemoryStoryCardsiPadView(height: 350)
+                                    MemoryStoryCardsiPadView(height: max(240, cardsHeight))
+                                        .frame(maxWidth: .infinity)
                                 }
                                 .padding(.leading, 20)
                                 .padding(.trailing, 20)
                                 .padding(.top, 30)
                             } else {
-                                // iPad Portrait: Vertical Stack
+                                // iPad Portrait: Vertical Stack with BentoStats
+                                // BentoStats gets more prominent height
+                                let bentoHeight: CGFloat = 200
+                                
+                                // Cards get the rest: Total H - Hero(0.41H) - Buttons(40) - Paddings(60) - BentoH
+                                let cardsHeight = (proxy.size.height * 0.55) - 100 - bentoHeight
+                                
                                 VStack(spacing: 30) {
-                                    MemoryStoryCardsiPadView(height: 300)
+                                    BentoStatsiPad(height: bentoHeight)
+                                        .frame(maxWidth: .infinity)
                                     
-                                    RecentInteractions()
+                                    MemoryStoryCardsiPadView(height: max(240, cardsHeight))
                                         .frame(maxWidth: .infinity)
                                 }
                                 .padding(.top, 30)
                                 .padding(.leading, 20)
                                 .padding(.trailing, 20)
-                            }
                         }
                         
                     } else {

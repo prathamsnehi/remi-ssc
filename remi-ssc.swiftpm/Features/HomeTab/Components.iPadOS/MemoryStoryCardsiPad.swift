@@ -93,115 +93,109 @@ struct MemoryStoryCardiPad: View {
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            // Background
-            RoundedRectangle(cornerRadius: 32)
-                .fill(Color("AppSurface"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 32)
-                        .stroke(Color.primary.opacity(0.05), lineWidth: 1)
-                )
-            
-            // Invisible Navigation Link covering the entire card
-            NavigationLink(destination: FriendProfileView(person: person)) {
-                Color.clear
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            
-            VStack(alignment: .leading, spacing: 24) {
-                // Header Sequence: Avatar (Left), Name & Relation (Right)
-                HStack(alignment: .center, spacing: 24) {
-                    // Profile Image
-                    if let uiImage = UIImage(data: person.photoData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 120)
-                            .clipShape(Circle())
-                    } else {
-                        Circle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(width: 120, height: 120)
-                            .overlay(
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 50))
-                                    .foregroundStyle(Color.gray.opacity(0.5))
-                            )
-                    }
-                    
-                    // Name and Relation
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(person.name)
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundStyle(Color("AppPrimaryText"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                        
-                        Text(person.relation)
-                            .font(.headline.weight(.semibold))
-                            .foregroundStyle(Color("AppPrimaryText").opacity(0.8))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Capsule().fill(Color.primary.opacity(0.08)))
-                    }
-                    
-                    Spacer()
+        VStack(alignment: .leading, spacing: 16) {
+            // Header Sequence: Avatar (Left), Name & Relation (Right)
+            HStack(alignment: .center, spacing: 20) {
+                // Profile Image
+                if let uiImage = UIImage(data: person.photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 90, height: 90)
+                        .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 90, height: 90)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 40))
+                                .foregroundStyle(Color.gray.opacity(0.5))
+                        )
                 }
                 
-                Divider()
-                    .padding(.vertical, 8)
-                
-                // Latest Memory Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Latest Memory")
-                        .font(.headline)
-                        .foregroundStyle(Color("AppSecondaryText"))
-                        .textCase(.uppercase)
+                // Name and Relation
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(person.name)
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color("AppPrimaryText"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     
-                    if let memoryText = latestMemoryText, !memoryText.isEmpty {
-                        Text(memoryText)
-                            .font(.system(size: 22, design: .serif))
-                            .italic()
-                            .foregroundStyle(Color("AppPrimaryText"))
-                            .lineSpacing(4)
-                            .lineLimit(5)
-                            .multilineTextAlignment(.leading)
-                    } else {
-                        Text("Click to add memories to remember them")
-                            .font(.system(size: 20, weight: .medium, design: .rounded))
-                            .foregroundStyle(Color("AppSecondaryText").opacity(0.8))
-                            .italic()
-                    }
+                    Text(person.relation)
+                        .font(.system(size: 14, weight: .semibold, design: .default))
+                        .foregroundStyle(Color("AppPrimaryText").opacity(0.8))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(Color.primary.opacity(0.08)))
                 }
                 
-                Spacer(minLength: 0)
-            }
-            .padding(40) // Generous iPad padding
-            .allowsHitTesting(false) // Let clicks pass down to NavigationLink
-            
-            // "Add Memory" Button Overlay (Top Right absolute positioning)
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        // Add Memory Action
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundStyle(Color("AppPrimary"))
-                            .frame(width: 56, height: 56)
-                            .background(Color("AppSurface"))
-                            .clipShape(Circle())
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                            .overlay(Circle().stroke(Color.primary.opacity(0.05), lineWidth: 1))
-                    }
-                    .padding(24) // Float in the corner
-                }
                 Spacer()
             }
+            
+            Divider()
+                .padding(.vertical, 4)
+            
+            // Latest Memory Section
+            VStack(alignment: .leading, spacing: 8) {
+                Text("LATEST MEMORY")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color("AppSecondaryText"))
+                
+                if let memoryText = latestMemoryText, !memoryText.isEmpty {
+                    Text(memoryText)
+                        .font(.system(size: 18, design: .serif))
+                        .italic()
+                        .foregroundStyle(Color("AppPrimaryText"))
+                        .lineSpacing(4)
+                        .lineLimit(4)
+                        .multilineTextAlignment(.leading)
+                } else {
+                    Text("Click to add memories to remember them")
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color("AppSecondaryText").opacity(0.8))
+                        .italic()
+                }
+            }
+            
+            Spacer(minLength: 0)
         }
-        .frame(width: width, height: height)
+        .padding(.horizontal, 30)
+        .padding(.top, 30)
+        .padding(.bottom, 20)
+        .frame(width: width, height: height, alignment: .top) // Enforce strict dimensions on the VStack container itself
+        .background(
+            RoundedRectangle(cornerRadius: 32)
+                .fill(Color("AppSurface"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 32)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        )
+        // Add Memory Button Overlay mapped to inner padding area
+        .overlay(alignment: .topTrailing) {
+            Button(action: {
+                // Add Memory Action
+            }) {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color("AppPrimary"))
+                    .frame(width: 44, height: 44)
+                    .background(Color("AppSurface"))
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
+                    .overlay(Circle().stroke(Color.primary.opacity(0.05), lineWidth: 1))
+            }
+            .padding(24) // Top Right Float placement
+        }
+        // Total Card Tap area Navigation
+        .overlay {
+            NavigationLink(destination: FriendProfileView(person: person)) {
+                Color.clear.contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .clipped() // Ensures overflow content doesn't bleed out of bounds
         .shadow(color: .black.opacity(0.04), radius: 15, y: 8)
     }
 }
