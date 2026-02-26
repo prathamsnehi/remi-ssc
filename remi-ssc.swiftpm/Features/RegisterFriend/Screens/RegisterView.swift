@@ -35,7 +35,6 @@ struct RegisterView: View {
     @State private var showErrorAlert = false
     
     // Voice Mode State
-    @State private var showCamera = false
     @State private var showLibrary = false
     
     var body: some View {
@@ -99,10 +98,6 @@ struct RegisterView: View {
                 Text(errorMessage ?? "Unknown error")
             }
             // Voice Mode Camera Handling
-            .fullScreenCover(isPresented: $showCamera) {
-                ImagePicker(selectedImage: $inputImage, sourceType: .camera)
-                    .ignoresSafeArea()
-            }
             .sheet(isPresented: $showLibrary) {
                 ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                     .ignoresSafeArea()

@@ -10,48 +10,54 @@ import SwiftUI
 struct HeaderCapsule: View {
     let title: String
     let isScanning: Bool
+    var onPhotosTap: (() -> Void)? = nil
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isiPad: Bool {
+        horizontalSizeClass == .regular
+    }
     
     var body: some View {
         HStack(spacing: 0) {
             Text(title)
-                .font(.system(.caption, design: .rounded, weight: .bold))
+                .font(.system(size: isiPad ? 18 : 12, weight: .bold, design: .rounded))
                 .foregroundStyle(Color("AppPrimaryText"))
-                .padding(.horizontal, 16)
+                .padding(.horizontal, isiPad ? 24 : 16)
             
             if !isScanning {
                 Rectangle()
                     .fill(.white.opacity(0.15))
-                    .frame(width: 1, height: 16)
+                    .frame(width: isiPad ? 1.5 : 1, height: isiPad ? 24 : 16)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: isiPad ? 12 : 8) {
                     Text("or scan with")
-                        .font(.system(.caption2, design: .rounded, weight: .medium))
-                        .foregroundStyle(Color("AppSecondaryText"))
-                        .padding(.leading, 12)
+                        .font(.system(size: isiPad ? 16 : 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color("AppPrimaryText"))
+                        .padding(.leading, isiPad ? 18 : 12)
                     
                     Button(action: {
-                        // Placeholder action
+                        onPhotosTap?()
                     }) {
-                        HStack(spacing: 6) {
+                        HStack(spacing: isiPad ? 9 : 6) {
                             Image(systemName: "photo.on.rectangle.angled")
-                                .font(.caption)
+                                .font(.system(size: isiPad ? 18 : 12))
                             
                             Text("Photos")
-                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .font(.system(size: isiPad ? 18 : 12, weight: .bold, design: .rounded))
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, isiPad ? 21 : 14)
+                        .padding(.vertical, isiPad ? 12 : 8)
                         .background(.white.opacity(0.15))
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.trailing, 6)
+                .padding(.trailing, isiPad ? 9 : 6)
             }
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 10)
         .background(.ultraThinMaterial, in: Capsule())
-        .glassEffect()
         .foregroundStyle(Color("AppPrimaryText"))
     }
 }
@@ -72,4 +78,5 @@ struct HeaderCapsule: View {
         }
         .padding()
     }
+
 }

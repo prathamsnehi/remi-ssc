@@ -18,49 +18,50 @@ struct HomeView: View {
     
     @State private var showRegisterSheet = false
     @State private var showARView = false
+    @State private var showPhotoScanner = false
     
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in // for different layout multipliers for vertical / horizontal ipad layouts
-                
-                // Finding orientation (applicable to ipad only)
-                let isLandscape = proxy.size.width > proxy.size.height
-                
-                // finding the "feels right" proportion for HomeHero:
-                var heroFrameHeight: CGFloat {
-                    if isiPad {
-                        if isLandscape {
-                            return proxy.size.height * 0.50
-                        } else {
-                            return proxy.size.height * 0.41
-                        }
-                    } else {
-                        // fixed 0.42 for iphones (as always portrait):
-                        return proxy.size.height * 0.42
-                    }
-                }
-                
-                VStack(spacing: 0) {
-                    VStack {
-                        HomeHero()
-                            .frame(height: heroFrameHeight)
-                        
-                        HomeActionButtons(
-                            mode: isiPad ? .ipad : .ios,
-                            onScanFaceTap: {
-                                showARView = true
-                            },
-                            onPhotosTap: {
-                                print("get up on me, so get up on dat dihh")
+                    
+                    // Finding orientation (applicable to ipad only)
+                    let isLandscape = proxy.size.width > proxy.size.height
+                    
+                    // finding the "feels right" proportion for HomeHero:
+                    var heroFrameHeight: CGFloat {
+                        if isiPad {
+                            if isLandscape {
+                                return proxy.size.height * 0.50
+                            } else {
+                                return proxy.size.height * 0.41
                             }
-                        )
-                        // pulling the button by ~66% of it's height (80px)
-                        // so that it sits intersecting the HomeHero's gradient
-                        .offset(y: -80)
-                        .padding(.bottom, -80)
-                        
+                        } else {
+                            // fixed 0.42 for iphones (as always portrait):
+                            return proxy.size.height * 0.42
+                        }
                     }
-                    .ignoresSafeArea()
+                    
+                    VStack(spacing: 0) {
+                        VStack {
+                            HomeHero()
+                                .frame(height: heroFrameHeight)
+                            
+                            HomeActionButtons(
+                                mode: isiPad ? .ipad : .ios,
+                                onScanFaceTap: {
+                                    showARView = true
+                                },
+                                onPhotosTap: {
+                                    showPhotoScanner = true
+                                }
+                            )
+                            // pulling the button by ~66% of it's height (80px)
+                            // so that it sits intersecting the HomeHero's gradient
+                            .offset(y: -80)
+                            .padding(.bottom, -80)
+                            
+                        }
+                        .ignoresSafeArea()
                     
                     
                     
@@ -117,10 +118,11 @@ struct HomeView: View {
                         }
                           
                     
-                    Spacer()
+                        Spacer()
+                    }
                 }
-            }
-            .ignoresSafeArea() // place HomeHero right against the safe area (padding accounted for, i.e. ipad tab bar & iphone dynamic island)
+                .ignoresSafeArea() // place HomeHero right against the safe area (padding accounted for, i.e. ipad tab bar & iphone dynamic island)
+                .photoScanner(isPresented: $showPhotoScanner)
         }
         .fullScreenCover(isPresented: $showRegisterSheet) {
             RegisterView()

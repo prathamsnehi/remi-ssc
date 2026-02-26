@@ -51,7 +51,7 @@ struct RegistrationButtonView: View {
                             
                             Text("Hold Still")
                                 .font(.footnote.weight(.medium))
-                                .foregroundStyle(Color("AppSecondaryText"))
+                                .foregroundStyle(Color("AppPrimaryText"))
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
                     }

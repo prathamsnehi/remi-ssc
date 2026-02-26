@@ -7,6 +7,9 @@ struct ARFooterCard: View {
     @State private var capturedImage: UIImage?
     @State private var capturedEmbeddings: [[Float]]?
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    private var isiPad: Bool { horizontalSizeClass == .regular }
+    
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
@@ -43,17 +46,16 @@ struct ARFooterCard: View {
             
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, isiPad ? 36 : 24)
         .frame(maxWidth: .infinity)
-        .frame(height: 90)
-        .glassEffect()
-        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .frame(height: isiPad ? 135 : 85)
+        .background(.ultraThinMaterial, in: Capsule())
+        .clipShape(Capsule())
         .overlay {
-            RoundedRectangle(cornerRadius: 24)
+            Capsule()
                 .stroke(.white.opacity(0.15), lineWidth: 1)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.horizontal, isiPad ? 30 : 20)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: detector.isScanModeOn)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: detector.isScanning)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: detector.uiError != nil)
