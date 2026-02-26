@@ -143,8 +143,9 @@ class PhotoMLProcessor: ObservableObject {
     private func setupForRegistrationFallback(originalBuffer: CVPixelBuffer, mlRect: CGRect, embedding: [Float]) {
         self.generatedEmbeddingsForRegistration = [embedding]
         
-        // Grab the cropped JPEG representation for the face thumbnail they'll see in RegisterView
-        if let jpegData = originalBuffer.photoJpegData(croppedTo: mlRect, quality: 0.8),
+        // Grab the uncropped, high-quality JPEG representation for the face thumbnail they'll see in RegisterView
+        let fullFrameRect = CGRect(x: 0, y: 0, width: 1.0, height: 1.0)
+        if let jpegData = originalBuffer.photoJpegData(croppedTo: fullFrameRect, quality: 1.0),
            let imageFromData = UIImage(data: jpegData) {
             self.processedImageForRegistration = imageFromData
         }
