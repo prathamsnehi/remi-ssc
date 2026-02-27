@@ -151,7 +151,7 @@ struct ARViewContainer: UIViewRepresentable {
                     if await detector.registrationImage == nil {
                         // only one time save the person's photo when clicked on the scan button on frontend
                         if let uiImage = originalBuffer.toUIImage(orientation: .right),
-                           let jpegData = uiImage.jpegData(compressionQuality: 1.0) {
+                           let jpegData = uiImage.jpegData(compressionQuality: 0.75) {
                             await detector.saveRegistrationPhoto(jpegData)
                         }
                     }
