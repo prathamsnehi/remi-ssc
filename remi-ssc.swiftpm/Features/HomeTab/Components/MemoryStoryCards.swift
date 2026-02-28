@@ -222,28 +222,7 @@ struct MemoryStoryCard: View {
             }
             .allowsHitTesting(false) // Let touches pass through the empty space
             
-            // "Add Memory" Button (Top Right Absolute) - Must be ABOVE NavigationLink
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        // Add Memory Action
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 22, weight: .bold)) // Bigger minimalistic icon
-                            .foregroundStyle(Color("AppPrimary")) // Green tint
-                            .frame(width: 44, height: 44) // Circular touch target
-                            .background(.regularMaterial) // Glass effect
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 0.5))
-                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-                    }
-                    .padding(.top, 20)
-                    .padding(.trailing, 20)
-                }
-                Spacer()
-            }
-            
+
             // Bottom Content Overlay (Name & Relation) - Purely Visual Overlay
             VStack(alignment: .leading, spacing: 4) {
                 Text(person.name)

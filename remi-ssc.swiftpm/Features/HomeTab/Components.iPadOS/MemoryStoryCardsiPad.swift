@@ -186,22 +186,7 @@ struct MemoryStoryCardiPad: View {
                 RoundedRectangle(cornerRadius: 32)
                     .stroke(Color.primary.opacity(0.05), lineWidth: 1)
             )
-            // Add Memory Button Overlay mapped to inner padding area
-            .overlay(alignment: .topTrailing) {
-                Button(action: {
-                    // Add Memory Action
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: max(18, scaleRef * 0.06), weight: .bold))
-                        .foregroundStyle(Color("AppPrimary"))
-                        .frame(width: max(40, scaleRef * 0.12), height: max(40, scaleRef * 0.12))
-                        .background(Color("AppSurface"))
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
-                        .overlay(Circle().stroke(Color.primary.opacity(0.05), lineWidth: 1))
-                }
-                .padding(max(20, scaleRef * 0.07)) // Top Right Float placement
-            }
+
             // Total Card Tap area Navigation
             .overlay {
                 NavigationLink(destination: FriendProfileView(person: person)) {
