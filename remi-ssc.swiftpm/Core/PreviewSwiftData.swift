@@ -23,24 +23,15 @@ struct PreviewSwiftData {
             // Mock Data
             let image1 = UIImage(named: "sample_image_1")
             let image2 = UIImage(named: "sample_image_2")
-            let image3 = UIImage(named: "white")
             
             // Fallback to a system image if assets are missing
             let fallbackData = UIImage(systemName: "person.fill")?.pngData() ?? Data()
             
             let data1 = image1?.jpegData(compressionQuality: 0.8) ?? fallbackData
             let data2 = image2?.jpegData(compressionQuality: 0.8) ?? fallbackData
-            let data3 = image3?.jpegData(compressionQuality: 0.8) ?? fallbackData
             
-            // Person 1
-            let person1 = Person(
-                name: "Ishowspeed",
-                relation: "Streamer of the year",
-                photoData: data3,
-                embeddingSamples: []
-            )
+
             let memory1 = Memory(content: "Please speed I need this. My mom is kinda homeless. I live w my dad", type: .general)
-            person1.memories.append(memory1)
             
             // Person 2
             let person2 = Person(
@@ -64,7 +55,6 @@ struct PreviewSwiftData {
             let memory2 = Memory(content: "Idk just stream to a bunch of people I guess", type: .general)
 //            person2.memories.append(memory2)
             
-            container.mainContext.insert(person1)
             container.mainContext.insert(person2)
 //            container.mainContext.insert(person3)
             container.mainContext.insert(person4)
