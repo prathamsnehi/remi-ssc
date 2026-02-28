@@ -43,7 +43,8 @@ struct AddMemoryPhotoScreen: View {
                                 .foregroundColor(Color("AppPrimaryText"))
                                 .shadow(radius: 2)
                         }
-                        .padding(10),
+                        .padding(10)
+                        .accessibilityLabel("Remove Selected Photo"),
                         alignment: .topTrailing
                     )
             } else {

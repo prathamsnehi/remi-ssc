@@ -38,6 +38,7 @@ struct EditableMemoryCard: View {
                             .font(.title)
                     }
                     .padding(8)
+                    .accessibilityLabel("Remove Photo")
                 } else {
                     // Add photo button
                     PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
@@ -95,6 +96,7 @@ struct EditableMemoryCard: View {
                         .background(Color.red.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Delete Memory")
             }
         }
         .padding(12)

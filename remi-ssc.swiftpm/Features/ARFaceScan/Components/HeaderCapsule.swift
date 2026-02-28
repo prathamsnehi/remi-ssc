@@ -52,6 +52,7 @@ struct HeaderCapsule: View {
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Open Photo Library")
                 }
                 .padding(.trailing, isiPad ? 9 : 6)
             }

@@ -137,6 +137,7 @@ private struct IdentifiedPersonView: View {
                     .frame(width: isiPad ? 52 : 36, height: isiPad ? 52 : 36)
                     .background(Circle().fill(.white.opacity(0.1)))
             }
+            .accessibilityLabel("View Person Profile")
         }
     }
 }

@@ -50,6 +50,7 @@ struct ARFaceScanView: View {
                                 .frame(width: isiPad ? 54 : 36, height: isiPad ? 54 : 36)
                         }
                         .background(.ultraThinMaterial, in: Capsule())
+                        .accessibilityLabel("Close Scanner")
 
                     }
                     .padding(.horizontal, 16)
