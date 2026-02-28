@@ -61,6 +61,7 @@ struct OnboardingView: View {
                                        height: path.isEmpty ? (introStep == 0 ? initialLogoSize : 80) : 24)
                                 .clipShape(RoundedRectangle(cornerRadius: path.isEmpty ? (introStep == 0 ? initialLogoSize / 4 : 22) : 6)) // Animated corner radius too
                                 .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
+                                .accessibilityHidden(true)
                             
                             // Text reveals in Step 1
                             if !path.isEmpty || introStep > 0 {
@@ -125,7 +126,7 @@ struct OnboardingView: View {
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                             }
-                            .glassEffect()
+                            .accessibilityLabel("Skip onboarding")
                         }
                         .padding(.horizontal, 24)
                         .padding(.top, 20)

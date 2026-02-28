@@ -47,6 +47,8 @@ struct OnboardingMockScanView: View {
                             .clipShape(Circle())
                             .blur(radius: blurAmount)
                             .opacity(0.9)
+                            .accessibilityLabel("A grandmother's face being scanned by the app")
+                            .accessibilityIgnoresInvertColors()
                             .overlay(
                                 Circle()
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
@@ -133,6 +135,7 @@ struct OnboardingMockScanView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(sizeClass == .regular ? .title2 : .title3)
                     .foregroundStyle(.green)
+                    .accessibilityHidden(true)
                 
                 Text("Person Identified: \(identifiedName)")
                     .font(sizeClass == .regular ? .title3.weight(.medium) : .callout.weight(.medium))

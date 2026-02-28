@@ -174,9 +174,6 @@ struct ARViewContainer: UIViewRepresentable {
                 
                 // yes match, update detector to include the detected person for UI:
                 await detector.setIdentifiedFace(id: bestMatchId, confidence: confidence)
-                
-                print("VECTOR GENERATED: \(faceEmbedding)")
-                print("VECTOR SIZE: \(faceEmbedding.count)")
             }
             
             self.debugFaceScan(pixelBuffer: croppedFaceBuffer)

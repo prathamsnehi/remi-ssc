@@ -43,6 +43,8 @@ struct OnboardingHeroView: View {
                             .opacity(showSubtitle ? 1.0 : 0.0)
                             .animation(.easeInOut(duration: 0.8), value: showSubtitle)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Your Face-Based Memory Bank. Recall every face, connect without fear, deepen every bond.")
                     .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.2 : 45)
                     .opacity(opacity) // Sync fade-in with button
                     

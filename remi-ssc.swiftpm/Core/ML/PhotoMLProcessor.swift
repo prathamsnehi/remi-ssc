@@ -145,7 +145,6 @@ class PhotoMLProcessor: ObservableObject {
                 return
             }
             
-            print("📸 Photo Vector Generated. Size: \(faceEmbedding.count)")
             
             // IDENTIFICATION
             // Since we need detector.personLookupMap, we fetch it asynchronously or pass it in. 
@@ -284,7 +283,6 @@ class PhotoMLProcessor: ObservableObject {
             
             do {
                 try data.write(to: fileURL)
-                print("💾 Debug Photo ML Image Saved: \(fileURL.path)")
             } catch {
                 print("❌ Error saving debug ML image: \(error)")
             }

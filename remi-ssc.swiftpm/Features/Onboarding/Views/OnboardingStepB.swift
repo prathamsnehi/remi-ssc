@@ -36,6 +36,8 @@ struct OnboardingLossView: View {
                         .clipShape(Circle())
                         .blur(radius: blurAmount)
                         .opacity(imageOpacity)
+                        .accessibilityLabel("A blurred image of a grandmother looking distant")
+                        .accessibilityIgnoresInvertColors()
                     
                     Spacer() // Flexible space above text
                     

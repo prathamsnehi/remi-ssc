@@ -32,6 +32,7 @@ struct OnboardingFaceScanIntroView: View {
                             .foregroundStyle(Color("AppPrimary"))
                             .padding(.bottom, sizeClass == .regular ? 40 : 20)
                             .transition(.scale.combined(with: .opacity))
+                            .accessibilityHidden(true)
                     }
                     
                     // Text Content
@@ -66,6 +67,7 @@ struct OnboardingFaceScanIntroView: View {
                                             .font(.system(size: iconSize))
                                             .foregroundStyle(Color("AppPrimary"))
                                             .frame(width: iconFrame)
+                                            .accessibilityHidden(true)
                                         
                                         Text("Simply point your camera")
                                             .font(textSize)
@@ -79,6 +81,7 @@ struct OnboardingFaceScanIntroView: View {
                                             .font(.system(size: iconSize))
                                             .foregroundStyle(Color("AppPrimary"))
                                             .frame(width: iconFrame)
+                                            .accessibilityHidden(true)
                                         
                                         Text("Remi recognizes who they are")
                                             .font(textSize)
@@ -92,6 +95,7 @@ struct OnboardingFaceScanIntroView: View {
                                             .font(.system(size: iconSize))
                                             .foregroundStyle(Color("AppPrimary"))
                                             .frame(width: iconFrame)
+                                            .accessibilityHidden(true)
                                         
                                         Text("Instantly see shared memories")
                                             .font(textSize)

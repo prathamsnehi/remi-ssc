@@ -68,6 +68,8 @@ struct OnboardingStruggleView: View {
                                 .animation(.spring(response: 0.5, dampingFraction: 0.7), value: bubble.isVisible)
                         }
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Various scattered thought bubbles expressing forgetfulness, such as: Who is that? I know them... What is their name?")
                     .padding(.horizontal, sizeClass == .regular ? geometry.size.width * 0.15 : 16)
                     .scaleEffect(y: -1) // Flip container
                     
