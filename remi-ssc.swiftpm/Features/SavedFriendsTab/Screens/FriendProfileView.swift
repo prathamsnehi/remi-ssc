@@ -17,11 +17,15 @@ struct FriendProfileView: View {
         ScrollView {
             VStack(spacing: 0) {
                 // 1. Hero Section
-                ProfileHero(
-                    image: UIImage(data: person.photoData),
-                    name: person.name,
-                    relation: person.relation
-                )
+                GeometryReader { geometry in
+                    ProfileHero(
+                        image: UIImage(data: person.photoData),
+                        name: person.name,
+                        relation: person.relation,
+                        availableWidth: geometry.size.width
+                    )
+                }
+                .frame(height: UIScreen.main.bounds.height * 0.45) // 45% of the screen height
                 
                 // 2. AI Suggestion Section
 //                VStack(alignment: .leading) {
@@ -37,6 +41,7 @@ struct FriendProfileView: View {
             }
         }
         .ignoresSafeArea(edges: .top)
+        .scrollIndicators(.hidden)
         .background(Color("AppBackground"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
