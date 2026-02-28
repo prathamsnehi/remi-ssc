@@ -92,8 +92,6 @@ struct MemoryStoryCardiPad: View {
         return nil
     }
     
-    @State private var decodedAvatar: UIImage?
-    
     var body: some View {
         GeometryReader { proxy in
             let w = proxy.size.width
@@ -112,7 +110,7 @@ struct MemoryStoryCardiPad: View {
                 // Header Sequence: Avatar (Left), Name & Relation (Right)
                 HStack(alignment: .center, spacing: max(16, scaleRef * 0.06)) {
                     // Profile Image
-                    if let uiImage = decodedAvatar {
+                    if let uiImage = UIImage(data: person.photoData) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -215,21 +213,6 @@ struct MemoryStoryCardiPad: View {
             .shadow(color: .black.opacity(0.04), radius: 15, y: 8)
         }
         .frame(width: width, height: height)
-        // ASYNC DECODING: Offload the heavy JPEG decompression to a background core to eliminate 120hz frame dropping
-        .task(id: person.photoData) {
-            // Extract the Sendable Data object on the MainActor before crossing the isolation boundary
-            let imageData = person.photoData 
-            
-            let fetchedImage = await Task.detached(priority: .userInitiated) {
-                return UIImage(data: imageData)
-            }.value
-            
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    self.decodedAvatar = fetchedImage
-                }
-            }
-        }
     }
 }
 

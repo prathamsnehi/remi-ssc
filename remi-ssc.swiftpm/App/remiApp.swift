@@ -30,7 +30,6 @@ struct remiApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .tint(Color("AppPrimary"))
         }
         .modelContainer(sharedModelContainer)
     }

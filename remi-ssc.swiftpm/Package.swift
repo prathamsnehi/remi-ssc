@@ -8,7 +8,7 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "remi-ssc",
+    name: "Remi",
     platforms: [
         .iOS("26.0")
     ],
@@ -21,7 +21,7 @@ let package = Package(
             displayVersion: "1.0",
             bundleVersion: "1",
             appIcon: .asset("AppIcon"),
-            accentColor: .presetColor(.brown),
+            accentColor: .asset("AccentColor"),
             supportedDeviceFamilies: [
                 .pad,
                 .phone
@@ -33,7 +33,8 @@ let package = Package(
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
-                .camera(purposeString: "We use camera in AR to detect faces of your loved ones. ")
+                .camera(purposeString: "We use camera in AR to detect faces of your loved ones. "),
+                .photoLibrary(purposeString: "We use photo library to scan the faces of your loved ones from images.")
             ],
             appCategory: .lifestyle
         )
@@ -43,7 +44,7 @@ let package = Package(
             name: "AppModule",
             path: ".",
             resources: [
-                .copy("Resources/SFace.mlmodelc"),
+                .copy("Resources/SFace.mlmodelc")
             ]
         )
     ],

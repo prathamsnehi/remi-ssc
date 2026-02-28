@@ -18,10 +18,9 @@ struct ContentView: View {
 }
 
 
-//#Preview (traits: .landscapeLeft) {
-#Preview() {
+#Preview (traits: .landscapeLeft) {
+//#Preview() {
     ContentView()
         .modelContainer(PreviewSwiftData.container())
         .preferredColorScheme(.dark)
-        .tint(Color("AppPrimary"))
 }

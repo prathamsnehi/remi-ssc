@@ -95,8 +95,8 @@ struct UpdateOptionsSheet: View {
                 dismiss()
             }
         }
-        .sheet(isPresented: $showEditPerson) { StubView(title: "Edit Person Info", iconName: "smile") }
-        .sheet(isPresented: $showEditMemories) { StubView(title: "Edit Memories", iconName: "smile") }
+        .sheet(isPresented: $showEditPerson) { EditPersonView(person: person) }
+        .sheet(isPresented: $showEditMemories) { EditMemoriesView(person: person) }
     }
 }
 

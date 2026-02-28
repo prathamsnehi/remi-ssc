@@ -77,6 +77,7 @@ struct RegisterView: View {
                 }
                 
             }
+            .background(Color(UIColor.systemBackground).ignoresSafeArea())
             .navigationTitle("New Friend")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

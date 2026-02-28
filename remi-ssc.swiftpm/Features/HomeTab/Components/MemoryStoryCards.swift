@@ -26,6 +26,19 @@ struct MemoryStoryCardsView: View {
         Array(savedPersons.prefix(maxCardsDisplayed))
     }
     
+    @State private var specialPadding: (Double, Double) = (0, 0)
+    
+    func updateCardPadding(index: Int, normalPaddingAmount: Double, specialPaddingAmount: Double) {
+        if personsToShow.count == 1 {
+            self.specialPadding = (normalPaddingAmount, normalPaddingAmount)
+        } else if index == 0 {
+            self.specialPadding = (specialPaddingAmount, normalPaddingAmount)
+        } else if index == personsToShow.count - 1  {
+            self.specialPadding = (normalPaddingAmount, specialPaddingAmount)
+        } else {
+            self.specialPadding = (normalPaddingAmount, normalPaddingAmount)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 8) {
@@ -51,14 +64,22 @@ struct MemoryStoryCardsView: View {
                                 .id(person.id)
                             }
                         }
+                        .padding(.leading, specialPadding.0)
+                        .padding(.trailing, specialPadding.1)
                         .scrollTargetLayout()
                     }
-                    .safeAreaPadding(.horizontal, personsToShow.count <= 1 ? normalPadding : specialPaddingAmount)
                     .scrollTargetBehavior(.viewAligned)
                     .scrollPosition(id: $activeID)
                     .onAppear {
                         if activeID == nil {
                             activeID = personsToShow.first?.id
+                            updateCardPadding(index: 0, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
+                        }
+                    }
+                    .onChange(of: activeID) { oldValue, newValue in
+                        if let id = newValue, let index = personsToShow.firstIndex(where: { $0.id == id }) {
+                            // Update padding immediately without animation to avoid scroll lag
+                            updateCardPadding(index: index, normalPaddingAmount: normalPadding, specialPaddingAmount: specialPaddingAmount)
                         }
                     }
                 }
@@ -139,7 +160,6 @@ struct MemoryStoryCard: View {
     
     @Binding var currentSlideIndex: Int
     @State private var timer: Timer?
-    @State private var decodedImage: UIImage?
     
     // Filter memories that have photos
     private var photoMemories: [Memory] {
@@ -156,7 +176,7 @@ struct MemoryStoryCard: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // Background Image & Gradient (Passive Content)
-            if let uiImage = decodedImage {
+            if let imageData = slides[safe: currentSlideIndex], let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -270,23 +290,6 @@ struct MemoryStoryCard: View {
         }
         .onDisappear {
             stopTimer()
-        }
-        // ASYNC DECODING: Offload the heavy JPEG decompression to a background core to eliminate 120hz frame dropping
-        .task(id: slides[safe: currentSlideIndex]) {
-            guard let imageData = slides[safe: currentSlideIndex] else { return }
-            
-            // Clear existing image immediately so it doesn't crossfade weirdly
-            // decodedImage = nil 
-            
-            let fetchedImage = await Task.detached(priority: .userInitiated) {
-                return UIImage(data: imageData)
-            }.value
-            
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    self.decodedImage = fetchedImage
-                }
-            }
         }
     }
     

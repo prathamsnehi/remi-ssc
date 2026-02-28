@@ -24,12 +24,12 @@ struct FriendProfileView: View {
                 )
                 
                 // 2. AI Suggestion Section
-                VStack(alignment: .leading) {
-                    SuggestionCard(person: person)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 30)
+//                VStack(alignment: .leading) {
+//                    SuggestionCard(person: person)
+//                }
+//                .padding(.horizontal, 20)
+//                .padding(.top, 20)
+//                .padding(.bottom, 30)
                 
                 // 4. Memories Section
                 MemoriesList(memories: person.memories)
