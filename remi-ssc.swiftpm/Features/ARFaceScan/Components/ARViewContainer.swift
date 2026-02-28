@@ -11,9 +11,11 @@ struct ARViewContainer: UIViewRepresentable {
         let arView = ARSCNView(frame: .zero)
         arView.session.delegate = context.coordinator
         
-        // Configure the AR session
-        let configuration = ARWorldTrackingConfiguration()
-        arView.session.run(configuration)
+        // Ensure simulator/unsupported device safety
+        if ARWorldTrackingConfiguration.isSupported {
+            let configuration = ARWorldTrackingConfiguration()
+            arView.session.run(configuration)
+        }
         
         return arView
     }

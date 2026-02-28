@@ -57,6 +57,4 @@ struct SavedFriendsView: View {
 
 #Preview {
     SavedFriendsView()
-        .modelContainer(PreviewSwiftData.container())
-
 }

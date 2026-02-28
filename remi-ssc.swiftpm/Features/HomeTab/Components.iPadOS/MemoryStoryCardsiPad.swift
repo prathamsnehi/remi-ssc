@@ -181,7 +181,7 @@ struct MemoryStoryCardiPad: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 32)
-                    .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+                    .stroke(Color.primary.opacity(0.15), lineWidth: 1)
             )
 
             // Total Card Tap area Navigation

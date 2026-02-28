@@ -264,6 +264,10 @@ struct MemoryStoryCard: View {
         .frame(width: width, height: height)
         .background(Color.black.opacity(0.1)) // Base background
         .clipShape(RoundedRectangle(cornerRadius: 32))
+        .overlay(
+            RoundedRectangle(cornerRadius: 32)
+                .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+        )
         .onAppear {
             startTimer()
         }
