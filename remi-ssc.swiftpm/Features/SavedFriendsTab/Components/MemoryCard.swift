@@ -19,7 +19,7 @@ struct MemoryCard: View {
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity)
-                    .frame(height: 160)
+                    .frame(height: sizeClass == .regular ? 280 : 160)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             

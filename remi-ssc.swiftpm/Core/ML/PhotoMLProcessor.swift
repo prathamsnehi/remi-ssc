@@ -57,7 +57,7 @@ class PhotoMLProcessor: ObservableObject {
         
         if let face = faceObservation {
             print("✅ Face detected in photo!")
-            await self.handleDetectedFace(face, pixelBuffer: pixelBuffer)
+            await self.handleDetectedFace(face, pixelBuffer: pixelBuffer, originalImage: image)
             self.isProcessing = false
         } else {
             print("❌ No face detected in photo.")
@@ -111,7 +111,7 @@ class PhotoMLProcessor: ObservableObject {
     }
     
     // MARK: - Direct Copy of ARViewContainer logic
-    private func handleDetectedFace(_ observation: VNFaceObservation, pixelBuffer: CVPixelBuffer) async {
+    private func handleDetectedFace(_ observation: VNFaceObservation, pixelBuffer: CVPixelBuffer, originalImage: UIImage) async {
         
         // In AR mode, we check head tilt here. For photos we might be more lenient,
         // but keeping it structural.
@@ -133,11 +133,9 @@ class PhotoMLProcessor: ObservableObject {
         self.debugFaceScan(pixelBuffer: croppedFaceBuffer, suffix: "photo")
         
         let modelInput = UnsafeTransfer(value: croppedFaceBuffer)
-        let originalInput = UnsafeTransfer(value: pixelBuffer)
         
-        Task { [recognizer = self.recognizer, modelInput, originalInput] in
+        Task { [recognizer = self.recognizer, modelInput, originalImage] in
             let inputBuffer = modelInput.value
-            let originalBuffer = originalInput.value
             
             // GENERATE EMBEDDING
             guard let faceEmbedding = await recognizer.generateEmbedding(from: inputBuffer) else {
@@ -160,7 +158,7 @@ class PhotoMLProcessor: ObservableObject {
                         self.finalMatchingResult = (match, confidence)
                     } else {
                         print("⚠️ PhotoMLProcessor: Match ID found but Person missing.")
-                        self.setupForRegistrationFallback(originalBuffer: originalBuffer, mlRect: mlRect, embedding: faceEmbedding)
+                        self.setupForRegistrationFallback(originalImage: originalImage, embedding: faceEmbedding)
                     }
                 }
                 
@@ -168,21 +166,19 @@ class PhotoMLProcessor: ObservableObject {
                 // No Match Found -> Prepare Registration payload
                 print("❌ PhotoMLProcessor: No match found. Prepping registration payload.")
                 await MainActor.run {
-                    self.setupForRegistrationFallback(originalBuffer: originalBuffer, mlRect: mlRect, embedding: faceEmbedding)
+                    self.setupForRegistrationFallback(originalImage: originalImage, embedding: faceEmbedding)
                 }
             }
         }
     }
     
-    private func setupForRegistrationFallback(originalBuffer: CVPixelBuffer, mlRect: CGRect, embedding: [Float]) {
+    private func setupForRegistrationFallback(originalImage: UIImage, embedding: [Float]) {
         self.generatedEmbeddingsForRegistration = [embedding]
         
-        // Grab the uncropped, high-quality JPEG representation for the face thumbnail they'll see in RegisterView
-        let fullFrameRect = CGRect(x: 0, y: 0, width: 1.0, height: 1.0)
-        if let jpegData = originalBuffer.photoJpegData(croppedTo: fullFrameRect, quality: 0.75),
-           let imageFromData = UIImage(data: jpegData) {
-            self.processedImageForRegistration = imageFromData
-        }
+        // Preserve the exact orientation of the UIImage the user selected
+        // We use the raw UIImage instead of converting back from the CVPixelBuffer 
+        // because the buffer strips EXIF rotation data.
+        self.processedImageForRegistration = originalImage
     }
     
     // MARK: - Duplicated Helpers (As requested by user: DO NOT DRY)

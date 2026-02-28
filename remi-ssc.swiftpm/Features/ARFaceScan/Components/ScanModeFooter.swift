@@ -12,11 +12,6 @@ struct ScanModeFooter: View {
                 showCheckmark: $showCheckmark,
                 onFinish: onFinish
             )
-            
-            Text("Face recognition is powered by AI and can make mistakes.")
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
-                .multilineTextAlignment(.center)
         }
     }
 }

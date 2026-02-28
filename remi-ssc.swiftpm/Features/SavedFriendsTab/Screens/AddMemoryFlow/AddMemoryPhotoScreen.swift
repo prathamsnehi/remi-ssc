@@ -11,8 +11,12 @@ struct AddMemoryPhotoScreen: View {
     @Binding var inputImage: UIImage?
     var onFinish: () -> Void
     
-    @State private var showCamera = false
-    @State private var pickerSourceType: UIImagePickerController.SourceType = .camera
+    enum PickerType: String, Identifiable {
+        case camera, photoLibrary
+        var id: String { rawValue }
+    }
+    
+    @State private var activePicker: PickerType? = nil
     
     var body: some View {
         VStack(spacing: 20) {
@@ -65,8 +69,7 @@ struct AddMemoryPhotoScreen: View {
                     backgroundColor: .blue,
                     foregroundColor: .white,
                     action: {
-                        pickerSourceType = .camera
-                        showCamera = true
+                        activePicker = .camera
                     }
                 )
                 
@@ -76,8 +79,7 @@ struct AddMemoryPhotoScreen: View {
                     backgroundColor: Color(.systemGray5),
                     foregroundColor: Color("AppPrimaryText"),
                     action: {
-                        pickerSourceType = .photoLibrary
-                        showCamera = true
+                        activePicker = .photoLibrary
                     }
                 )
             }
@@ -95,10 +97,12 @@ struct AddMemoryPhotoScreen: View {
             .padding(.top, 10)
         }
         .padding()
-        .fullScreenCover(isPresented: $showCamera) {
-            ImagePicker(selectedImage: $inputImage, sourceType: pickerSourceType)
-                .ignoresSafeArea()
-                .id(pickerSourceType)
+        .fullScreenCover(item: $activePicker) { picker in
+            ImagePicker(
+                selectedImage: $inputImage, 
+                sourceType: picker == .camera ? .camera : .photoLibrary
+            )
+            .ignoresSafeArea()
         }
     }
 }

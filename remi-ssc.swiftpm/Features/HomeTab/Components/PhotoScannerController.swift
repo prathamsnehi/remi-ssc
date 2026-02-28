@@ -151,7 +151,7 @@ struct PhotoScannerModifier: ViewModifier {
                                 .padding(.top, 8)
                         }
                         .padding(32)
-                        .presentationDetents([.height(isiPad ? 450 : 380)])
+                        .presentationDetents([.height(isiPad ? 500 : 430)])
                         .presentationDragIndicator(.visible)
                         .presentationCornerRadius(36)
                 }
