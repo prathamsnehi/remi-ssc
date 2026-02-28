@@ -66,7 +66,7 @@ struct RegisterPhotoScreen: View {
             .padding(.top, 10)
         }
         .padding()
-        .sheet(isPresented: $showLibrary) {
+        .fullScreenCover(isPresented: $showLibrary) {
             ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                 .ignoresSafeArea()
         }

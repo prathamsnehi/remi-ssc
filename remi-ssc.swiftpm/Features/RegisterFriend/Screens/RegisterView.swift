@@ -99,7 +99,7 @@ struct RegisterView: View {
                 Text(errorMessage ?? "Unknown error")
             }
             // Voice Mode Camera Handling
-            .sheet(isPresented: $showLibrary) {
+            .fullScreenCover(isPresented: $showLibrary) {
                 ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                     .ignoresSafeArea()
             }

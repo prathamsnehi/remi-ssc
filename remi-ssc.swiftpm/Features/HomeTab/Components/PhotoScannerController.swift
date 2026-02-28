@@ -53,7 +53,7 @@ struct PhotoScannerModifier: ViewModifier {
                 }
             }
             // 1. The Photo Library Picker
-            .sheet(isPresented: $isPresented) {
+            .fullScreenCover(isPresented: $isPresented) {
                 ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                     .ignoresSafeArea()
             }

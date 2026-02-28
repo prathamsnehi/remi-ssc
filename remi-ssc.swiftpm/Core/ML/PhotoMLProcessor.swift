@@ -3,6 +3,24 @@ import CoreML
 @preconcurrency import Vision
 import SwiftData
 
+final class ContinuationWrapper<T: Sendable> {
+    private var continuation: CheckedContinuation<T, Never>?
+    private let lock = NSLock()
+    
+    init(_ continuation: CheckedContinuation<T, Never>) {
+        self.continuation = continuation
+    }
+    
+    func resume(returning value: T) {
+        lock.lock()
+        defer { lock.unlock() }
+        if let cont = continuation {
+            self.continuation = nil
+            cont.resume(returning: value)
+        }
+    }
+}
+
 @MainActor
 class PhotoMLProcessor: ObservableObject {
     private let ciContext = CIContext()
@@ -53,11 +71,13 @@ class PhotoMLProcessor: ObservableObject {
         let bufferTransfer = UnsafeTransfer(value: pixelBuffer)
         
         return await withCheckedContinuation { continuation in
+            let wrapper = ContinuationWrapper(continuation)
+            
             let request = VNDetectFaceRectanglesRequest { request, error in
                 if let results = request.results as? [VNFaceObservation], let face = results.first {
-                    continuation.resume(returning: face)
+                    wrapper.resume(returning: face)
                 } else {
-                    continuation.resume(returning: nil)
+                    wrapper.resume(returning: nil)
                 }
             }
             
@@ -68,8 +88,23 @@ class PhotoMLProcessor: ObservableObject {
                 do {
                     try imageRequestHandler.perform([request])
                 } catch {
-                    print("Failed to perform Vision request on photo: \(error)")
-                    continuation.resume(returning: nil)
+                    print("⚠️ Failed to perform Vision request on pixel buffer: \(error)")
+                    print("🔄 Falling back to CGImage request (common on Simulators)...")
+                    
+                    // Fallback for Simulator Architecture (Could not create inference context)
+                    do {
+                        let ciImage = CIImage(cvPixelBuffer: safeBuffer)
+                        guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else {
+                            wrapper.resume(returning: nil)
+                            return
+                        }
+                        
+                        let fallbackHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+                        try fallbackHandler.perform([request])
+                    } catch {
+                        print("❌ Failed fallback Vision request on photo: \(error)")
+                        wrapper.resume(returning: nil)
+                    }
                 }
             }
         }
@@ -265,14 +300,15 @@ extension UIImage {
             kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue
         ] as CFDictionary
         
-        var pixelBuffer: CVPixelBuffer?
-        let width = Int(self.size.width)
-        let height = Int(self.size.height)
+        // Use true pixel dimensions instead of UI points
+        let width = Int(self.size.width * self.scale)
+        let height = Int(self.size.height * self.scale)
         
+        var pixelBuffer: CVPixelBuffer?
         let status = CVPixelBufferCreate(kCFAllocatorDefault,
                                          width,
                                          height,
-                                         kCVPixelFormatType_32ARGB,
+                                         kCVPixelFormatType_32BGRA,
                                          attrs,
                                          &pixelBuffer)
         
@@ -280,31 +316,15 @@ extension UIImage {
             return nil
         }
         
-        CVPixelBufferLockBaseAddress(buffer, [])
-        let pixelData = CVPixelBufferGetBaseAddress(buffer)
-        
-        let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-        // Ensure we draw the image properly to a CGContext
-        guard let context = CGContext(data: pixelData,
-                                      width: width,
-                                      height: height,
-                                      bitsPerComponent: 8,
-                                      bytesPerRow: CVPixelBufferGetBytesPerRow(buffer),
-                                      space: rgbColorSpace,
-                                      bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
-        else {
-            CVPixelBufferUnlockBaseAddress(buffer, [])
+        // CIImage directly handles UIImage EXIF orientation and color space conversions automatically
+        guard let ciImage = CIImage(image: self) else {
             return nil
         }
         
-        context.translateBy(x: 0, y: CGFloat(height))
-        context.scaleBy(x: 1.0, y: -1.0)
+        // Render flawlessly across Device & Simulator architectures
+        let context = CIContext()
+        context.render(ciImage, to: buffer)
         
-        UIGraphicsPushContext(context)
-        self.draw(in: CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
-        UIGraphicsPopContext()
-        
-        CVPixelBufferUnlockBaseAddress(buffer, [])
         return buffer
     }
 }

@@ -118,7 +118,7 @@ struct UpdatePhotoFlow: View {
                     }
                 }
             }
-            .sheet(isPresented: $showPhotoScanner) {
+            .fullScreenCover(isPresented: $showPhotoScanner) {
                 ImagePicker(selectedImage: $inputImage, sourceType: .photoLibrary)
                     .ignoresSafeArea()
             }
