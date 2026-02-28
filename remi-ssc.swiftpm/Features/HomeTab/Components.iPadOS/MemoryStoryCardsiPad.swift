@@ -43,10 +43,7 @@ struct MemoryStoryCardsiPadView: View {
                                 .id(person.id)
                             }
                             
-                            if personsToShow.count == 1 {
-                                let remainingWidth = proxy.size.width - cardWidth - 16
-                                MinimalAddPersonCardiPad(width: remainingWidth, height: height, action: onScanFace)
-                            }
+
                         }
                         .scrollTargetLayout()
                     }
@@ -201,35 +198,3 @@ struct MemoryStoryCardiPad: View {
     }
 }
 
-struct MinimalAddPersonCardiPad: View {
-    let width: CGFloat
-    let height: CGFloat
-    var action: (() -> Void)?
-    
-    var body: some View {
-        Button(action: {
-            action?()
-        }) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 32)
-                    .fill(Color("AppSurface").opacity(0.5)) // Slightly transparent to feel like a placeholder
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 32)
-                            .stroke(Color.primary.opacity(0.1), style: StrokeStyle(lineWidth: 2, dash: [8]))
-                    )
-                
-                VStack(spacing: 16) {
-                    Image(systemName: "person.crop.circle.badge.plus")
-                        .font(.system(size: 40))
-                        .foregroundStyle(Color("AppPrimary").opacity(0.8))
-                    
-                    Text("Add more people")
-                        .font(.system(size: 20, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color("AppSecondaryText"))
-                }
-            }
-            .frame(width: width, height: height)
-        }
-        .buttonStyle(.plain)
-    }
-}
