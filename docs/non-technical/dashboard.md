@@ -1,24 +1,24 @@
 # 🚀 Remi Dashboard
 
-### Last Updated: 2026-02-27 16:02:19
+### Last Updated: 2026-02-28 03:47:19
 
 ## 🚀 Time to Lift Off
 > **Submission Closed! 🏁** until Feb 6, 2026.
 
 **30-Day Sprint Progress**:
-Day 51 of 30
+Day 52 of 30
 `[████████████████████] 100.0%`
 
 ## 💾 Project Diet
-**Total Size**: 21.92 MB / 25 MB
-`[█████████████████░░░] 87.7%`
+**Total Size**: 18.67 MB / 25 MB
+`[██████████████░░░░░░] 74.7%`
 
 ## 🧠 AI Captain's Orders
-- [ ] Refine Onboarding Screen C (The Struggle) for iPad: Dynamically adjust the rate of thought appearance and potentially reduce their number for iPad landscape mode. Ensure consistent font styles between content and buttons according to the design system.
-- [ ] Enhance Onboarding Screen D (The Solution) for iPad: Utilize available whitespace to incorporate more detailed instructions or subtle UI elements from the main app, and ensure the 'smiley' icon maintains an appropriate, consistent size across all iPad orientations.
-- [ ] Finalize Onboarding Screen E (The Experience) Visuals: Resolve the image overlap with the app logo/name in iPad landscape mode and meticulously check the color scheme of the 'Person Identified: Granddaughter' card against Remi's design system.
-- [ ] Implement Onboarding Micro-Animations and Accessibility: Apply SwiftUI's `.phaseAnimator` for subtle text drifts in emotional screens and ensure all interactive elements and emotional beats have appropriate `accessibilityLabel`s for an inclusive experience.
-- [ ] Advance AR Face Scan UI and Stability (Post-Recognition): Build the FaceID-style bounding box that covers the entire face and position the recognition card at the bottom of the screen. Integrate `FaceBoxSmoother` and `Hysteresis` for stable, flicker-free identity display.
+- [ ] Refine iPad Onboarding Layout: Address the specific feedback from `2026-02-16.md` for iPad's vertical and horizontal modes, focusing on content density, font consistency (e.g., in Step C), and component alignment (e.g., reduce whitespace in Step D, fix image overlap in Step E landscape).
+- [ ] Implement 5-Point Face Landmark Alignment for ML Input: Integrate the *critical* 5-point landmark alignment using `CGAffineTransform` to warp faces into a canonical frontal view before generating embeddings, as detailed in `face-recognition-accuracy-implementations.md` and `mobilenetv3-specific-instructions.md`, to significantly boost recognition accuracy.
+- [ ] Complete Homepage iPadOS Layout Adaptations: Implement the distinct horizontal and vertical iPadOS layouts outlined in `homepage.md`, including side navigation (`Quick Items`, `Quick Register`), adjusted hero alignment, two "Scan" buttons, and transforming "Recent Interactions" into cards for a cohesive design.
+- [ ] Redesign the Friends Tab UI: Develop an engaging and informative UI for the Friends tab, ensuring it's "pretty to look at" and provides more than just a photo and name, potentially including a prominent memory or relation, as highlighted in `todo.md` and `2026-02-11.md`.
+- [ ] Standardize ML Input Pixel Buffer Handling: Centralize the `CVPixelBuffer` processing for ML input by ensuring correct `BGRA` pixel format, inverting Vision's Y-axis coordinates, squaring/padding bounding boxes, and performing deep copies of camera frames, as specified in `sface-must-have-optimizations.md` and `arkit-implementation-with-coreml.md`.
 
 ## ✨ Daily Fuel
-> "Your ingenuity is turning lines of code into threads of memory. Weave them carefully, for in Remi, every interaction rekindles a cherished story."
+> "The true artistry of Remi lies in perfecting every detail, transforming complex technology into a seamless, empathetic experience that reawakens forgotten stories and builds stronger connections. Your precision now will resonate deeply with every memory unlocked."

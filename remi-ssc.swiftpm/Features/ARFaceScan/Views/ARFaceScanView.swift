@@ -58,7 +58,14 @@ struct ARFaceScanView: View {
                     VStack {
                         Spacer()
                         
-                        ARFooterCard(detector: detector)
+                        VStack(spacing: 8) {
+                            ARFooterCard(detector: detector)
+                            
+                            Text("Face recognition is powered by AI and can make mistakes.")
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                        }
                             .padding(.bottom, 20)
                     }
                     .ignoresSafeArea()

@@ -71,6 +71,12 @@ struct PhotoScannerModifier: ViewModifier {
                             Text("Scanning Face...")
                                 .font(.headline)
                                 .foregroundStyle(.white)
+                            
+                            Text("Face recognition is powered by AI and can make mistakes.")
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
                         }
                         .padding(30)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
@@ -137,6 +143,12 @@ struct PhotoScannerModifier: ViewModifier {
                             }
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color("AppSecondaryText"))
+                            
+                            Text("Face recognition is powered by AI and can make mistakes.")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 8)
                         }
                         .padding(32)
                         .presentationDetents([.height(isiPad ? 450 : 380)])

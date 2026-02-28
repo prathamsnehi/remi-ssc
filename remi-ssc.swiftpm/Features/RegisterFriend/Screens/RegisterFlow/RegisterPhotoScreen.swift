@@ -64,6 +64,12 @@ struct RegisterPhotoScreen: View {
             }
             .disabled(inputImage == nil)
             .padding(.top, 10)
+            
+            Text("Face recognition is powered by AI and can make mistakes.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 4)
         }
         .padding()
         .fullScreenCover(isPresented: $showLibrary) {

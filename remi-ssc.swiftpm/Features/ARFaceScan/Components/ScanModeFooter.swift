@@ -6,11 +6,18 @@ struct ScanModeFooter: View {
     var onFinish: () -> Void
     
     var body: some View {
-        RegistrationButtonView(
-            detector: detector,
-            showCheckmark: $showCheckmark,
-            onFinish: onFinish
-        )
+        VStack(spacing: 12) {
+            RegistrationButtonView(
+                detector: detector,
+                showCheckmark: $showCheckmark,
+                onFinish: onFinish
+            )
+            
+            Text("Face recognition is powered by AI and can make mistakes.")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
+        }
     }
 }
 

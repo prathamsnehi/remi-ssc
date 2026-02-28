@@ -55,7 +55,7 @@ private struct ScanPromptView: View {
                 .foregroundStyle(.blue.opacity(0.8))
             
             Text("Point Camera\nTowards a Face")
-                .font(.system(size: isiPad ? 32 : 20, weight: .bold))
+                .font(.system(size: isiPad ? 28 : 20, weight: .bold))
                 .foregroundStyle(Color("AppPrimaryText"))
         }
     }
